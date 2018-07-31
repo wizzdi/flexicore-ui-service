@@ -3,10 +3,10 @@ package com.flexicore.ui.service;
 import com.flexicore.annotations.plugins.PluginInfo;
 import com.flexicore.interfaces.ServicePlugin;
 import com.flexicore.model.Baseclass;
+import com.flexicore.model.QueryInformationHolder;
 import com.flexicore.security.SecurityContext;
-import com.flexicore.ui.container.request.LinkUiFieldRequest;
-import com.flexicore.ui.container.request.UiFieldFiltering;
-import com.flexicore.ui.container.request.UpdateUiFieldLink;
+import com.flexicore.ui.container.request.*;
+import com.flexicore.ui.container.response.UiFieldContainer;
 import com.flexicore.ui.data.UiFieldRepository;
 import com.flexicore.ui.model.UiField;
 import com.flexicore.ui.model.UiFieldToClazz;
@@ -70,8 +70,21 @@ public class UiFieldService implements ServicePlugin {
     }
 
     public List<UiField> listAllUiFields(UiFieldFiltering uiFieldFiltering, SecurityContext securityContext) {
-        return null;
+        QueryInformationHolder<UiField> queryInformationHolder=new QueryInformationHolder<>(uiFieldFiltering,UiField.class,securityContext);
+        return uiFieldRepository.getAllFiltered(queryInformationHolder);
     }
 
 
+    public UiField createUiField(CreateUiField createUiField, SecurityContext securityContext) {
+        UiField uiField=UiField.s().CreateUnchecked(createUiField.getName(),securityContext.getUser());
+        uiField.Init();
+        uiField.setDescription(createUiField.getDescription());
+        uiFieldRepository.merge(uiField);
+        return uiField;
+
+    }
+
+    public List<UiFieldToClazz> listAllUiFieldsForClazz(UiFieldsForClazzFiltering uiFieldFiltering, SecurityContext securityContext) {
+        return uiFieldRepository.listAllUiFieldsForClazz(uiFieldFiltering,securityContext);
+    }
 }
