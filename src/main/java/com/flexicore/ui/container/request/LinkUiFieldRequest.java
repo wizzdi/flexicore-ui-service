@@ -6,7 +6,7 @@ import com.flexicore.ui.model.UiField;
 
 public class LinkUiFieldRequest {
 
-    private String clazzId;
+    private String clazzName;
     @JsonIgnore
     private Clazz clazz;
     private String uiFieldId;
@@ -18,12 +18,12 @@ public class LinkUiFieldRequest {
     private boolean visible;
 
 
-    public String getClazzId() {
-        return clazzId;
+    public String getClazzName() {
+        return clazzName;
     }
 
-    public LinkUiFieldRequest setClazzId(String clazzId) {
-        this.clazzId = clazzId;
+    public LinkUiFieldRequest setClazzName(String clazzName) {
+        this.clazzName = clazzName;
         return this;
     }
 

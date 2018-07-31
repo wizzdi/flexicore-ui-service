@@ -6,17 +6,17 @@ import com.flexicore.model.Clazz;
 
 public class UiFieldsForClazzFiltering extends FilteringInformationHolder {
 
-    private String clazzId;
+    private String clazzName;
     @JsonIgnore
     private Clazz clazz;
 
 
-    public String getClazzId() {
-        return clazzId;
+    public String getClazzName() {
+        return clazzName;
     }
 
-    public UiFieldsForClazzFiltering setClazzId(String clazzId) {
-        this.clazzId = clazzId;
+    public UiFieldsForClazzFiltering setClazzName(String clazzName) {
+        this.clazzName = clazzName;
         return this;
     }
 

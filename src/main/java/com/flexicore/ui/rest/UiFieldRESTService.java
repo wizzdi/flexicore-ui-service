@@ -7,6 +7,7 @@ import com.flexicore.annotations.rest.Write;
 import com.flexicore.interceptors.DynamicResourceInjector;
 import com.flexicore.interceptors.SecurityImposer;
 import com.flexicore.interfaces.RestServicePlugin;
+import com.flexicore.model.Baseclass;
 import com.flexicore.model.Clazz;
 import com.flexicore.security.SecurityContext;
 import com.flexicore.ui.container.request.*;
@@ -69,9 +70,9 @@ public class UiFieldRESTService implements RestServicePlugin {
 			@HeaderParam("authenticationKey") String authenticationKey,
 			UiFieldsForClazzFiltering uiFieldFiltering, @Context SecurityContext securityContext) {
 
-		Clazz clazz=uiFieldFiltering.getClazzId()!=null?service.getByIdOrNull(uiFieldFiltering.getClazzId(),Clazz.class,null,securityContext):null;
+		Clazz clazz= uiFieldFiltering.getClazzName()==null?null:Baseclass.getClazzbyname(uiFieldFiltering.getClazzName());
 		if(clazz==null){
-			throw new BadRequestException("No Clazz with id "+uiFieldFiltering.getClazzId());
+			throw new BadRequestException("No Clazz with name "+uiFieldFiltering.getClazzName());
 		}
 		uiFieldFiltering.setClazz(clazz);
 		return service.listAllUiFieldsForClazz(uiFieldFiltering,securityContext).parallelStream().map(f->new UiFieldContainer(f)).collect(Collectors.toList());
@@ -93,9 +94,9 @@ public class UiFieldRESTService implements RestServicePlugin {
 		}
 		linkUiFieldRequest.setUiField(uiField);
 
-		Clazz clazz=linkUiFieldRequest.getClazzId()!=null?service.getByIdOrNull(linkUiFieldRequest.getClazzId(),Clazz.class,null,securityContext):null;
+		Clazz clazz= linkUiFieldRequest.getClazzName()==null?null:Baseclass.getClazzbyname(linkUiFieldRequest.getClazzName());
 		if(clazz==null){
-			throw new BadRequestException("no clazz with id "+linkUiFieldRequest.getClazzId());
+			throw new BadRequestException("No Clazz with name "+linkUiFieldRequest.getClazzName());
 		}
 		linkUiFieldRequest.setClazz(clazz);
 		return service.linkUiFieldToClazz(linkUiFieldRequest,securityContext);
