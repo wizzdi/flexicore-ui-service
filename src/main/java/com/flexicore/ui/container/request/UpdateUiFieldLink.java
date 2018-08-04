@@ -10,6 +10,8 @@ public class UpdateUiFieldLink {
     private Boolean visibility;
     private String context;
     private String categoryName;
+    private String displayName;
+
 
 
 
@@ -23,6 +25,7 @@ public class UpdateUiFieldLink {
         this.visibility = linkUiFieldRequest.isVisible();
         this.context = linkUiFieldRequest.getContext();
         this.categoryName=linkUiFieldRequest.getCategoryName();
+        this.displayName=linkUiFieldRequest.getDisplayName();
 
     }
 
@@ -78,6 +81,15 @@ public class UpdateUiFieldLink {
 
     public UpdateUiFieldLink setCategoryName(String categoryName) {
         this.categoryName = categoryName;
+        return this;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public UpdateUiFieldLink setDisplayName(String displayName) {
+        this.displayName = displayName;
         return this;
     }
 }

@@ -17,6 +17,7 @@ public class LinkUiFieldRequest {
     private String context;
     private boolean visible;
     private String categoryName;
+    private String displayName;
 
     public String getCategoryName() {
         return categoryName;
@@ -89,6 +90,15 @@ public class LinkUiFieldRequest {
 
     public LinkUiFieldRequest setVisible(boolean visible) {
         this.visible = visible;
+        return this;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public LinkUiFieldRequest setDisplayName(String displayName) {
+        this.displayName = displayName;
         return this;
     }
 }
