@@ -8,6 +8,7 @@ public class UiFieldContainer extends BasicContainer {
     private boolean visible;
     private String context;
     private String linkId;
+    private String categoryName;
 
 
     public UiFieldContainer(UiFieldToClazz base) {
@@ -16,6 +17,7 @@ public class UiFieldContainer extends BasicContainer {
         this.visible=base.isVisible();
         this.context=base.getContext();
         this.linkId=base.getId();
+        this.categoryName=base.getCategoryName();
     }
 
 
@@ -52,6 +54,15 @@ public class UiFieldContainer extends BasicContainer {
 
     public UiFieldContainer setLinkId(String linkId) {
         this.linkId = linkId;
+        return this;
+    }
+
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    public UiFieldContainer setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
         return this;
     }
 }

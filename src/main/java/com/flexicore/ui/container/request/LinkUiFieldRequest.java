@@ -16,7 +16,16 @@ public class LinkUiFieldRequest {
     private int priority;
     private String context;
     private boolean visible;
+    private String categoryName;
 
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    public LinkUiFieldRequest setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
+        return this;
+    }
 
     public String getClazzName() {
         return clazzName;

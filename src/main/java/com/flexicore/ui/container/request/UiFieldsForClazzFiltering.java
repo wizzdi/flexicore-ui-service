@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.flexicore.data.jsoncontainers.FilteringInformationHolder;
 import com.flexicore.model.Clazz;
 
-public class UiFieldsForClazzFiltering extends FilteringInformationHolder {
+public class    UiFieldsForClazzFiltering extends FilteringInformationHolder {
 
     private String clazzName;
     @JsonIgnore

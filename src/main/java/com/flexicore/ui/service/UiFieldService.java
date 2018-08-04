@@ -61,6 +61,11 @@ public class UiFieldService implements ServicePlugin {
             update=true;
             uiFieldToClazz.setContext(updateUiFieldLink.getContext());
         }
+
+        if(updateUiFieldLink.getCategoryName()!=null && !updateUiFieldLink.getCategoryName().equals(uiFieldToClazz.getCategoryName())){
+            update=true;
+            uiFieldToClazz.setCategoryName(updateUiFieldLink.getCategoryName());
+        }
         return update;
     }
 

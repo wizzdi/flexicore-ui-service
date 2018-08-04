@@ -9,6 +9,9 @@ public class UpdateUiFieldLink {
     private Integer priority;
     private Boolean visibility;
     private String context;
+    private String categoryName;
+
+
 
     public UpdateUiFieldLink() {
     }
@@ -19,6 +22,8 @@ public class UpdateUiFieldLink {
         this.priority = linkUiFieldRequest.getPriority();
         this.visibility = linkUiFieldRequest.isVisible();
         this.context = linkUiFieldRequest.getContext();
+        this.categoryName=linkUiFieldRequest.getCategoryName();
+
     }
 
     public String getId() {
@@ -64,6 +69,15 @@ public class UpdateUiFieldLink {
 
     public UpdateUiFieldLink setContext(String context) {
         this.context = context;
+        return this;
+    }
+
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    public UpdateUiFieldLink setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
         return this;
     }
 }
