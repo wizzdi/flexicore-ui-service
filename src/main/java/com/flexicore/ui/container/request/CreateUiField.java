@@ -2,14 +2,14 @@ package com.flexicore.ui.container.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.flexicore.model.Category;
-import com.flexicore.ui.model.Preset;
+import com.flexicore.ui.model.GridPreset;
 
 public class CreateUiField {
     private String name;
     private String description;
     private String presetId;
     @JsonIgnore
-    private Preset preset;
+    private GridPreset preset;
     private Integer priority;
     private Boolean visible;
     private String categoryName;
@@ -51,11 +51,11 @@ public class CreateUiField {
     }
 
     @JsonIgnore
-    public Preset getPreset() {
+    public GridPreset getPreset() {
         return preset;
     }
 
-    public CreateUiField setPreset(Preset preset) {
+    public CreateUiField setPreset(GridPreset preset) {
         this.preset = preset;
         return this;
     }

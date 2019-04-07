@@ -14,10 +14,10 @@ import com.flexicore.service.CategoryService;
 import com.flexicore.ui.container.request.*;
 import com.flexicore.ui.model.*;
 import com.flexicore.ui.service.UiFieldService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.annotations.Tag;
+
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import javax.inject.Inject;
 import javax.interceptor.Interceptors;
@@ -36,10 +36,10 @@ import java.util.stream.Collectors;
 @OperationsInside
 @Interceptors({SecurityImposer.class, DynamicResourceInjector.class})
 @Path("plugins/UiFields")
-@SwaggerDefinition(tags = {
+@OpenAPIDefinition(tags = {
         @Tag(name = "UiFields", description = "UiFields Services")
 })
-@Api(tags = {"UiFields"})
+@Tag(name = "UiFields")
 
 public class UiFieldRESTService implements RestServicePlugin {
 
@@ -53,7 +53,7 @@ public class UiFieldRESTService implements RestServicePlugin {
 
     @POST
     @Produces("application/json")
-    @ApiOperation(value = "listAllUiFields", notes = "List all Ui Fields")
+    @Operation(summary = "listAllUiFields", description="List all Ui Fields")
     @Path("listAllUiFields")
     public List<UiField> listAllUiFields(
             @HeaderParam("authenticationKey") String authenticationKey,
@@ -65,7 +65,7 @@ public class UiFieldRESTService implements RestServicePlugin {
 
     @POST
     @Produces("application/json")
-    @ApiOperation(value = "updateUiField", notes = "Updates Ui Field")
+    @Operation(summary = "updateUiField", description="Updates Ui Field")
     @Path("updateUiField")
     public UiField updateUiField(
             @HeaderParam("authenticationKey") String authenticationKey,
@@ -83,14 +83,14 @@ public class UiFieldRESTService implements RestServicePlugin {
 
     @POST
     @Produces("application/json")
-    @ApiOperation(value = "createUiField", notes = "Creates Ui Field ")
+    @Operation(summary = "createUiField", description="Creates Ui Field ")
     @Path("createUiField")
     public UiField createUiField(
             @HeaderParam("authenticationKey") String authenticationKey,
             CreateUiField createUiField, @Context SecurityContext securityContext) {
-        Preset preset = createUiField.getPresetId() != null ? service.getByIdOrNull(createUiField.getPresetId(), Preset.class, null, securityContext) : null;
+        GridPreset preset = createUiField.getPresetId() != null ? service.getByIdOrNull(createUiField.getPresetId(), GridPreset.class, null, securityContext) : null;
         if (preset == null) {
-            throw new BadRequestException("no preset with id " + createUiField.getPresetId());
+            throw new BadRequestException("no GridPreset with id " + createUiField.getPresetId());
         }
         createUiField.setPreset(preset);
         validateCreateUiField(createUiField, securityContext);
@@ -106,17 +106,17 @@ public class UiFieldRESTService implements RestServicePlugin {
 
     @POST
     @Produces("application/json")
-    @ApiOperation(value = "createPreset", notes = "Creates Preset ")
+    @Operation(summary = "createPreset", description="Creates Preset ")
     @Path("createPreset")
-    public Preset createPreset(
+    public GridPreset createPreset(
             @HeaderParam("authenticationKey") String authenticationKey,
-            CreatePreset createPreset, @Context SecurityContext securityContext) {
+            CreateGridPreset createPreset, @Context SecurityContext securityContext) {
         validateCreatePreset(createPreset, securityContext);
-        return service.createPreset(createPreset, securityContext);
+        return service.createGridPreset(createPreset, securityContext);
 
     }
 
-    private void validateCreatePreset(CreatePreset createPreset, SecurityContext securityContext) {
+    private void validateCreatePreset(CreateGridPreset createPreset, SecurityContext securityContext) {
         Map<String, List<CreateUiField>> map = createPreset.getUiFields().parallelStream().filter(f -> f.getCategoryName() != null).collect(Collectors.groupingBy(f -> f.getCategoryName(), Collectors.toList()));
         Map<String, Category> categoryMap = categoryService.getCategoriesByNames(map.keySet(), securityContext).parallelStream().collect(Collectors.toMap(f -> f.getName(), f -> f, (a, b) -> a));
         for (Map.Entry<String, List<CreateUiField>> entry : map.entrySet()) {
@@ -129,14 +129,14 @@ public class UiFieldRESTService implements RestServicePlugin {
 
     @POST
     @Produces("application/json")
-    @ApiOperation(value = "updatePreset", notes = "Updates Preset ")
+    @Operation(summary = "updatePreset", description="Updates Preset ")
     @Path("updatePreset")
-    public Preset updatePreset(
+    public GridPreset updatePreset(
             @HeaderParam("authenticationKey") String authenticationKey,
-            UpdatePreset updatePreset, @Context SecurityContext securityContext) {
-        Preset preset = updatePreset.getId() != null ? service.getByIdOrNull(updatePreset.getId(), Preset.class, null, securityContext) : null;
+            UpdateGridPreset updatePreset, @Context SecurityContext securityContext) {
+        GridPreset preset = updatePreset.getId() != null ? service.getByIdOrNull(updatePreset.getId(), GridPreset.class, null, securityContext) : null;
         if (preset == null) {
-            throw new BadRequestException("no preset with id " + updatePreset.getId());
+            throw new BadRequestException("no GridPreset with id " + updatePreset.getId());
         }
         updatePreset.setPreset(preset);
         return service.updatePreset(updatePreset, securityContext);
@@ -146,7 +146,7 @@ public class UiFieldRESTService implements RestServicePlugin {
 
     @POST
     @Produces("application/json")
-    @ApiOperation(value = "linkPresetToUser", notes = "Links preset to user")
+    @Operation(summary = "linkPresetToUser", description="Links preset to user")
     @Path("linkPresetToUser")
     public PresetToUser linkPresetToUser(
             @HeaderParam("authenticationKey") String authenticationKey,
@@ -167,7 +167,7 @@ public class UiFieldRESTService implements RestServicePlugin {
 
     @POST
     @Produces("application/json")
-    @ApiOperation(value = "linkPresetToRole", notes = "Links preset to Role")
+    @Operation(summary = "linkPresetToRole", description="Links preset to Role")
     @Path("linkPresetToRole")
     public PresetToRole linkPresetToRole(
             @HeaderParam("authenticationKey") String authenticationKey,
@@ -189,7 +189,7 @@ public class UiFieldRESTService implements RestServicePlugin {
 
     @POST
     @Produces("application/json")
-    @ApiOperation(value = "linkPresetToTenant", notes = "Links preset to Tenant")
+    @Operation(summary = "linkPresetToTenant", description="Links preset to Tenant")
     @Path("linkPresetToTenant")
     public PresetToTenant linkPresetToTenant(
             @HeaderParam("authenticationKey") String authenticationKey,
@@ -211,7 +211,7 @@ public class UiFieldRESTService implements RestServicePlugin {
 
     @PUT
     @Produces("application/json")
-    @ApiOperation(value = "updatePresetToTenant", notes = "updates preset to Tenant")
+    @Operation(summary = "updatePresetToTenant", description="updates preset to Tenant")
     @Path("updatePresetToTenant")
     public PresetToTenant updatePresetToTenant(
             @HeaderParam("authenticationKey") String authenticationKey,
@@ -228,7 +228,7 @@ public class UiFieldRESTService implements RestServicePlugin {
 
     @PUT
     @Produces("application/json")
-    @ApiOperation(value = "updatePresetToUser", notes = "updates preset to User")
+    @Operation(summary = "updatePresetToUser", description="updates preset to User")
     @Path("updatePresetToUser")
     public PresetToUser updatePresetToUser(
             @HeaderParam("authenticationKey") String authenticationKey,
@@ -245,7 +245,7 @@ public class UiFieldRESTService implements RestServicePlugin {
 
     @PUT
     @Produces("application/json")
-    @ApiOperation(value = "updatePresetToRole", notes = "updates preset to Role")
+    @Operation(summary = "updatePresetToRole", description="updates preset to Role")
     @Path("updatePresetToRole")
     public PresetToRole updatePresetToRole(
             @HeaderParam("authenticationKey") String authenticationKey,

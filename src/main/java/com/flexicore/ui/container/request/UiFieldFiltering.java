@@ -1,6 +1,7 @@
 package com.flexicore.ui.container.request;
 
-import com.flexicore.data.jsoncontainers.FilteringInformationHolder;
+
+import com.flexicore.model.FilteringInformationHolder;
 
 public class UiFieldFiltering extends FilteringInformationHolder {
 

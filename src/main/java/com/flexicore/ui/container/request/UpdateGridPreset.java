@@ -1,29 +1,29 @@
 package com.flexicore.ui.container.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.flexicore.ui.model.Preset;
+import com.flexicore.ui.model.GridPreset;
 
-public class UpdatePreset extends CreatePreset {
+public class UpdateGridPreset extends CreateGridPreset {
 
     private String id;
     @JsonIgnore
-    private Preset preset;
+    private GridPreset preset;
 
     public String getId() {
         return id;
     }
 
-    public UpdatePreset setId(String id) {
+    public UpdateGridPreset setId(String id) {
         this.id = id;
         return this;
     }
 
     @JsonIgnore
-    public Preset getPreset() {
+    public GridPreset getPreset() {
         return preset;
     }
 
-    public UpdatePreset setPreset(Preset preset) {
+    public UpdateGridPreset setPreset(GridPreset preset) {
         this.preset = preset;
         return this;
     }

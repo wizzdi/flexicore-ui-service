@@ -1,10 +1,10 @@
 package com.flexicore.ui.container.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.flexicore.data.jsoncontainers.FilteringInformationHolder;
 import com.flexicore.model.Clazz;
+import com.flexicore.model.FilteringInformationHolder;
 
-public class    UiFieldsForClazzFiltering extends FilteringInformationHolder {
+public class UiFieldsForClazzFiltering extends FilteringInformationHolder {
 
     private String clazzName;
     @JsonIgnore

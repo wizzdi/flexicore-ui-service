@@ -13,14 +13,12 @@ import com.flexicore.ui.model.*;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 @PluginInfo(version = 1)
 
 public class UiFieldService implements ServicePlugin {
 
-    private AtomicBoolean init = new AtomicBoolean(false);
     @Inject
     private Logger logger;
 
@@ -30,6 +28,10 @@ public class UiFieldService implements ServicePlugin {
 
     @Inject
     private BaselinkService baselinkService;
+
+    @Inject
+    @PluginInfo(version = 1)
+    private PresetService presetService;
 
 
     public UiField updateUiField(UpdateUiField updateUiField, SecurityContext securityContext) {
@@ -107,38 +109,30 @@ public class UiFieldService implements ServicePlugin {
     }
 
     private UiField createUiFieldNoMerge(CreateUiField createUiField, SecurityContext securityContext) {
-        UiField uiField = UiField.s().CreateUnchecked(createUiField.getName(), securityContext.getUser());
+        UiField uiField = UiField.s().CreateUnchecked(createUiField.getName(), securityContext);
         uiField.Init();
         updateUiFieldNoMerge(createUiField, uiField);
         return uiField;
     }
 
-    public boolean updatePresetNoMerge(CreatePreset createPreset, Preset preset) {
-        boolean update = false;
-        if (createPreset.getName() != null && !createPreset.getName().equals(preset.getName())) {
-            update = true;
-            preset.setName(createPreset.getName());
-        }
+    public boolean updateGridPresetNoMerge(CreateGridPreset createPreset, GridPreset preset) {
+        boolean update = presetService.updatePresetNoMerge(createPreset,preset);
 
-        if (createPreset.getDescription() != null && (preset.getDescription() == null || !createPreset.getDescription().equals(preset.getDescription()))) {
-            update = true;
-            preset.setDescription(createPreset.getDescription());
-        }
         return update;
     }
 
-    public Preset updatePreset(UpdatePreset updatePreset, SecurityContext securityContext) {
-        if (updatePresetNoMerge(updatePreset, updatePreset.getPreset())) {
+    public GridPreset updatePreset(UpdateGridPreset updatePreset, SecurityContext securityContext) {
+        if (updateGridPresetNoMerge(updatePreset, updatePreset.getPreset())) {
             uiFieldRepository.merge(updatePreset.getPreset());
         }
         return updatePreset.getPreset();
 
     }
 
-    public Preset createPreset(CreatePreset createPreset, SecurityContext securityContext) {
-        Preset preset = Preset.s().CreateUnchecked(createPreset.getName(), securityContext.getUser());
+    public GridPreset createGridPreset(CreateGridPreset createPreset, SecurityContext securityContext) {
+        GridPreset preset = GridPreset.s().CreateUnchecked(createPreset.getName(), securityContext);
         preset.Init();
-        updatePresetNoMerge(createPreset, preset);
+        updateGridPresetNoMerge(createPreset, preset);
         List<Object> toMerge = new ArrayList<>();
         toMerge.add(preset);
         for (CreateUiField createUiField : createPreset.getUiFields()) {
@@ -169,7 +163,7 @@ public class UiFieldService implements ServicePlugin {
         boolean created=false;
         PresetToUser existing = baselinkService.findBySides(PresetToUser.class, linkPresetToUser.getPreset(), linkPresetToUser.getUser());
         if (existing != null) {
-            existing = PresetToUser.s().CreateUnchecked("link", securityContext.getUser());
+            existing = PresetToUser.s().CreateUnchecked("link", securityContext);
             existing.Init();
             created=true;
 
@@ -202,7 +196,7 @@ public class UiFieldService implements ServicePlugin {
         boolean created=false;
         PresetToRole existing = baselinkService.findBySides(PresetToRole.class, linkPresetToRole.getPreset(), linkPresetToRole.getRole());
         if (existing != null) {
-            existing = PresetToRole.s().CreateUnchecked("link", securityContext.getUser());
+            existing = PresetToRole.s().CreateUnchecked("link", securityContext);
             existing.Init();
             created=true;
 
@@ -237,7 +231,7 @@ public class UiFieldService implements ServicePlugin {
         boolean created=false;
         PresetToTenant existing = baselinkService.findBySides(PresetToTenant.class, linkPresetToTenant.getPreset(), linkPresetToTenant.getTenant());
         if (existing != null) {
-            existing = PresetToTenant.s().CreateUnchecked("link", securityContext.getUser());
+            existing = PresetToTenant.s().CreateUnchecked("link", securityContext);
             existing.Init();
             created=true;
 
