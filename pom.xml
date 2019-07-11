@@ -7,14 +7,12 @@
     <groupId>com.flexicore</groupId>
     <artifactId>flexicore-ui-service</artifactId>
     <version>2.2.1</version>
-   <properties>
-    <maven.compiler.target>1.8</maven.compiler.target>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <version.eclipselink>2.7.1</version.eclipselink>
-    <version.jackson>2.8.4</version.jackson>
-
-
-</properties>
+    <properties>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <version.eclipselink>2.7.1</version.eclipselink>
+        <version.jackson>2.8.4</version.jackson>
+    </properties>
 
 
     <distributionManagement>
