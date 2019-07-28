@@ -2,6 +2,7 @@ package com.flexicore.ui.rest;
 
 import com.flexicore.annotations.OperationsInside;
 import com.flexicore.annotations.plugins.PluginInfo;
+import com.flexicore.data.jsoncontainers.PaginationResponse;
 import com.flexicore.interceptors.DynamicResourceInjector;
 import com.flexicore.interceptors.SecurityImposer;
 import com.flexicore.interfaces.RestServicePlugin;
@@ -13,6 +14,9 @@ import com.flexicore.security.SecurityContext;
 import com.flexicore.service.CategoryService;
 import com.flexicore.ui.container.request.*;
 import com.flexicore.ui.model.*;
+import com.flexicore.ui.request.PresetToRoleFilter;
+import com.flexicore.ui.request.PresetToTenantFilter;
+import com.flexicore.ui.request.PresetToUserFilter;
 import com.flexicore.ui.service.UiFieldService;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
@@ -164,6 +168,50 @@ public class UiFieldRESTService implements RestServicePlugin {
         return service.linkPresetToUser(linkPresetToUser, securityContext);
 
     }
+
+
+    @POST
+    @Produces("application/json")
+    @Operation(summary = "getAllPresetToRole", description="getAllPresetToRole")
+    @Path("getAllPresetToRole")
+    public PaginationResponse<PresetToRole> getAllPresetToRole(
+            @HeaderParam("authenticationKey") String authenticationKey,
+            PresetToRoleFilter presetToRoleFilter, @Context SecurityContext securityContext) {
+        service.validate(presetToRoleFilter,securityContext);
+        return service.getAllPresetToRole(presetToRoleFilter, securityContext);
+
+    }
+
+
+    @POST
+    @Produces("application/json")
+    @Operation(summary = "getAllPresetToUser", description="getAllPresetToUser")
+    @Path("getAllPresetToUser")
+    public PaginationResponse<PresetToUser> getAllPresetToUser(
+            @HeaderParam("authenticationKey") String authenticationKey,
+            PresetToUserFilter presetToUserFilter, @Context SecurityContext securityContext) {
+        service.validate(presetToUserFilter,securityContext);
+        return service.getAllPresetToUser(presetToUserFilter, securityContext);
+
+    }
+
+
+
+    @POST
+    @Produces("application/json")
+    @Operation(summary = "getAllPresetToTenant", description="getAllPresetToTenant")
+    @Path("getAllPresetToTenant")
+    public PaginationResponse<PresetToTenant> getAllPresetToTenant(
+            @HeaderParam("authenticationKey") String authenticationKey,
+            PresetToTenantFilter presetToTenantFilter, @Context SecurityContext securityContext) {
+        service.validate(presetToTenantFilter,securityContext);
+        return service.getAllPresetToTenant(presetToTenantFilter, securityContext);
+
+    }
+
+
+
+
 
     @POST
     @Produces("application/json")

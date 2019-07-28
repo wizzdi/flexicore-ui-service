@@ -4,16 +4,19 @@ import com.flexicore.annotations.plugins.PluginInfo;
 import com.flexicore.data.jsoncontainers.PaginationResponse;
 import com.flexicore.interfaces.ServicePlugin;
 import com.flexicore.model.Baseclass;
+import com.flexicore.model.dynamic.DynamicExecution;
 import com.flexicore.security.SecurityContext;
 import com.flexicore.service.BaselinkService;
 import com.flexicore.service.DynamicInvokersService;
 import com.flexicore.ui.data.DashboardExecutionRepository;
+import com.flexicore.ui.model.DashboardElement;
 import com.flexicore.ui.model.DashboardExecution;
 import com.flexicore.ui.request.CreateDashboardExecution;
 import com.flexicore.ui.request.DashboardExecutionFiltering;
 import com.flexicore.ui.request.UpdateDashboardExecution;
 
 import javax.inject.Inject;
+import javax.ws.rs.BadRequestException;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -28,8 +31,6 @@ public class DashboardExecutionService implements ServicePlugin {
     @PluginInfo(version = 1)
     private DashboardExecutionRepository dashboardExecutionRepository;
 
-    @Inject
-    private DynamicInvokersService dynamicInvokersService;
 
 
 
@@ -41,9 +42,27 @@ public class DashboardExecutionService implements ServicePlugin {
         return updateDashboardExecution.getDashboardExecution();
     }
 
-    public boolean updateDashboardExecutionNoMerge(CreateDashboardExecution updateDashboardExecution, DashboardExecution dashboardExecution) {
-        boolean update = dynamicInvokersService.updateDynamicExecutionNoMerge(updateDashboardExecution,dashboardExecution);
+    public boolean updateDashboardExecutionNoMerge(CreateDashboardExecution updateDashboardElement, DashboardExecution dashboardElement) {
+        boolean update=false;
+        if (updateDashboardElement.getDescription() != null && (dashboardElement.getDescription() == null || !updateDashboardElement.getDescription().equals(dashboardElement.getDescription()))) {
+            update = true;
+            dashboardElement.setDescription(updateDashboardElement.getDescription());
+        }
 
+        if (updateDashboardElement.getName() != null && !updateDashboardElement.getName().equals(dashboardElement.getName())) {
+            update = true;
+            dashboardElement.setName(updateDashboardElement.getName());
+        }
+
+        if (updateDashboardElement.getDynamicExecution() != null && !updateDashboardElement.getDynamicExecution().equals(dashboardElement.getDynamicExecution())) {
+            update = true;
+            dashboardElement.setDynamicExecution(updateDashboardElement.getDynamicExecution());
+        }
+
+        if (updateDashboardElement.getDashboardElement() != null && (dashboardElement.getDashboardElement()==null||!updateDashboardElement.getDashboardElement().getId().equals(dashboardElement.getDashboardElement().getId()))) {
+            update = true;
+            dashboardElement.setDashboardElement(updateDashboardElement.getDashboardElement());
+        }
         return update;
     }
 
@@ -78,6 +97,21 @@ public class DashboardExecutionService implements ServicePlugin {
     }
 
     public void validate(CreateDashboardExecution createDashboardExecution, SecurityContext securityContext) {
+
+        String dashboardElementId=createDashboardExecution.getDashboardElementId();
+        DashboardElement dashboardElement=dashboardElementId!=null?getByIdOrNull(dashboardElementId,DashboardElement.class,null,securityContext):null;
+        if(dashboardElement==null){
+            throw new BadRequestException("No dashboard element with id "+dashboardElementId);
+        }
+        createDashboardExecution.setDashboardElement(dashboardElement);
+
+
+        String dynamicExecutionId=createDashboardExecution.getDynamicExecutionId();
+        DynamicExecution dynamicExecution=dynamicExecutionId!=null?getByIdOrNull(dynamicExecutionId,DynamicExecution.class,null,securityContext):null;
+        if(dynamicExecution==null){
+            throw new BadRequestException("No DynamicExecution with ids "+dynamicExecutionId);
+        }
+        createDashboardExecution.setDynamicExecution(dynamicExecution);
 
     }
 }

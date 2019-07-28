@@ -7,12 +7,14 @@ import com.flexicore.model.Baseclass;
 import com.flexicore.security.SecurityContext;
 import com.flexicore.service.BaselinkService;
 import com.flexicore.ui.data.DashboardElementRepository;
+import com.flexicore.ui.model.Dashboard;
 import com.flexicore.ui.model.DashboardElement;
 import com.flexicore.ui.request.CreateDashboardElement;
 import com.flexicore.ui.request.DashboardElementFiltering;
 import com.flexicore.ui.request.UpdateDashboardElement;
 
 import javax.inject.Inject;
+import javax.ws.rs.BadRequestException;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -54,6 +56,12 @@ public class DashboardElementService implements ServicePlugin {
             update = true;
             dashboardElement.setContextString(updateDashboardElement.getContextString());
         }
+
+        if (updateDashboardElement.getDashboard() != null && (dashboardElement.getDashboard()==null||!updateDashboardElement.getDashboard().getId().equals(dashboardElement.getDashboard().getId()))) {
+            update = true;
+            dashboardElement.setDashboard(updateDashboardElement.getDashboard());
+        }
+
         return update;
     }
 
@@ -88,6 +96,13 @@ public class DashboardElementService implements ServicePlugin {
     }
 
     public void validate(CreateDashboardElement createDashboardElement, SecurityContext securityContext) {
+        String dashboardId=createDashboardElement.getDashboardId();
+        Dashboard dashboard=dashboardId!=null?getByIdOrNull(dashboardId,Dashboard.class,null,securityContext):null;
+        if(dashboard==null){
+            throw new BadRequestException("No Dashboard element with id "+dashboardId);
+        }
+        createDashboardElement.setDashboard(dashboard);
+
 
     }
 }

@@ -1,6 +1,7 @@
 package com.flexicore.ui.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.flexicore.model.dynamic.DynamicExecution;
 import com.flexicore.ui.model.Dashboard;
 
 public class CreateDashboardElement {
@@ -10,6 +11,7 @@ public class CreateDashboardElement {
     @JsonIgnore
     private Dashboard dashboard;
     private String contextString;
+
 
     public String getName() {
         return name;
@@ -57,4 +59,5 @@ public class CreateDashboardElement {
         this.contextString = contextString;
         return (T) this;
     }
+
 }

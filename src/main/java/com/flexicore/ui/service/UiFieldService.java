@@ -1,19 +1,24 @@
 package com.flexicore.ui.service;
 
 import com.flexicore.annotations.plugins.PluginInfo;
+import com.flexicore.data.jsoncontainers.PaginationResponse;
 import com.flexicore.interfaces.ServicePlugin;
-import com.flexicore.model.Baseclass;
-import com.flexicore.model.QueryInformationHolder;
+import com.flexicore.model.*;
 import com.flexicore.security.SecurityContext;
 import com.flexicore.service.BaselinkService;
 import com.flexicore.ui.container.request.*;
 import com.flexicore.ui.data.UiFieldRepository;
 import com.flexicore.ui.model.*;
+import com.flexicore.ui.request.PresetLinkFilter;
+import com.flexicore.ui.request.PresetToRoleFilter;
+import com.flexicore.ui.request.PresetToTenantFilter;
+import com.flexicore.ui.request.PresetToUserFilter;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
+import javax.ws.rs.BadRequestException;
+import java.util.*;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @PluginInfo(version = 1)
 
@@ -264,5 +269,84 @@ public class UiFieldService implements ServicePlugin {
             uiFieldRepository.merge(updateLinkPresetToRole.getPresetToRole());
         }
         return updateLinkPresetToRole.getPresetToRole();
+    }
+
+    public void validatePresetLink(PresetLinkFilter presetToRoleFilter, SecurityContext securityContext) {
+        Set<String> presetIds=presetToRoleFilter.getPresetIds();
+        Map<String,Preset> map=presetIds.isEmpty()?new HashMap<>():uiFieldRepository.listByIds(Preset.class,presetIds,securityContext).parallelStream().collect(Collectors.toMap(f->f.getId(),f->f));
+        presetIds.removeAll(map.keySet());
+        if(!presetIds.isEmpty()){
+            throw new BadRequestException("No presets with ids "+presetIds);
+        }
+        presetToRoleFilter.setPresets(new ArrayList<>(map.values()));
+
+    }
+
+    public void validate(PresetToRoleFilter presetToRoleFilter, SecurityContext securityContext) {
+        Set<String> roleIds=presetToRoleFilter.getRoleIds();
+        Map<String, Role> map=roleIds.isEmpty()?new HashMap<>():uiFieldRepository.listByIds(Role.class,roleIds,securityContext).parallelStream().collect(Collectors.toMap(f->f.getId(), f->f));
+        roleIds.removeAll(map.keySet());
+        if(!roleIds.isEmpty()){
+            throw new BadRequestException("No Roles with ids "+roleIds);
+        }
+        presetToRoleFilter.setRoles(new ArrayList<>(map.values()));
+
+    }
+
+
+    public PaginationResponse<PresetToRole> getAllPresetToRole(PresetToRoleFilter presetToRoleFilter, SecurityContext securityContext) {
+        List<PresetToRole> list=listAllPresetToRole(presetToRoleFilter,securityContext);
+        long count=uiFieldRepository.countAllPresetToRoles(presetToRoleFilter,securityContext);
+        return new PaginationResponse<>(list,presetToRoleFilter,count);
+    }
+
+    private List<PresetToRole> listAllPresetToRole(PresetToRoleFilter presetToRoleFilter, SecurityContext securityContext) {
+        return uiFieldRepository.listAllPresetToRoles(presetToRoleFilter,securityContext);
+    }
+
+
+    public void validate(PresetToTenantFilter presetToTenantFilter, SecurityContext securityContext) {
+        Set<String> tenantIds=presetToTenantFilter.getTenantIdsForPreset();
+        Map<String, Tenant> map=tenantIds.isEmpty()?new HashMap<>():uiFieldRepository.listByIds(Tenant.class,tenantIds,securityContext).parallelStream().collect(Collectors.toMap(f->f.getId(), f->f));
+        tenantIds.removeAll(map.keySet());
+        if(!tenantIds.isEmpty()){
+            throw new BadRequestException("No Tenants with ids "+tenantIds);
+        }
+        presetToTenantFilter.setTenants(new ArrayList<>(map.values()));
+
+    }
+
+
+    public PaginationResponse<PresetToTenant> getAllPresetToTenant(PresetToTenantFilter presetToTenantFilter, SecurityContext securityContext) {
+        List<PresetToTenant> list=listAllPresetToTenant(presetToTenantFilter,securityContext);
+        long count=uiFieldRepository.countAllPresetToTenants(presetToTenantFilter,securityContext);
+        return new PaginationResponse<>(list,presetToTenantFilter,count);
+    }
+
+    private List<PresetToTenant> listAllPresetToTenant(PresetToTenantFilter presetToTenantFilter, SecurityContext securityContext) {
+        return uiFieldRepository.listAllPresetToTenants(presetToTenantFilter,securityContext);
+    }
+
+
+    public void validate(PresetToUserFilter presetToUserFilter, SecurityContext securityContext) {
+        Set<String> userIds=presetToUserFilter.getUserIds();
+        Map<String, User> map=userIds.isEmpty()?new HashMap<>():uiFieldRepository.listByIds(User.class,userIds,securityContext).parallelStream().collect(Collectors.toMap(f->f.getId(), f->f));
+        userIds.removeAll(map.keySet());
+        if(!userIds.isEmpty()){
+            throw new BadRequestException("No Users with ids "+userIds);
+        }
+        presetToUserFilter.setUsers(new ArrayList<>(map.values()));
+
+    }
+
+
+    public PaginationResponse<PresetToUser> getAllPresetToUser(PresetToUserFilter presetToUserFilter, SecurityContext securityContext) {
+        List<PresetToUser> list=listAllPresetToUser(presetToUserFilter,securityContext);
+        long count=uiFieldRepository.countAllPresetToUsers(presetToUserFilter,securityContext);
+        return new PaginationResponse<>(list,presetToUserFilter,count);
+    }
+
+    private List<PresetToUser> listAllPresetToUser(PresetToUserFilter presetToUserFilter, SecurityContext securityContext) {
+        return uiFieldRepository.listAllPresetToUsers(presetToUserFilter,securityContext);
     }
 }
