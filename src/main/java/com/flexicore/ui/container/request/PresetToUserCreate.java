@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.flexicore.model.User;
 import com.flexicore.ui.model.Preset;
 
-public class LinkPresetToUser {
+public class PresetToUserCreate {
 
     private String presetId;
     @JsonIgnore
@@ -13,16 +13,15 @@ public class LinkPresetToUser {
     @JsonIgnore
     private User user;
     private Integer priority;
-
-
+    private Boolean enabled;
 
     public String getPresetId() {
         return presetId;
     }
 
-    public LinkPresetToUser setPresetId(String presetId) {
+    public <T extends PresetToUserCreate> T setPresetId(String presetId) {
         this.presetId = presetId;
-        return this;
+        return (T) this;
     }
 
     @JsonIgnore
@@ -30,18 +29,18 @@ public class LinkPresetToUser {
         return preset;
     }
 
-    public LinkPresetToUser setPreset(Preset preset) {
+    public <T extends PresetToUserCreate> T setPreset(Preset preset) {
         this.preset = preset;
-        return this;
+        return (T) this;
     }
 
     public String getUserId() {
         return userId;
     }
 
-    public LinkPresetToUser setUserId(String userId) {
+    public <T extends PresetToUserCreate> T setUserId(String userId) {
         this.userId = userId;
-        return this;
+        return (T) this;
     }
 
     @JsonIgnore
@@ -49,17 +48,26 @@ public class LinkPresetToUser {
         return user;
     }
 
-    public LinkPresetToUser setUser(User user) {
+    public <T extends PresetToUserCreate> T setUser(User user) {
         this.user = user;
-        return this;
+        return (T) this;
     }
 
     public Integer getPriority() {
         return priority;
     }
 
-    public LinkPresetToUser setPriority(Integer priority) {
+    public <T extends PresetToUserCreate> T setPriority(Integer priority) {
         this.priority = priority;
-        return this;
+        return (T) this;
+    }
+
+    public Boolean getEnabled() {
+        return enabled;
+    }
+
+    public <T extends PresetToUserCreate> T setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+        return (T) this;
     }
 }

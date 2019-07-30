@@ -9,7 +9,6 @@ import com.flexicore.service.BaselinkService;
 import com.flexicore.ui.container.request.*;
 import com.flexicore.ui.data.UiFieldRepository;
 import com.flexicore.ui.model.*;
-import com.flexicore.ui.request.PresetLinkFilter;
 import com.flexicore.ui.request.PresetToRoleFilter;
 import com.flexicore.ui.request.PresetToTenantFilter;
 import com.flexicore.ui.request.PresetToUserFilter;
@@ -149,138 +148,211 @@ public class UiFieldService implements ServicePlugin {
 
     }
 
-    public boolean  updatePresetToUserNoMerge(UpdateLinkPresetToUser linkPresetToUser) {
-        PresetToUser presetToUser=linkPresetToUser.getPresetToUser();
-        boolean update = false;
-        if (linkPresetToUser.getPriority() != null && linkPresetToUser.getPriority() != presetToUser.getPriority()) {
-            update = true;
-            presetToUser.setPriority(linkPresetToUser.getPriority());
+
+
+    public void validate(PresetToUserCreate linkPresetToUser,  SecurityContext securityContext) {
+        String presetId = linkPresetToUser.getPresetId();
+        Preset preset = presetId != null ? getByIdOrNull(presetId, Preset.class, null, securityContext) : null;
+        if (preset == null) {
+            throw new BadRequestException("no preset with id " + presetId);
+        }
+        linkPresetToUser.setPreset(preset);
+        String userId = linkPresetToUser.getUserId();
+        User user = userId != null ? getByIdOrNull(userId, User.class, null, securityContext) : null;
+        if (user == null) {
+            throw new BadRequestException("no user with id " + userId);
+        }
+        linkPresetToUser.setUser(user);
+    }
+
+
+    public void validate(PresetToRoleCreate presetToRoleCreate, SecurityContext securityContext) {
+        String presetId = presetToRoleCreate.getPresetId();
+        Preset preset = presetId != null ? getByIdOrNull(presetId, Preset.class, null, securityContext) : null;
+        if (preset == null) {
+            throw new BadRequestException("no preset with id " + presetId);
+        }
+        presetToRoleCreate.setPreset(preset);
+        String roleId = presetToRoleCreate.getRoleId();
+        Role role = roleId != null ? getByIdOrNull(roleId, Role.class, null, securityContext) : null;
+        if (role == null) {
+            throw new BadRequestException("no role with id " + roleId);
+        }
+        presetToRoleCreate.setRole(role);
+    }
+
+
+    public void validate(PresetToTenantCreate presetToTenantCreate, SecurityContext securityContext) {
+        String presetId = presetToTenantCreate.getPresetId();
+        Preset preset = presetId != null ? getByIdOrNull(presetId, Preset.class, null, securityContext) : null;
+        if (preset == null) {
+            throw new BadRequestException("no preset with id " + presetId);
+        }
+        presetToTenantCreate.setPreset(preset);
+        String tenantId = presetToTenantCreate.getTenantId();
+        Tenant tenant = tenantId != null ? getByIdOrNull(tenantId, Tenant.class, null, securityContext) : null;
+        if (tenant == null) {
+            throw new BadRequestException("no tenant with id " + tenantId);
+        }
+        presetToTenantCreate.setTenant(tenant);
+    }
+
+    public PresetToRole createPresetToRole(PresetToRoleCreate presetToRoleCreate, SecurityContext securityContext) {
+        PresetToRole toRet;
+        List<PresetToRole> existing=listAllPresetToRole(new PresetToRoleFilter().setRoles(Collections.singletonList(presetToRoleCreate.getRole())).setPresets(Collections.singletonList(presetToRoleCreate.getPreset())),securityContext);
+        if(existing.isEmpty()){
+            toRet=createPresetToRoleNoMerge(presetToRoleCreate,securityContext);
+            uiFieldRepository.merge(toRet);
+        }
+        else{
+            toRet=existing.get(0);
         }
 
-        if (linkPresetToUser.getEnabled() != null && linkPresetToUser.getEnabled() != presetToUser.isEnabled()) {
+        return toRet;
+    }
+
+    private PresetToRole createPresetToRoleNoMerge(PresetToRoleCreate presetToRoleCreate, SecurityContext securityContext) {
+        PresetToRole presetToRole=PresetToRole.s().CreateUnchecked("presetToRole",securityContext);
+        presetToRole.Init(presetToRoleCreate.getPreset(),presetToRoleCreate.getRole());
+        updatePresetToRoleNoMerge(presetToRoleCreate,presetToRole);
+        return presetToRole;
+    }
+
+
+    public PresetToTenant createPresetToTenant(PresetToTenantCreate presetToTenantCreate, SecurityContext securityContext) {
+        PresetToTenant toRet;
+        List<PresetToTenant> existing=listAllPresetToTenant(new PresetToTenantFilter().setTenants(Collections.singletonList(presetToTenantCreate.getTenant())).setPresets(Collections.singletonList(presetToTenantCreate.getPreset())),securityContext);
+        if(existing.isEmpty()){
+            toRet=createPresetToTenantNoMerge(presetToTenantCreate,securityContext);
+            uiFieldRepository.merge(toRet);
+        }
+        else{
+            toRet=existing.get(0);
+        }
+
+        return toRet;
+    }
+
+    private PresetToTenant createPresetToTenantNoMerge(PresetToTenantCreate presetToTenantCreate, SecurityContext securityContext) {
+        PresetToTenant presetToTenant=PresetToTenant.s().CreateUnchecked("presetToTenant",securityContext);
+        presetToTenant.Init(presetToTenantCreate.getPreset(),presetToTenantCreate.getTenant());
+        updatePresetToTenantNoMerge(presetToTenantCreate,presetToTenant);
+        return presetToTenant;
+    }
+
+
+
+    public PresetToUser createPresetToUser(PresetToUserCreate presetToUserCreate, SecurityContext securityContext) {
+        PresetToUser toRet;
+        List<PresetToUser> existing=listAllPresetToUser(new PresetToUserFilter().setUsers(Collections.singletonList(presetToUserCreate.getUser())).setPresets(Collections.singletonList(presetToUserCreate.getPreset())),securityContext);
+        if(existing.isEmpty()){
+            toRet=createPresetToUserNoMerge(presetToUserCreate,securityContext);
+            uiFieldRepository.merge(toRet);
+        }
+        else{
+            toRet=existing.get(0);
+        }
+
+        return toRet;
+    }
+
+    private PresetToUser createPresetToUserNoMerge(PresetToUserCreate presetToUserCreate, SecurityContext securityContext) {
+        PresetToUser presetToUser=PresetToUser.s().CreateUnchecked("presetToUser",securityContext);
+        presetToUser.Init(presetToUserCreate.getPreset(),presetToUserCreate.getUser());
+        updatePresetToUserNoMerge(presetToUserCreate,presetToUser);
+        return presetToUser;
+    }
+
+
+
+    public boolean  updatePresetToTenantNoMerge(PresetToTenantCreate presetToTenantCreate,PresetToTenant presetToTenant) {
+        boolean update = false;
+        if (presetToTenantCreate.getPriority() != null && presetToTenantCreate.getPriority() != presetToTenant.getPriority()) {
+            presetToTenant.setPriority(presetToTenantCreate.getPriority());
             update = true;
-            presetToUser.setEnabled(linkPresetToUser.getEnabled());
+        }
+        if (presetToTenantCreate.getEnabled() != null && presetToTenantCreate.getEnabled() != presetToTenant.isEnabled()) {
+            presetToTenant.setEnabled(presetToTenantCreate.getEnabled());
+            update = true;
+        }
+
+        if (presetToTenantCreate.getPreset() != null && (presetToTenant.getLeftside()==null||!presetToTenantCreate.getPreset().getId().equals(presetToTenant.getLeftside().getId()))) {
+            presetToTenant.setLeftside(presetToTenantCreate.getPreset());
+            update = true;
+        }
+        if (presetToTenantCreate.getTenant() != null && (presetToTenant.getRightside()==null||!presetToTenantCreate.getTenant().getId().equals(presetToTenant.getRightside().getId()))) {
+            presetToTenant.setRightside(presetToTenantCreate.getTenant());
+            update = true;
         }
         return update;
     }
 
-    public PresetToUser linkPresetToUser(LinkPresetToUser linkPresetToUser, SecurityContext securityContext) {
-        boolean created=false;
-        PresetToUser existing = baselinkService.findBySides(PresetToUser.class, linkPresetToUser.getPreset(), linkPresetToUser.getUser());
-        if (existing != null) {
-            existing = PresetToUser.s().CreateUnchecked("link", securityContext);
-            existing.Init();
-            created=true;
 
-        }
-        if(updatePresetToUserNoMerge(new UpdateLinkPresetToUser(linkPresetToUser,existing))|created){
-            uiFieldRepository.merge(existing);
-        }
-        return existing;
-
-
-    }
-
-
-    public boolean  updatePresetToRoleNoMerge(UpdateLinkPresetToRole linkPresetToUser) {
-        PresetToRole presetToUser=linkPresetToUser.getPresetToRole();
-        boolean update = false;
-        if (linkPresetToUser.getPriority() != null && linkPresetToUser.getPriority() != presetToUser.getPriority()) {
-            update = true;
-            presetToUser.setPriority(linkPresetToUser.getPriority());
-        }
-
-        if (linkPresetToUser.getEnabled() != null && linkPresetToUser.getEnabled() != presetToUser.isEnabled()) {
-            update = true;
-            presetToUser.setEnabled(linkPresetToUser.getEnabled());
-        }
-        return update;
-    }
-
-    public PresetToRole linkPresetToRole(LinkPresetToRole linkPresetToRole, SecurityContext securityContext) {
-        boolean created=false;
-        PresetToRole existing = baselinkService.findBySides(PresetToRole.class, linkPresetToRole.getPreset(), linkPresetToRole.getRole());
-        if (existing != null) {
-            existing = PresetToRole.s().CreateUnchecked("link", securityContext);
-            existing.Init();
-            created=true;
-
-        }
-        if(updatePresetToRoleNoMerge(new UpdateLinkPresetToRole(linkPresetToRole,existing))|created){
-            uiFieldRepository.merge(existing);
-        }
-        return existing;
-
-
-    }
-
-
-
-
-    public boolean updatePresetToTenantNoMerge(UpdateLinkPresetToTenant linkPresetToUser) {
-        PresetToTenant presetToUser=linkPresetToUser.getPresetToTenant();
-        boolean update = false;
-        if (linkPresetToUser.getPriority() != null && linkPresetToUser.getPriority() != presetToUser.getPriority()) {
-            update = true;
-            presetToUser.setPriority(linkPresetToUser.getPriority());
-        }
-
-        if (linkPresetToUser.getEnabled() != null && linkPresetToUser.getEnabled() != presetToUser.isEnabled()) {
-            update = true;
-            presetToUser.setEnabled(linkPresetToUser.getEnabled());
-        }
-        return update;
-    }
-
-    public PresetToTenant linkPresetToTenant(LinkPresetToTenant linkPresetToTenant, SecurityContext securityContext) {
-        boolean created=false;
-        PresetToTenant existing = baselinkService.findBySides(PresetToTenant.class, linkPresetToTenant.getPreset(), linkPresetToTenant.getTenant());
-        if (existing != null) {
-            existing = PresetToTenant.s().CreateUnchecked("link", securityContext);
-            existing.Init();
-            created=true;
-
-        }
-        if(updatePresetToTenantNoMerge(new UpdateLinkPresetToTenant(linkPresetToTenant,existing))|created){
-            uiFieldRepository.merge(existing);
-        }
-        return existing;
-
-
-    }
-
-
-    public PresetToTenant updatePresetToTenant(UpdateLinkPresetToTenant updateLinkPresetToTenant,SecurityContext securityContext){
-        if(updatePresetToTenantNoMerge(updateLinkPresetToTenant)){
+    public PresetToTenant updatePresetToTenant(PresetToTenantUpdate updateLinkPresetToTenant, SecurityContext securityContext){
+        if(updatePresetToTenantNoMerge(updateLinkPresetToTenant,updateLinkPresetToTenant.getPresetToTenant())){
             uiFieldRepository.merge(updateLinkPresetToTenant.getPresetToTenant());
         }
         return updateLinkPresetToTenant.getPresetToTenant();
     }
 
-    public PresetToUser updatePresetToUser(UpdateLinkPresetToUser updateLinkPresetToUser,SecurityContext securityContext){
-        if(updatePresetToUserNoMerge(updateLinkPresetToUser)){
+    public PresetToUser updatePresetToUser(PresetToUserUpdate updateLinkPresetToUser, SecurityContext securityContext){
+        if(updatePresetToUserNoMerge(updateLinkPresetToUser, updateLinkPresetToUser.getPresetToUser())){
             uiFieldRepository.merge(updateLinkPresetToUser.getPresetToUser());
         }
         return updateLinkPresetToUser.getPresetToUser();
     }
 
-    public PresetToRole updatePresetToRole(UpdateLinkPresetToRole updateLinkPresetToRole,SecurityContext securityContext){
-        if(updatePresetToRoleNoMerge(updateLinkPresetToRole)){
+    public boolean  updatePresetToUserNoMerge(PresetToUserCreate presetToUserCreate,PresetToUser presetToUser) {
+        boolean update = false;
+        if (presetToUserCreate.getPriority() != null && presetToUserCreate.getPriority() != presetToUser.getPriority()) {
+            presetToUser.setPriority(presetToUserCreate.getPriority());
+            update = true;
+        }
+        if (presetToUserCreate.getEnabled() != null && presetToUserCreate.getEnabled() != presetToUser.isEnabled()) {
+            presetToUser.setEnabled(presetToUserCreate.getEnabled());
+            update = true;
+        }
+
+        if (presetToUserCreate.getPreset() != null && (presetToUser.getLeftside()==null||!presetToUserCreate.getPreset().getId().equals(presetToUser.getLeftside().getId()))) {
+            presetToUser.setLeftside(presetToUserCreate.getPreset());
+            update = true;
+        }
+        if (presetToUserCreate.getUser() != null && (presetToUser.getRightside()==null||!presetToUserCreate.getUser().getId().equals(presetToUser.getRightside().getId()))) {
+            presetToUser.setRightside(presetToUserCreate.getUser());
+            update = true;
+        }
+        return update;
+    }
+
+    public PresetToRole updatePresetToRole(PresetToRoleUpdate updateLinkPresetToRole, SecurityContext securityContext){
+        if(updatePresetToRoleNoMerge(updateLinkPresetToRole,updateLinkPresetToRole.getPresetToRole())){
             uiFieldRepository.merge(updateLinkPresetToRole.getPresetToRole());
         }
         return updateLinkPresetToRole.getPresetToRole();
     }
 
-    public void validatePresetLink(PresetLinkFilter presetToRoleFilter, SecurityContext securityContext) {
-        Set<String> presetIds=presetToRoleFilter.getPresetIds();
-        Map<String,Preset> map=presetIds.isEmpty()?new HashMap<>():uiFieldRepository.listByIds(Preset.class,presetIds,securityContext).parallelStream().collect(Collectors.toMap(f->f.getId(),f->f));
-        presetIds.removeAll(map.keySet());
-        if(!presetIds.isEmpty()){
-            throw new BadRequestException("No presets with ids "+presetIds);
+    public boolean  updatePresetToRoleNoMerge(PresetToRoleCreate presetToRoleCreate,PresetToRole presetToRole) {
+        boolean update = false;
+        if (presetToRoleCreate.getPriority() != null && presetToRoleCreate.getPriority() != presetToRole.getPriority()) {
+            presetToRole.setPriority(presetToRoleCreate.getPriority());
+            update = true;
         }
-        presetToRoleFilter.setPresets(new ArrayList<>(map.values()));
+        if (presetToRoleCreate.getEnabled() != null && presetToRoleCreate.getEnabled() != presetToRole.isEnabled()) {
+            presetToRole.setEnabled(presetToRoleCreate.getEnabled());
+            update = true;
+        }
 
+        if (presetToRoleCreate.getPreset() != null && (presetToRole.getLeftside()==null||!presetToRoleCreate.getPreset().getId().equals(presetToRole.getLeftside().getId()))) {
+            presetToRole.setLeftside(presetToRoleCreate.getPreset());
+            update = true;
+        }
+        if (presetToRoleCreate.getRole() != null && (presetToRole.getRightside()==null||!presetToRoleCreate.getRole().getId().equals(presetToRole.getRightside().getId()))) {
+            presetToRole.setRightside(presetToRoleCreate.getRole());
+            update = true;
+        }
+        return update;
     }
+
 
     public void validate(PresetToRoleFilter presetToRoleFilter, SecurityContext securityContext) {
         Set<String> roleIds=presetToRoleFilter.getRoleIds();

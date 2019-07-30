@@ -7,9 +7,6 @@ import com.flexicore.interceptors.DynamicResourceInjector;
 import com.flexicore.interceptors.SecurityImposer;
 import com.flexicore.interfaces.RestServicePlugin;
 import com.flexicore.model.Category;
-import com.flexicore.model.Role;
-import com.flexicore.model.Tenant;
-import com.flexicore.model.User;
 import com.flexicore.security.SecurityContext;
 import com.flexicore.service.CategoryService;
 import com.flexicore.ui.container.request.*;
@@ -57,7 +54,7 @@ public class UiFieldRESTService implements RestServicePlugin {
 
     @POST
     @Produces("application/json")
-    @Operation(summary = "listAllUiFields", description="List all Ui Fields")
+    @Operation(summary = "listAllUiFields", description = "List all Ui Fields")
     @Path("listAllUiFields")
     public List<UiField> listAllUiFields(
             @HeaderParam("authenticationKey") String authenticationKey,
@@ -69,7 +66,7 @@ public class UiFieldRESTService implements RestServicePlugin {
 
     @POST
     @Produces("application/json")
-    @Operation(summary = "updateUiField", description="Updates Ui Field")
+    @Operation(summary = "updateUiField", description = "Updates Ui Field")
     @Path("updateUiField")
     public UiField updateUiField(
             @HeaderParam("authenticationKey") String authenticationKey,
@@ -87,7 +84,7 @@ public class UiFieldRESTService implements RestServicePlugin {
 
     @POST
     @Produces("application/json")
-    @Operation(summary = "createUiField", description="Creates Ui Field ")
+    @Operation(summary = "createUiField", description = "Creates Ui Field ")
     @Path("createUiField")
     public UiField createUiField(
             @HeaderParam("authenticationKey") String authenticationKey,
@@ -110,7 +107,7 @@ public class UiFieldRESTService implements RestServicePlugin {
 
     @POST
     @Produces("application/json")
-    @Operation(summary = "createPreset", description="Creates Preset ")
+    @Operation(summary = "createPreset", description = "Creates Preset ")
     @Path("createPreset")
     public GridPreset createPreset(
             @HeaderParam("authenticationKey") String authenticationKey,
@@ -133,7 +130,7 @@ public class UiFieldRESTService implements RestServicePlugin {
 
     @POST
     @Produces("application/json")
-    @Operation(summary = "updatePreset", description="Updates Preset ")
+    @Operation(summary = "updatePreset", description = "Updates Preset ")
     @Path("updatePreset")
     public GridPreset updatePreset(
             @HeaderParam("authenticationKey") String authenticationKey,
@@ -150,34 +147,25 @@ public class UiFieldRESTService implements RestServicePlugin {
 
     @POST
     @Produces("application/json")
-    @Operation(summary = "linkPresetToUser", description="Links preset to user")
+    @Operation(summary = "linkPresetToUser", description = "Links preset to user")
     @Path("linkPresetToUser")
     public PresetToUser linkPresetToUser(
             @HeaderParam("authenticationKey") String authenticationKey,
-            LinkPresetToUser linkPresetToUser, @Context SecurityContext securityContext) {
-        Preset preset = linkPresetToUser.getPresetId() != null ? service.getByIdOrNull(linkPresetToUser.getPresetId(), Preset.class, null, securityContext) : null;
-        if (preset == null) {
-            throw new BadRequestException("no preset with id " + linkPresetToUser.getPresetId());
-        }
-        linkPresetToUser.setPreset(preset);
-        User user = linkPresetToUser.getUserId() != null ? service.getByIdOrNull(linkPresetToUser.getUserId(), User.class, null, securityContext) : null;
-        if (user == null) {
-            throw new BadRequestException("no user with id " + linkPresetToUser.getUserId());
-        }
-        linkPresetToUser.setUser(user);
-        return service.linkPresetToUser(linkPresetToUser, securityContext);
+            PresetToUserCreate linkPresetToUser, @Context SecurityContext securityContext) {
+        service.validate(linkPresetToUser, securityContext);
+        return service.createPresetToUser(linkPresetToUser, securityContext);
 
     }
 
 
     @POST
     @Produces("application/json")
-    @Operation(summary = "getAllPresetToRole", description="getAllPresetToRole")
+    @Operation(summary = "getAllPresetToRole", description = "getAllPresetToRole")
     @Path("getAllPresetToRole")
     public PaginationResponse<PresetToRole> getAllPresetToRole(
             @HeaderParam("authenticationKey") String authenticationKey,
             PresetToRoleFilter presetToRoleFilter, @Context SecurityContext securityContext) {
-        service.validate(presetToRoleFilter,securityContext);
+        service.validate(presetToRoleFilter, securityContext);
         return service.getAllPresetToRole(presetToRoleFilter, securityContext);
 
     }
@@ -185,85 +173,63 @@ public class UiFieldRESTService implements RestServicePlugin {
 
     @POST
     @Produces("application/json")
-    @Operation(summary = "getAllPresetToUser", description="getAllPresetToUser")
+    @Operation(summary = "getAllPresetToUser", description = "getAllPresetToUser")
     @Path("getAllPresetToUser")
     public PaginationResponse<PresetToUser> getAllPresetToUser(
             @HeaderParam("authenticationKey") String authenticationKey,
             PresetToUserFilter presetToUserFilter, @Context SecurityContext securityContext) {
-        service.validate(presetToUserFilter,securityContext);
+        service.validate(presetToUserFilter, securityContext);
         return service.getAllPresetToUser(presetToUserFilter, securityContext);
 
     }
 
 
-
     @POST
     @Produces("application/json")
-    @Operation(summary = "getAllPresetToTenant", description="getAllPresetToTenant")
+    @Operation(summary = "getAllPresetToTenant", description = "getAllPresetToTenant")
     @Path("getAllPresetToTenant")
     public PaginationResponse<PresetToTenant> getAllPresetToTenant(
             @HeaderParam("authenticationKey") String authenticationKey,
             PresetToTenantFilter presetToTenantFilter, @Context SecurityContext securityContext) {
-        service.validate(presetToTenantFilter,securityContext);
+        service.validate(presetToTenantFilter, securityContext);
         return service.getAllPresetToTenant(presetToTenantFilter, securityContext);
 
     }
 
 
-
-
-
     @POST
     @Produces("application/json")
-    @Operation(summary = "linkPresetToRole", description="Links preset to Role")
+    @Operation(summary = "linkPresetToRole", description = "Links preset to Role")
     @Path("linkPresetToRole")
     public PresetToRole linkPresetToRole(
             @HeaderParam("authenticationKey") String authenticationKey,
-            LinkPresetToRole linkPresetToRole, @Context SecurityContext securityContext) {
-        Preset preset = linkPresetToRole.getPresetId() != null ? service.getByIdOrNull(linkPresetToRole.getPresetId(), Preset.class, null, securityContext) : null;
-        if (preset == null) {
-            throw new BadRequestException("no preset with id " + linkPresetToRole.getPresetId());
-        }
-        linkPresetToRole.setPreset(preset);
-        Role role = linkPresetToRole.getRoleId() != null ? service.getByIdOrNull(linkPresetToRole.getRoleId(), Role.class, null, securityContext) : null;
-        if (role == null) {
-            throw new BadRequestException("no role with id " + linkPresetToRole.getRoleId());
-        }
-        linkPresetToRole.setRole(role);
-        return service.linkPresetToRole(linkPresetToRole, securityContext);
+            PresetToRoleCreate linkPresetToRole, @Context SecurityContext securityContext) {
+        service.validate(linkPresetToRole, securityContext);
+        return service.createPresetToRole(linkPresetToRole, securityContext);
 
     }
 
 
     @POST
     @Produces("application/json")
-    @Operation(summary = "linkPresetToTenant", description="Links preset to Tenant")
+    @Operation(summary = "linkPresetToTenant", description = "Links preset to Tenant")
     @Path("linkPresetToTenant")
     public PresetToTenant linkPresetToTenant(
             @HeaderParam("authenticationKey") String authenticationKey,
-            LinkPresetToTenant linkPresetToRole, @Context SecurityContext securityContext) {
-        Preset preset = linkPresetToRole.getPresetId() != null ? service.getByIdOrNull(linkPresetToRole.getPresetId(), Preset.class, null, securityContext) : null;
-        if (preset == null) {
-            throw new BadRequestException("no preset with id " + linkPresetToRole.getPresetId());
-        }
-        linkPresetToRole.setPreset(preset);
-        Tenant tenant = linkPresetToRole.getTenantId() != null ? service.getByIdOrNull(linkPresetToRole.getTenantId(), Tenant.class, null, securityContext) : null;
-        if (tenant == null) {
-            throw new BadRequestException("no tenant with id " + linkPresetToRole.getTenantId());
-        }
-        linkPresetToRole.setTenant(tenant);
-        return service.linkPresetToTenant(linkPresetToRole, securityContext);
+            PresetToTenantCreate linkPresetToRole, @Context SecurityContext securityContext) {
+        service.validate(linkPresetToRole, securityContext);
+        return service.createPresetToTenant(linkPresetToRole, securityContext);
 
     }
 
 
     @PUT
     @Produces("application/json")
-    @Operation(summary = "updatePresetToTenant", description="updates preset to Tenant")
+    @Operation(summary = "updatePresetToTenant", description = "updates preset to Tenant")
     @Path("updatePresetToTenant")
     public PresetToTenant updatePresetToTenant(
             @HeaderParam("authenticationKey") String authenticationKey,
-            UpdateLinkPresetToTenant updateLinkPresetToTenant, @Context SecurityContext securityContext) {
+            PresetToTenantUpdate updateLinkPresetToTenant, @Context SecurityContext securityContext) {
         PresetToTenant preset = updateLinkPresetToTenant.getLinkId() != null ? service.getByIdOrNull(updateLinkPresetToTenant.getLinkId(), PresetToTenant.class, null, securityContext) : null;
         if (preset == null) {
             throw new BadRequestException("no link with id " + updateLinkPresetToTenant.getLinkId());
@@ -276,11 +242,11 @@ public class UiFieldRESTService implements RestServicePlugin {
 
     @PUT
     @Produces("application/json")
-    @Operation(summary = "updatePresetToUser", description="updates preset to User")
+    @Operation(summary = "updatePresetToUser", description = "updates preset to User")
     @Path("updatePresetToUser")
     public PresetToUser updatePresetToUser(
             @HeaderParam("authenticationKey") String authenticationKey,
-            UpdateLinkPresetToUser updateLinkPresetToUser, @Context SecurityContext securityContext) {
+            PresetToUserUpdate updateLinkPresetToUser, @Context SecurityContext securityContext) {
         PresetToUser preset = updateLinkPresetToUser.getLinkId() != null ? service.getByIdOrNull(updateLinkPresetToUser.getLinkId(), PresetToUser.class, null, securityContext) : null;
         if (preset == null) {
             throw new BadRequestException("no link with id " + updateLinkPresetToUser.getLinkId());
@@ -293,11 +259,11 @@ public class UiFieldRESTService implements RestServicePlugin {
 
     @PUT
     @Produces("application/json")
-    @Operation(summary = "updatePresetToRole", description="updates preset to Role")
+    @Operation(summary = "updatePresetToRole", description = "updates preset to Role")
     @Path("updatePresetToRole")
     public PresetToRole updatePresetToRole(
             @HeaderParam("authenticationKey") String authenticationKey,
-            UpdateLinkPresetToRole updateLinkPresetToTenant, @Context SecurityContext securityContext) {
+            PresetToRoleUpdate updateLinkPresetToTenant, @Context SecurityContext securityContext) {
         PresetToRole preset = updateLinkPresetToTenant.getLinkId() != null ? service.getByIdOrNull(updateLinkPresetToTenant.getLinkId(), PresetToRole.class, null, securityContext) : null;
         if (preset == null) {
             throw new BadRequestException("no link with id " + updateLinkPresetToTenant.getLinkId());
