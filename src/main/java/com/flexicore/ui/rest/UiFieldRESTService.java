@@ -14,6 +14,9 @@ import com.flexicore.ui.model.*;
 import com.flexicore.ui.request.PresetToRoleFilter;
 import com.flexicore.ui.request.PresetToTenantFilter;
 import com.flexicore.ui.request.PresetToUserFilter;
+import com.flexicore.ui.response.PresetToRoleContainer;
+import com.flexicore.ui.response.PresetToTenantContainer;
+import com.flexicore.ui.response.PresetToUserContainer;
 import com.flexicore.ui.service.UiFieldService;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
@@ -162,7 +165,7 @@ public class UiFieldRESTService implements RestServicePlugin {
     @Produces("application/json")
     @Operation(summary = "getAllPresetToRole", description = "getAllPresetToRole")
     @Path("getAllPresetToRole")
-    public PaginationResponse<PresetToRole> getAllPresetToRole(
+    public PaginationResponse<PresetToRoleContainer> getAllPresetToRole(
             @HeaderParam("authenticationKey") String authenticationKey,
             PresetToRoleFilter presetToRoleFilter, @Context SecurityContext securityContext) {
         service.validate(presetToRoleFilter, securityContext);
@@ -175,7 +178,7 @@ public class UiFieldRESTService implements RestServicePlugin {
     @Produces("application/json")
     @Operation(summary = "getAllPresetToUser", description = "getAllPresetToUser")
     @Path("getAllPresetToUser")
-    public PaginationResponse<PresetToUser> getAllPresetToUser(
+    public PaginationResponse<PresetToUserContainer> getAllPresetToUser(
             @HeaderParam("authenticationKey") String authenticationKey,
             PresetToUserFilter presetToUserFilter, @Context SecurityContext securityContext) {
         service.validate(presetToUserFilter, securityContext);
@@ -188,7 +191,7 @@ public class UiFieldRESTService implements RestServicePlugin {
     @Produces("application/json")
     @Operation(summary = "getAllPresetToTenant", description = "getAllPresetToTenant")
     @Path("getAllPresetToTenant")
-    public PaginationResponse<PresetToTenant> getAllPresetToTenant(
+    public PaginationResponse<PresetToTenantContainer> getAllPresetToTenant(
             @HeaderParam("authenticationKey") String authenticationKey,
             PresetToTenantFilter presetToTenantFilter, @Context SecurityContext securityContext) {
         service.validate(presetToTenantFilter, securityContext);

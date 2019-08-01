@@ -12,6 +12,9 @@ import com.flexicore.ui.model.*;
 import com.flexicore.ui.request.PresetToRoleFilter;
 import com.flexicore.ui.request.PresetToTenantFilter;
 import com.flexicore.ui.request.PresetToUserFilter;
+import com.flexicore.ui.response.PresetToRoleContainer;
+import com.flexicore.ui.response.PresetToTenantContainer;
+import com.flexicore.ui.response.PresetToUserContainer;
 
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
@@ -366,8 +369,8 @@ public class UiFieldService implements ServicePlugin {
     }
 
 
-    public PaginationResponse<PresetToRole> getAllPresetToRole(PresetToRoleFilter presetToRoleFilter, SecurityContext securityContext) {
-        List<PresetToRole> list=listAllPresetToRole(presetToRoleFilter,securityContext);
+    public PaginationResponse<PresetToRoleContainer> getAllPresetToRole(PresetToRoleFilter presetToRoleFilter, SecurityContext securityContext) {
+        List<PresetToRoleContainer> list=listAllPresetToRole(presetToRoleFilter,securityContext).parallelStream().map(f->new PresetToRoleContainer(f)).collect(Collectors.toList());
         long count=uiFieldRepository.countAllPresetToRoles(presetToRoleFilter,securityContext);
         return new PaginationResponse<>(list,presetToRoleFilter,count);
     }
@@ -389,8 +392,8 @@ public class UiFieldService implements ServicePlugin {
     }
 
 
-    public PaginationResponse<PresetToTenant> getAllPresetToTenant(PresetToTenantFilter presetToTenantFilter, SecurityContext securityContext) {
-        List<PresetToTenant> list=listAllPresetToTenant(presetToTenantFilter,securityContext);
+    public PaginationResponse<PresetToTenantContainer> getAllPresetToTenant(PresetToTenantFilter presetToTenantFilter, SecurityContext securityContext) {
+        List<PresetToTenantContainer> list=listAllPresetToTenant(presetToTenantFilter,securityContext).parallelStream().map(f->new PresetToTenantContainer(f)).collect(Collectors.toList());
         long count=uiFieldRepository.countAllPresetToTenants(presetToTenantFilter,securityContext);
         return new PaginationResponse<>(list,presetToTenantFilter,count);
     }
@@ -412,8 +415,8 @@ public class UiFieldService implements ServicePlugin {
     }
 
 
-    public PaginationResponse<PresetToUser> getAllPresetToUser(PresetToUserFilter presetToUserFilter, SecurityContext securityContext) {
-        List<PresetToUser> list=listAllPresetToUser(presetToUserFilter,securityContext);
+    public PaginationResponse<PresetToUserContainer> getAllPresetToUser(PresetToUserFilter presetToUserFilter, SecurityContext securityContext) {
+        List<PresetToUserContainer> list=listAllPresetToUser(presetToUserFilter,securityContext).parallelStream().map(f->new PresetToUserContainer(f)).collect(Collectors.toList());
         long count=uiFieldRepository.countAllPresetToUsers(presetToUserFilter,securityContext);
         return new PaginationResponse<>(list,presetToUserFilter,count);
     }
