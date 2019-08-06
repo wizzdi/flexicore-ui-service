@@ -4,12 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.flexicore.model.Category;
 import com.flexicore.ui.model.GridPreset;
 
-public class CreateUiField {
+public class UiFieldCreate {
     private String name;
     private String description;
-    private String presetId;
+    private String gridPresetId;
     @JsonIgnore
-    private GridPreset preset;
+    private GridPreset gridPreset;
     private Integer priority;
     private Boolean visible;
     private String categoryName;
@@ -19,7 +19,7 @@ public class CreateUiField {
     private Boolean sortable;
     private Boolean filterable;
 
-    public CreateUiField() {
+    public UiFieldCreate() {
     }
 
 
@@ -27,7 +27,7 @@ public class CreateUiField {
         return name;
     }
 
-    public CreateUiField setName(String name) {
+    public UiFieldCreate setName(String name) {
         this.name = name;
         return this;
     }
@@ -36,27 +36,27 @@ public class CreateUiField {
         return description;
     }
 
-    public CreateUiField setDescription(String description) {
+    public UiFieldCreate setDescription(String description) {
         this.description = description;
         return this;
     }
 
-    public String getPresetId() {
-        return presetId;
+    public String getGridPresetId() {
+        return gridPresetId;
     }
 
-    public CreateUiField setPresetId(String presetId) {
-        this.presetId = presetId;
+    public UiFieldCreate setGridPresetId(String gridPresetId) {
+        this.gridPresetId = gridPresetId;
         return this;
     }
 
     @JsonIgnore
-    public GridPreset getPreset() {
-        return preset;
+    public GridPreset getGridPreset() {
+        return gridPreset;
     }
 
-    public CreateUiField setPreset(GridPreset preset) {
-        this.preset = preset;
+    public UiFieldCreate setGridPreset(GridPreset gridPreset) {
+        this.gridPreset = gridPreset;
         return this;
     }
 
@@ -64,7 +64,7 @@ public class CreateUiField {
         return priority;
     }
 
-    public CreateUiField setPriority(Integer priority) {
+    public UiFieldCreate setPriority(Integer priority) {
         this.priority = priority;
         return this;
     }
@@ -74,7 +74,7 @@ public class CreateUiField {
         return visible;
     }
 
-    public CreateUiField setVisible(Boolean visible) {
+    public UiFieldCreate setVisible(Boolean visible) {
         this.visible = visible;
         return this;
     }
@@ -83,7 +83,7 @@ public class CreateUiField {
         return categoryName;
     }
 
-    public CreateUiField setCategoryName(String categoryName) {
+    public UiFieldCreate setCategoryName(String categoryName) {
         this.categoryName = categoryName;
         return this;
     }
@@ -92,7 +92,7 @@ public class CreateUiField {
         return displayName;
     }
 
-    public CreateUiField setDisplayName(String displayName) {
+    public UiFieldCreate setDisplayName(String displayName) {
         this.displayName = displayName;
         return this;
     }
@@ -102,7 +102,7 @@ public class CreateUiField {
         return category;
     }
 
-    public CreateUiField setCategory(Category category) {
+    public UiFieldCreate setCategory(Category category) {
         this.category = category;
         return this;
     }
@@ -111,7 +111,7 @@ public class CreateUiField {
         return sortable;
     }
 
-    public CreateUiField setSortable(Boolean sortable) {
+    public UiFieldCreate setSortable(Boolean sortable) {
         this.sortable = sortable;
         return this;
     }
@@ -120,7 +120,7 @@ public class CreateUiField {
         return filterable;
     }
 
-    public CreateUiField setFilterable(Boolean filterable) {
+    public UiFieldCreate setFilterable(Boolean filterable) {
         this.filterable = filterable;
         return this;
     }

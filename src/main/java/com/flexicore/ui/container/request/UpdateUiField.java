@@ -1,10 +1,9 @@
 package com.flexicore.ui.container.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.flexicore.model.Category;
 import com.flexicore.ui.model.UiField;
 
-public class UpdateUiField extends CreateUiField{
+public class UpdateUiField extends UiFieldCreate {
     private String id;
     private UiField uiField;
 

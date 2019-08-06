@@ -6,9 +6,11 @@ import com.flexicore.interfaces.ServicePlugin;
 import com.flexicore.model.*;
 import com.flexicore.security.SecurityContext;
 import com.flexicore.service.BaselinkService;
+import com.flexicore.service.CategoryService;
 import com.flexicore.ui.container.request.*;
 import com.flexicore.ui.data.UiFieldRepository;
 import com.flexicore.ui.model.*;
+import com.flexicore.ui.request.MassCreateUiFields;
 import com.flexicore.ui.request.PresetToRoleFilter;
 import com.flexicore.ui.request.PresetToTenantFilter;
 import com.flexicore.ui.request.PresetToUserFilter;
@@ -40,6 +42,9 @@ public class UiFieldService implements ServicePlugin {
     @PluginInfo(version = 1)
     private PresetService presetService;
 
+    @Inject
+    private CategoryService categoryService;
+
 
     public UiField updateUiField(UpdateUiField updateUiField, SecurityContext securityContext) {
         if (updateUiFieldNoMerge(updateUiField, updateUiField.getUiField())) {
@@ -48,7 +53,7 @@ public class UiFieldService implements ServicePlugin {
         return updateUiField.getUiField();
     }
 
-    public boolean updateUiFieldNoMerge(CreateUiField updateUiField, UiField uiField) {
+    public boolean updateUiFieldNoMerge(UiFieldCreate updateUiField, UiField uiField) {
         boolean update = false;
         if (updateUiField.getVisible() != null && updateUiField.getVisible() != uiField.isVisible()) {
             update = true;
@@ -85,9 +90,9 @@ public class UiFieldService implements ServicePlugin {
             uiField.setCategory(updateUiField.getCategory());
         }
 
-        if (updateUiField.getPreset() != null && (uiField.getPreset() == null || !updateUiField.getPreset().getId().equals(uiField.getPreset().getId()))) {
+        if (updateUiField.getGridPreset() != null && (uiField.getPreset() == null || !updateUiField.getGridPreset().getId().equals(uiField.getPreset().getId()))) {
             update = true;
-            uiField.setPreset(updateUiField.getPreset());
+            uiField.setPreset(updateUiField.getGridPreset());
         }
 
         if (updateUiField.getDisplayName() != null && !updateUiField.getDisplayName().equals(uiField.getDisplayName())) {
@@ -103,53 +108,25 @@ public class UiFieldService implements ServicePlugin {
     }
 
     public List<UiField> listAllUiFields(UiFieldFiltering uiFieldFiltering, SecurityContext securityContext) {
-        QueryInformationHolder<UiField> queryInformationHolder = new QueryInformationHolder<>(uiFieldFiltering, UiField.class, securityContext);
-        return uiFieldRepository.getAllFiltered(queryInformationHolder);
+        return uiFieldRepository.listAllUiFields(uiFieldFiltering,securityContext);
     }
 
 
-    public UiField createUiField(CreateUiField createUiField, SecurityContext securityContext) {
+    public UiField createUiField(UiFieldCreate createUiField, SecurityContext securityContext) {
         UiField uiField = createUiFieldNoMerge(createUiField, securityContext);
         uiFieldRepository.merge(uiField);
         return uiField;
 
     }
 
-    private UiField createUiFieldNoMerge(CreateUiField createUiField, SecurityContext securityContext) {
+    public UiField createUiFieldNoMerge(UiFieldCreate createUiField, SecurityContext securityContext) {
         UiField uiField = UiField.s().CreateUnchecked(createUiField.getName(), securityContext);
         uiField.Init();
         updateUiFieldNoMerge(createUiField, uiField);
         return uiField;
     }
 
-    public boolean updateGridPresetNoMerge(CreateGridPreset createPreset, GridPreset preset) {
-        boolean update = presetService.updatePresetNoMerge(createPreset,preset);
 
-        return update;
-    }
-
-    public GridPreset updatePreset(UpdateGridPreset updatePreset, SecurityContext securityContext) {
-        if (updateGridPresetNoMerge(updatePreset, updatePreset.getPreset())) {
-            uiFieldRepository.merge(updatePreset.getPreset());
-        }
-        return updatePreset.getPreset();
-
-    }
-
-    public GridPreset createGridPreset(CreateGridPreset createPreset, SecurityContext securityContext) {
-        GridPreset preset = GridPreset.s().CreateUnchecked(createPreset.getName(), securityContext);
-        preset.Init();
-        updateGridPresetNoMerge(createPreset, preset);
-        List<Object> toMerge = new ArrayList<>();
-        toMerge.add(preset);
-        for (CreateUiField createUiField : createPreset.getUiFields()) {
-            UiField uiField = createUiFieldNoMerge(createUiField, securityContext);
-            toMerge.add(uiField);
-        }
-        uiFieldRepository.massMerge(toMerge);
-        return preset;
-
-    }
 
 
 
@@ -423,5 +400,44 @@ public class UiFieldService implements ServicePlugin {
 
     private List<PresetToUser> listAllPresetToUser(PresetToUserFilter presetToUserFilter, SecurityContext securityContext) {
         return uiFieldRepository.listAllPresetToUsers(presetToUserFilter,securityContext);
+    }
+
+    public PaginationResponse<UiField> getAllUiFields(UiFieldFiltering uiFieldFiltering, SecurityContext securityContext) {
+        List<UiField> list=listAllUiFields(uiFieldFiltering,securityContext);
+        long count=uiFieldRepository.countAllUiFields(uiFieldFiltering,securityContext);
+        return new PaginationResponse<>(list,uiFieldFiltering,count);
+    }
+
+    public void validate(MassCreateUiFields massCreateUiFields, SecurityContext securityContext) {
+        GridPreset preset = massCreateUiFields.getGridPresetId() != null ? getByIdOrNull(massCreateUiFields.getGridPresetId(), GridPreset.class, null, securityContext) : null;
+        if (preset == null) {
+            throw new BadRequestException("no GridPreset with id " + massCreateUiFields.getGridPresetId());
+        }
+        massCreateUiFields.setGridPreset(preset);
+        Map<String, List<UiFieldCreate>> map = massCreateUiFields.getUiFields().parallelStream().filter(f -> f.getCategoryName() != null).collect(Collectors.groupingBy(f -> f.getCategoryName(), Collectors.toList()));
+        Map<String, Category> categoryMap = categoryService.getCategoriesByNames(map.keySet(), securityContext).parallelStream().collect(Collectors.toMap(f -> f.getName(), f -> f, (a, b) -> a));
+        for (Map.Entry<String, List<UiFieldCreate>> entry : map.entrySet()) {
+            Category category = categoryMap.computeIfAbsent(entry.getKey(), f -> categoryService.createCategory(f, false, securityContext));
+            for (UiFieldCreate createUiField : entry.getValue()) {
+                createUiField.setCategory(category);
+            }
+        }
+
+    }
+
+
+    public void validate(UiFieldCreate createUiField, SecurityContext securityContext) {
+        Category category = categoryService.createCategory(createUiField.getCategoryName(), true, securityContext);
+        createUiField.setCategory(category);
+    }
+
+
+    public List<UiField> massCreateUiFields(MassCreateUiFields massCreateUiFields, SecurityContext securityContext) {
+        List<UiField> toMerge=new ArrayList<>();
+        for (UiFieldCreate uiField : massCreateUiFields.getUiFields()) {
+            toMerge.add(createUiFieldNoMerge(uiField.setGridPreset(massCreateUiFields.getGridPreset()),securityContext));
+        }
+        uiFieldRepository.massMerge(toMerge);
+        return toMerge;
     }
 }

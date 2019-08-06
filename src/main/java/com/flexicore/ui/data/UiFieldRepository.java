@@ -4,6 +4,7 @@ import com.flexicore.annotations.plugins.PluginInfo;
 import com.flexicore.interfaces.AbstractRepositoryPlugin;
 import com.flexicore.model.*;
 import com.flexicore.security.SecurityContext;
+import com.flexicore.ui.container.request.UiFieldFiltering;
 import com.flexicore.ui.model.*;
 import com.flexicore.ui.model.PresetToRole;
 import com.flexicore.ui.request.*;
@@ -128,5 +129,31 @@ public class UiFieldRepository extends AbstractRepositoryPlugin {
         addPresetToUserPredicates(preds, cb, r, presetToUserFilter);
         QueryInformationHolder<PresetToUser> queryInformationHolder = new QueryInformationHolder<>(presetToUserFilter, PresetToUser.class, securityContext);
         return countAllFiltered(queryInformationHolder, preds, cb, q, r);
+    }
+
+
+
+    public List<UiField> listAllUiFields(UiFieldFiltering uiFieldFiltering, SecurityContext securityContext) {
+        CriteriaBuilder cb=em.getCriteriaBuilder();
+        CriteriaQuery<UiField> q=cb.createQuery(UiField.class);
+        Root<UiField> r=q.from(UiField.class);
+        List<Predicate> preds=new ArrayList<>();
+        addUiFieldPredicates(preds,cb,r,uiFieldFiltering);
+        QueryInformationHolder<UiField> queryInformationHolder=new QueryInformationHolder<>(uiFieldFiltering,UiField.class,securityContext);
+        return getAllFiltered(queryInformationHolder,preds,cb,q,r);
+    }
+
+    private void addUiFieldPredicates(List<Predicate> preds, CriteriaBuilder cb, Root<UiField> r, UiFieldFiltering uiFieldFiltering) {
+
+    }
+
+    public long countAllUiFields(UiFieldFiltering uiFieldFiltering, SecurityContext securityContext) {
+        CriteriaBuilder cb=em.getCriteriaBuilder();
+        CriteriaQuery<Long> q=cb.createQuery(Long.class);
+        Root<UiField> r=q.from(UiField.class);
+        List<Predicate> preds=new ArrayList<>();
+        addUiFieldPredicates(preds,cb,r,uiFieldFiltering);
+        QueryInformationHolder<UiField> queryInformationHolder=new QueryInformationHolder<>(uiFieldFiltering,UiField.class,securityContext);
+        return countAllFiltered(queryInformationHolder,preds,cb,q,r);
     }
 }

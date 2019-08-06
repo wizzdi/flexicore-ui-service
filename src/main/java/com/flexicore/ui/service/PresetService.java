@@ -47,6 +47,7 @@ public class PresetService implements ServicePlugin {
             update = true;
             preset.setName(updatePreset.getName());
         }
+
         return update;
     }
 
@@ -80,7 +81,4 @@ public class PresetService implements ServicePlugin {
         return preset;
     }
 
-    public void validate(CreatePreset createPreset, SecurityContext securityContext) {
-
-    }
 }

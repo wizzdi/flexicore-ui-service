@@ -3,7 +3,7 @@ package com.flexicore.ui.container.request;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.flexicore.ui.model.GridPreset;
 
-public class UpdateGridPreset extends CreateGridPreset {
+public class GridPresetUpdate extends GridPresetCreate {
 
     private String id;
     @JsonIgnore
@@ -13,7 +13,7 @@ public class UpdateGridPreset extends CreateGridPreset {
         return id;
     }
 
-    public UpdateGridPreset setId(String id) {
+    public GridPresetUpdate setId(String id) {
         this.id = id;
         return this;
     }
@@ -23,7 +23,7 @@ public class UpdateGridPreset extends CreateGridPreset {
         return preset;
     }
 
-    public UpdateGridPreset setPreset(GridPreset preset) {
+    public GridPresetUpdate setPreset(GridPreset preset) {
         this.preset = preset;
         return this;
     }

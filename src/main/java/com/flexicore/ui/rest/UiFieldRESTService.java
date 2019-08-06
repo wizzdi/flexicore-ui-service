@@ -6,11 +6,11 @@ import com.flexicore.data.jsoncontainers.PaginationResponse;
 import com.flexicore.interceptors.DynamicResourceInjector;
 import com.flexicore.interceptors.SecurityImposer;
 import com.flexicore.interfaces.RestServicePlugin;
-import com.flexicore.model.Category;
 import com.flexicore.security.SecurityContext;
 import com.flexicore.service.CategoryService;
 import com.flexicore.ui.container.request.*;
 import com.flexicore.ui.model.*;
+import com.flexicore.ui.request.MassCreateUiFields;
 import com.flexicore.ui.request.PresetToRoleFilter;
 import com.flexicore.ui.request.PresetToTenantFilter;
 import com.flexicore.ui.request.PresetToUserFilter;
@@ -18,7 +18,6 @@ import com.flexicore.ui.response.PresetToRoleContainer;
 import com.flexicore.ui.response.PresetToTenantContainer;
 import com.flexicore.ui.response.PresetToUserContainer;
 import com.flexicore.ui.service.UiFieldService;
-
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,8 +27,6 @@ import javax.interceptor.Interceptors;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Created by Asaf on 04/06/2017.
@@ -59,10 +56,10 @@ public class UiFieldRESTService implements RestServicePlugin {
     @Produces("application/json")
     @Operation(summary = "listAllUiFields", description = "List all Ui Fields")
     @Path("listAllUiFields")
-    public List<UiField> listAllUiFields(
+    public PaginationResponse<UiField> getAllUiFields(
             @HeaderParam("authenticationKey") String authenticationKey,
             UiFieldFiltering uiFieldFiltering, @Context SecurityContext securityContext) {
-        return service.listAllUiFields(uiFieldFiltering, securityContext);
+        return service.getAllUiFields(uiFieldFiltering, securityContext);
 
     }
 
@@ -74,13 +71,26 @@ public class UiFieldRESTService implements RestServicePlugin {
     public UiField updateUiField(
             @HeaderParam("authenticationKey") String authenticationKey,
             UpdateUiField updateUiField, @Context SecurityContext securityContext) {
-        UiField uiFieldToClazz = updateUiField.getId() != null ? service.getByIdOrNull(updateUiField.getId(), UiField.class, null, securityContext) : null;
-        if (uiFieldToClazz == null) {
+        UiField uiField = updateUiField.getId() != null ? service.getByIdOrNull(updateUiField.getId(), UiField.class, null, securityContext) : null;
+        if (uiField == null) {
             throw new BadRequestException("no ui field with id  " + updateUiField.getId());
         }
-        updateUiField.setUiField(uiFieldToClazz);
+        updateUiField.setUiField(uiField);
 
         return service.updateUiField(updateUiField, securityContext);
+
+    }
+
+
+    @POST
+    @Produces("application/json")
+    @Operation(summary = "massCreateUiFields", description = "Mass Creates Ui Field ")
+    @Path("massCreateUiFields")
+    public List<UiField> massCreateUiFields(
+            @HeaderParam("authenticationKey") String authenticationKey,
+            MassCreateUiFields massCreateUiFields, @Context SecurityContext securityContext) {
+      service.validate(massCreateUiFields,securityContext);
+        return service.massCreateUiFields(massCreateUiFields, securityContext);
 
     }
 
@@ -91,61 +101,22 @@ public class UiFieldRESTService implements RestServicePlugin {
     @Path("createUiField")
     public UiField createUiField(
             @HeaderParam("authenticationKey") String authenticationKey,
-            CreateUiField createUiField, @Context SecurityContext securityContext) {
-        GridPreset preset = createUiField.getPresetId() != null ? service.getByIdOrNull(createUiField.getPresetId(), GridPreset.class, null, securityContext) : null;
+            UiFieldCreate createUiField, @Context SecurityContext securityContext) {
+        GridPreset preset = createUiField.getGridPresetId() != null ? service.getByIdOrNull(createUiField.getGridPresetId(), GridPreset.class, null, securityContext) : null;
         if (preset == null) {
-            throw new BadRequestException("no GridPreset with id " + createUiField.getPresetId());
+            throw new BadRequestException("no GridPreset with id " + createUiField.getGridPresetId());
         }
-        createUiField.setPreset(preset);
-        validateCreateUiField(createUiField, securityContext);
+        createUiField.setGridPreset(preset);
+        service.validate(createUiField, securityContext);
         return service.createUiField(createUiField, securityContext);
 
     }
 
-    private void validateCreateUiField(CreateUiField createUiField, @Context SecurityContext securityContext) {
-        Category category = categoryService.createCategory(createUiField.getCategoryName(), true, securityContext);
-        createUiField.setCategory(category);
-    }
 
 
-    @POST
-    @Produces("application/json")
-    @Operation(summary = "createPreset", description = "Creates Preset ")
-    @Path("createPreset")
-    public GridPreset createPreset(
-            @HeaderParam("authenticationKey") String authenticationKey,
-            CreateGridPreset createPreset, @Context SecurityContext securityContext) {
-        validateCreatePreset(createPreset, securityContext);
-        return service.createGridPreset(createPreset, securityContext);
 
-    }
 
-    private void validateCreatePreset(CreateGridPreset createPreset, SecurityContext securityContext) {
-        Map<String, List<CreateUiField>> map = createPreset.getUiFields().parallelStream().filter(f -> f.getCategoryName() != null).collect(Collectors.groupingBy(f -> f.getCategoryName(), Collectors.toList()));
-        Map<String, Category> categoryMap = categoryService.getCategoriesByNames(map.keySet(), securityContext).parallelStream().collect(Collectors.toMap(f -> f.getName(), f -> f, (a, b) -> a));
-        for (Map.Entry<String, List<CreateUiField>> entry : map.entrySet()) {
-            Category category = categoryMap.computeIfAbsent(entry.getKey(), f -> categoryService.createCategory(f, false, securityContext));
-            for (CreateUiField createUiField : entry.getValue()) {
-                createUiField.setCategory(category);
-            }
-        }
-    }
 
-    @POST
-    @Produces("application/json")
-    @Operation(summary = "updatePreset", description = "Updates Preset ")
-    @Path("updatePreset")
-    public GridPreset updatePreset(
-            @HeaderParam("authenticationKey") String authenticationKey,
-            UpdateGridPreset updatePreset, @Context SecurityContext securityContext) {
-        GridPreset preset = updatePreset.getId() != null ? service.getByIdOrNull(updatePreset.getId(), GridPreset.class, null, securityContext) : null;
-        if (preset == null) {
-            throw new BadRequestException("no GridPreset with id " + updatePreset.getId());
-        }
-        updatePreset.setPreset(preset);
-        return service.updatePreset(updatePreset, securityContext);
-
-    }
 
 
     @POST
