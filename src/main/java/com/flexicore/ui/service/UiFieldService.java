@@ -440,4 +440,14 @@ public class UiFieldService implements ServicePlugin {
         uiFieldRepository.massMerge(toMerge);
         return toMerge;
     }
+
+    public void validate(UiFieldFiltering uiFieldFiltering, SecurityContext securityContext) {
+        Set<String> gridPresetIds=uiFieldFiltering.getGridPresetIds();
+        Map<String,GridPreset> gridPresetMap=gridPresetIds.isEmpty()?new HashMap<>():uiFieldRepository.listByIds(GridPreset.class,gridPresetIds,securityContext).parallelStream().collect(Collectors.toMap(f->f.getId(),f->f));
+        gridPresetIds.removeAll(gridPresetMap.keySet());
+        if(!gridPresetIds.isEmpty()){
+            throw new BadRequestException("No Grid Presets with ids "+gridPresetIds);
+        }
+        uiFieldFiltering.setGridPresets(new ArrayList<>(gridPresetMap.values()));
+    }
 }

@@ -30,11 +30,9 @@ import javax.ws.rs.core.Context;
 @OperationsInside
 @Interceptors({SecurityImposer.class, DynamicResourceInjector.class})
 @Path("plugins/GridPresets")
-@OpenAPIDefinition(tags = {
-        @Tag(name = "GridPresets", description = "GridPresets Services")
-})
-@Tag(name = "GridPresets")
 
+@Tag(name = "GridPresets",description = "Grid presets support free definition of grids using Dynamic Execution as source of data")
+@Tag(name="Presets")
 public class GridPresetRESTService implements RestServicePlugin {
 
     @Inject

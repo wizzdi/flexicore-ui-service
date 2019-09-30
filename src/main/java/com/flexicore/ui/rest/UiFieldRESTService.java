@@ -59,6 +59,7 @@ public class UiFieldRESTService implements RestServicePlugin {
     public PaginationResponse<UiField> getAllUiFields(
             @HeaderParam("authenticationKey") String authenticationKey,
             UiFieldFiltering uiFieldFiltering, @Context SecurityContext securityContext) {
+        service.validate(uiFieldFiltering,securityContext);
         return service.getAllUiFields(uiFieldFiltering, securityContext);
 
     }

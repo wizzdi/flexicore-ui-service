@@ -144,7 +144,11 @@ public class UiFieldRepository extends AbstractRepositoryPlugin {
     }
 
     private void addUiFieldPredicates(List<Predicate> preds, CriteriaBuilder cb, Root<UiField> r, UiFieldFiltering uiFieldFiltering) {
-
+        if(uiFieldFiltering.getGridPresets()!=null && !uiFieldFiltering.getGridPresets().isEmpty()){
+            Set<String> ids=uiFieldFiltering.getGridPresets().parallelStream().map(f->f.getId()).collect(Collectors.toSet());
+            Join<UiField,GridPreset> join=r.join(UiField_.preset);
+            preds.add(join.get(GridPreset_.id).in(ids));
+        }
     }
 
     public long countAllUiFields(UiFieldFiltering uiFieldFiltering, SecurityContext securityContext) {
