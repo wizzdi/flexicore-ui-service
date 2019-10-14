@@ -1,26 +1,25 @@
-package com.flexicore.ui.container.request;
+package com.flexicore.ui.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.flexicore.model.Role;
+import com.flexicore.model.User;
 import com.flexicore.ui.model.Preset;
 
-public class PresetToRoleCreate {
+public class PresetToUserCreate {
 
     private String presetId;
     @JsonIgnore
     private Preset preset;
-    private String roleId;
+    private String userId;
     @JsonIgnore
-    private Role role;
+    private User user;
     private Integer priority;
     private Boolean enabled;
-
 
     public String getPresetId() {
         return presetId;
     }
 
-    public <T extends PresetToRoleCreate> T setPresetId(String presetId) {
+    public <T extends PresetToUserCreate> T setPresetId(String presetId) {
         this.presetId = presetId;
         return (T) this;
     }
@@ -30,27 +29,27 @@ public class PresetToRoleCreate {
         return preset;
     }
 
-    public <T extends PresetToRoleCreate> T setPreset(Preset preset) {
+    public <T extends PresetToUserCreate> T setPreset(Preset preset) {
         this.preset = preset;
         return (T) this;
     }
 
-    public String getRoleId() {
-        return roleId;
+    public String getUserId() {
+        return userId;
     }
 
-    public <T extends PresetToRoleCreate> T setRoleId(String roleId) {
-        this.roleId = roleId;
+    public <T extends PresetToUserCreate> T setUserId(String userId) {
+        this.userId = userId;
         return (T) this;
     }
 
     @JsonIgnore
-    public Role getRole() {
-        return role;
+    public User getUser() {
+        return user;
     }
 
-    public <T extends PresetToRoleCreate> T setRole(Role role) {
-        this.role = role;
+    public <T extends PresetToUserCreate> T setUser(User user) {
+        this.user = user;
         return (T) this;
     }
 
@@ -58,17 +57,16 @@ public class PresetToRoleCreate {
         return priority;
     }
 
-    public <T extends PresetToRoleCreate> T setPriority(Integer priority) {
+    public <T extends PresetToUserCreate> T setPriority(Integer priority) {
         this.priority = priority;
         return (T) this;
     }
-
 
     public Boolean getEnabled() {
         return enabled;
     }
 
-    public <T extends PresetToRoleCreate> T setEnabled(Boolean enabled) {
+    public <T extends PresetToUserCreate> T setEnabled(Boolean enabled) {
         this.enabled = enabled;
         return (T) this;
     }

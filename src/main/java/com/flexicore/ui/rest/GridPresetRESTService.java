@@ -7,12 +7,12 @@ import com.flexicore.interceptors.DynamicResourceInjector;
 import com.flexicore.interceptors.SecurityImposer;
 import com.flexicore.interfaces.RestServicePlugin;
 import com.flexicore.security.SecurityContext;
-import com.flexicore.ui.container.request.GridPresetCreate;
-import com.flexicore.ui.container.request.GridPresetUpdate;
+import com.flexicore.ui.request.GridPresetCopy;
+import com.flexicore.ui.request.GridPresetCreate;
+import com.flexicore.ui.request.GridPresetUpdate;
 import com.flexicore.ui.model.GridPreset;
 import com.flexicore.ui.request.GridPresetFiltering;
 import com.flexicore.ui.service.GridPresetService;
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -73,13 +73,25 @@ public class GridPresetRESTService implements RestServicePlugin {
 
     @POST
     @Produces("application/json")
-    @Operation(summary = "createGridPreset", description="Creates Ui Field ")
+    @Operation(summary = "createGridPreset", description="Creates Grid Preset ")
     @Path("createGridPreset")
     public GridPreset createGridPreset(
             @HeaderParam("authenticationKey") String authenticationKey,
             GridPresetCreate createGridPreset, @Context SecurityContext securityContext) {
         service.validate(createGridPreset, securityContext);
         return service.createGridPreset(createGridPreset, securityContext);
+
+    }
+
+    @POST
+    @Produces("application/json")
+    @Operation(summary = "copyGridPreset", description="Copies Grid Preset")
+    @Path("copyGridPreset")
+    public GridPreset copyGridPreset(
+            @HeaderParam("authenticationKey") String authenticationKey,
+            GridPresetCopy gridPresetCopy, @Context SecurityContext securityContext) {
+        service.validate(gridPresetCopy, securityContext);
+        return service.copyGridPreset(gridPresetCopy, securityContext);
 
     }
 

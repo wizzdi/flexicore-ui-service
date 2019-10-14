@@ -1,7 +1,6 @@
 package com.flexicore.ui.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.flexicore.ui.container.request.UiFieldCreate;
 import com.flexicore.ui.model.GridPreset;
 
 import java.util.ArrayList;

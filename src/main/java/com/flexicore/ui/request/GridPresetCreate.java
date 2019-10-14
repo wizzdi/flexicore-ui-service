@@ -1,9 +1,8 @@
-package com.flexicore.ui.container.request;
+package com.flexicore.ui.request;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.flexicore.model.dynamic.DynamicExecution;
-import com.flexicore.ui.request.CreatePreset;
 
 public class GridPresetCreate extends CreatePreset {
 

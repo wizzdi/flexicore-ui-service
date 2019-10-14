@@ -4,7 +4,7 @@ import com.flexicore.annotations.plugins.PluginInfo;
 import com.flexicore.interfaces.AbstractRepositoryPlugin;
 import com.flexicore.model.*;
 import com.flexicore.security.SecurityContext;
-import com.flexicore.ui.container.request.UiFieldFiltering;
+import com.flexicore.ui.request.UiFieldFiltering;
 import com.flexicore.ui.model.*;
 import com.flexicore.ui.model.PresetToRole;
 import com.flexicore.ui.request.*;

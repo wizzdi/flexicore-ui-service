@@ -6,14 +6,15 @@ import com.flexicore.interfaces.ServicePlugin;
 import com.flexicore.model.Baseclass;
 import com.flexicore.model.dynamic.DynamicExecution;
 import com.flexicore.security.SecurityContext;
-import com.flexicore.ui.container.request.GridPresetCreate;
-import com.flexicore.ui.container.request.GridPresetUpdate;
+import com.flexicore.ui.model.UiField;
+import com.flexicore.ui.request.*;
 import com.flexicore.ui.data.GridPresetRepository;
 import com.flexicore.ui.model.GridPreset;
-import com.flexicore.ui.request.GridPresetFiltering;
 
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @PluginInfo(version = 1)
@@ -26,6 +27,10 @@ public class GridPresetService implements ServicePlugin {
     @Inject
     @PluginInfo(version = 1)
     private GridPresetRepository gridPresetRepository;
+
+    @Inject
+    @PluginInfo(version = 1)
+    private UiFieldService uiFieldService;
 
     public PaginationResponse<GridPreset> getAllGridPresets(GridPresetFiltering gridPresetFiltering, SecurityContext securityContext) {
         List<GridPreset> list = listAllGridPresets(gridPresetFiltering, securityContext);
@@ -40,12 +45,12 @@ public class GridPresetService implements ServicePlugin {
     public boolean updateGridPresetNoMerge(GridPresetCreate createPreset, GridPreset preset) {
         boolean update = presetService.updatePresetNoMerge(createPreset, preset);
         if(createPreset.getRelatedClassCanonicalName()!=null &&!createPreset.getRelatedClassCanonicalName().equals(preset.getRelatedClassCanonicalName())){
-            createPreset.setRelatedClassCanonicalName(preset.getRelatedClassCanonicalName());
+            preset.setRelatedClassCanonicalName(createPreset.getRelatedClassCanonicalName());
             update=true;
         }
 
         if(createPreset.getDynamicExecution()!=null &&(preset.getDynamicExecution()==null||!createPreset.getDynamicExecution().getId().equals(preset.getDynamicExecution().getId()))){
-            createPreset.setDynamicExecution(preset.getDynamicExecution());
+            preset.setDynamicExecution(createPreset.getDynamicExecution());
             update=true;
         }
 
@@ -79,6 +84,16 @@ public class GridPresetService implements ServicePlugin {
         return gridPresetRepository.getByIdOrNull(id, c, batchString, securityContext);
     }
 
+    public void validateCopy(GridPresetCopy gridPresetCopy,SecurityContext securityContext){
+        validate(gridPresetCopy,securityContext);
+        String gridPresetId=gridPresetCopy.getId();
+        GridPreset gridPreset=gridPresetId!=null?getByIdOrNull(gridPresetId,GridPreset.class,null,securityContext):null;
+        if(gridPreset==null){
+            throw new BadRequestException("No Grid Preset With id "+gridPresetId);
+        }
+        gridPresetCopy.setPreset(gridPreset);
+    }
+
     public void validate(GridPresetCreate createGridPreset, SecurityContext securityContext) {
         String dynamicExecutionId = createGridPreset.getDynamicExecutionId();
         DynamicExecution dynamicExecution = dynamicExecutionId == null ? null : getByIdOrNull(dynamicExecutionId, DynamicExecution.class, null, securityContext);
@@ -86,5 +101,31 @@ public class GridPresetService implements ServicePlugin {
             throw new BadRequestException("No Dynamic Execution with id " + dynamicExecutionId);
         }
         createGridPreset.setDynamicExecution(dynamicExecution);
+    }
+
+    public GridPreset copyGridPreset(GridPresetCopy gridPresetCopy, SecurityContext securityContext) {
+        List<Object> toMerge=new ArrayList<>();
+        GridPresetCreate gridPresetCreate=getCreateContainer(gridPresetCopy.getPreset());
+        GridPreset gridPreset=createGridPresetNoMerge(gridPresetCreate,securityContext);
+        updateGridPresetNoMerge(gridPresetCopy,gridPreset);
+        toMerge.add(gridPreset);
+        List<UiField> uiFields=uiFieldService.listAllUiFields(new UiFieldFiltering().setGridPresets(Collections.singletonList(gridPresetCopy.getPreset())),securityContext);
+        for (UiField uiField : uiFields) {
+            UiFieldCreate uiFieldCreate=uiFieldService.getUIFieldCreate(uiField);
+            uiFieldCreate.setGridPreset(gridPreset);
+            UiField uiFieldNoMerge = uiFieldService.createUiFieldNoMerge(uiFieldCreate, securityContext);
+            toMerge.add(uiFieldNoMerge);
+        }
+        gridPresetRepository.massMerge(toMerge);
+        return gridPreset;
+
+    }
+
+    private GridPresetCreate getCreateContainer(GridPreset preset) {
+        return new GridPresetCreate()
+                .setDynamicExecution(preset.getDynamicExecution())
+                .setRelatedClassCanonicalName(preset.getRelatedClassCanonicalName())
+                .setDescription(preset.getDescription())
+                .setName(preset.getName());
     }
 }

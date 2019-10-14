@@ -7,13 +7,9 @@ import com.flexicore.model.*;
 import com.flexicore.security.SecurityContext;
 import com.flexicore.service.BaselinkService;
 import com.flexicore.service.CategoryService;
-import com.flexicore.ui.container.request.*;
 import com.flexicore.ui.data.UiFieldRepository;
 import com.flexicore.ui.model.*;
-import com.flexicore.ui.request.MassCreateUiFields;
-import com.flexicore.ui.request.PresetToRoleFilter;
-import com.flexicore.ui.request.PresetToTenantFilter;
-import com.flexicore.ui.request.PresetToUserFilter;
+import com.flexicore.ui.request.*;
 import com.flexicore.ui.response.PresetToRoleContainer;
 import com.flexicore.ui.response.PresetToTenantContainer;
 import com.flexicore.ui.response.PresetToUserContainer;
@@ -449,5 +445,18 @@ public class UiFieldService implements ServicePlugin {
             throw new BadRequestException("No Grid Presets with ids "+gridPresetIds);
         }
         uiFieldFiltering.setGridPresets(new ArrayList<>(gridPresetMap.values()));
+    }
+
+    public UiFieldCreate getUIFieldCreate(UiField uiField) {
+        return new UiFieldCreate()
+                .setGridPreset(uiField.getPreset())
+                .setCategory(uiField.getCategory())
+                .setDisplayName(uiField.getDisplayName())
+                .setDescription(uiField.getDescription())
+                .setFilterable(uiField.isFilterable())
+                .setSortable(uiField.isSortable())
+                .setVisible(uiField.isVisible())
+                .setPriority(uiField.getPriority())
+                .setName(uiField.getName());
     }
 }
