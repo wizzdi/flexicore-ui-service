@@ -61,59 +61,6 @@ public class UiFieldRESTService implements RestServicePlugin {
     }
 
 
-    @POST
-    @Produces("application/json")
-    @Operation(summary = "updateUiField", description = "Updates Ui Field")
-    @Path("updateUiField")
-    public UiField updateUiField(
-            @HeaderParam("authenticationKey") String authenticationKey,
-            UiFieldUpdate updateUiField, @Context SecurityContext securityContext) {
-        UiField uiField = updateUiField.getId() != null ? service.getByIdOrNull(updateUiField.getId(), UiField.class, null, securityContext) : null;
-        if (uiField == null) {
-            throw new BadRequestException("no ui field with id  " + updateUiField.getId());
-        }
-        updateUiField.setUiField(uiField);
-
-        return service.updateUiField(updateUiField, securityContext);
-
-    }
-
-
-    @POST
-    @Produces("application/json")
-    @Operation(summary = "massCreateUiFields", description = "Mass Creates Ui Field ")
-    @Path("massCreateUiFields")
-    public List<UiField> massCreateUiFields(
-            @HeaderParam("authenticationKey") String authenticationKey,
-            MassCreateUiFields massCreateUiFields, @Context SecurityContext securityContext) {
-      service.validate(massCreateUiFields,securityContext);
-        return service.massCreateUiFields(massCreateUiFields, securityContext);
-
-    }
-
-
-    @POST
-    @Produces("application/json")
-    @Operation(summary = "createUiField", description = "Creates Ui Field ")
-    @Path("createUiField")
-    public UiField createUiField(
-            @HeaderParam("authenticationKey") String authenticationKey,
-            UiFieldCreate createUiField, @Context SecurityContext securityContext) {
-        GridPreset preset = createUiField.getPresetId() != null ? service.getByIdOrNull(createUiField.getPresetId(), GridPreset.class, null, securityContext) : null;
-        if (preset == null) {
-            throw new BadRequestException("no GridPreset with id " + createUiField.getPresetId());
-        }
-        createUiField.setPreset(preset);
-        service.validate(createUiField, securityContext);
-        return service.createUiField(createUiField, securityContext);
-
-    }
-
-
-
-
-
-
 
 
     @POST
