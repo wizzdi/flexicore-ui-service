@@ -2,126 +2,103 @@ package com.flexicore.ui.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.flexicore.model.Category;
-import com.flexicore.ui.model.GridPreset;
+import com.flexicore.ui.model.Preset;
 
 public class UiFieldCreate {
     private String name;
     private String description;
-    private String gridPresetId;
+    private String presetId;
     @JsonIgnore
-    private GridPreset gridPreset;
+    private Preset preset;
     private Integer priority;
     private Boolean visible;
     private String categoryName;
     @JsonIgnore
     private Category category;
     private String displayName;
-    private Boolean sortable;
-    private Boolean filterable;
+
 
     public UiFieldCreate() {
     }
-
 
     public String getName() {
         return name;
     }
 
-    public UiFieldCreate setName(String name) {
+    public <T extends UiFieldCreate> T setName(String name) {
         this.name = name;
-        return this;
+        return (T) this;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public UiFieldCreate setDescription(String description) {
+    public <T extends UiFieldCreate> T setDescription(String description) {
         this.description = description;
-        return this;
+        return (T) this;
     }
 
-    public String getGridPresetId() {
-        return gridPresetId;
+    public String getPresetId() {
+        return presetId;
     }
 
-    public UiFieldCreate setGridPresetId(String gridPresetId) {
-        this.gridPresetId = gridPresetId;
-        return this;
+    public <T extends UiFieldCreate> T setPresetId(String presetId) {
+        this.presetId = presetId;
+        return (T) this;
     }
-
     @JsonIgnore
-    public GridPreset getGridPreset() {
-        return gridPreset;
+    public Preset getPreset() {
+        return preset;
     }
 
-    public UiFieldCreate setGridPreset(GridPreset gridPreset) {
-        this.gridPreset = gridPreset;
-        return this;
+    public <T extends UiFieldCreate> T setPreset(Preset preset) {
+        this.preset = preset;
+        return (T) this;
     }
 
     public Integer getPriority() {
         return priority;
     }
 
-    public UiFieldCreate setPriority(Integer priority) {
+    public <T extends UiFieldCreate> T setPriority(Integer priority) {
         this.priority = priority;
-        return this;
+        return (T) this;
     }
-
 
     public Boolean getVisible() {
         return visible;
     }
 
-    public UiFieldCreate setVisible(Boolean visible) {
+    public <T extends UiFieldCreate> T setVisible(Boolean visible) {
         this.visible = visible;
-        return this;
+        return (T) this;
     }
 
     public String getCategoryName() {
         return categoryName;
     }
 
-    public UiFieldCreate setCategoryName(String categoryName) {
+    public <T extends UiFieldCreate> T setCategoryName(String categoryName) {
         this.categoryName = categoryName;
-        return this;
+        return (T) this;
+    }
+    @JsonIgnore
+    public Category getCategory() {
+        return category;
+    }
+
+    public <T extends UiFieldCreate> T setCategory(Category category) {
+        this.category = category;
+        return (T) this;
     }
 
     public String getDisplayName() {
         return displayName;
     }
 
-    public UiFieldCreate setDisplayName(String displayName) {
+    public <T extends UiFieldCreate> T setDisplayName(String displayName) {
         this.displayName = displayName;
-        return this;
-    }
-
-    @JsonIgnore
-    public Category getCategory() {
-        return category;
-    }
-
-    public UiFieldCreate setCategory(Category category) {
-        this.category = category;
-        return this;
-    }
-
-    public Boolean getSortable() {
-        return sortable;
-    }
-
-    public UiFieldCreate setSortable(Boolean sortable) {
-        this.sortable = sortable;
-        return this;
-    }
-
-    public Boolean getFilterable() {
-        return filterable;
-    }
-
-    public UiFieldCreate setFilterable(Boolean filterable) {
-        this.filterable = filterable;
-        return this;
+        return (T) this;
     }
 }

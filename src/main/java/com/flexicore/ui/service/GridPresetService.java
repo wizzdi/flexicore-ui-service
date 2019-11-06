@@ -109,10 +109,10 @@ public class GridPresetService implements ServicePlugin {
         GridPreset gridPreset=createGridPresetNoMerge(gridPresetCreate,securityContext);
         updateGridPresetNoMerge(gridPresetCopy,gridPreset);
         toMerge.add(gridPreset);
-        List<UiField> uiFields=uiFieldService.listAllUiFields(new UiFieldFiltering().setGridPresets(Collections.singletonList(gridPresetCopy.getPreset())),securityContext);
+        List<UiField> uiFields=uiFieldService.listAllUiFields(new UiFieldFiltering().setPresets(Collections.singletonList(gridPresetCopy.getPreset())),securityContext);
         for (UiField uiField : uiFields) {
             UiFieldCreate uiFieldCreate=uiFieldService.getUIFieldCreate(uiField);
-            uiFieldCreate.setGridPreset(gridPreset);
+            uiFieldCreate.setPreset(gridPreset);
             UiField uiFieldNoMerge = uiFieldService.createUiFieldNoMerge(uiFieldCreate, securityContext);
             toMerge.add(uiFieldNoMerge);
         }

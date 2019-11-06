@@ -3,7 +3,7 @@ package com.flexicore.ui.request;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.flexicore.ui.model.UiField;
 
-public class UpdateUiField extends UiFieldCreate {
+public class UiFieldUpdate extends UiFieldCreate {
     private String id;
     private UiField uiField;
 
@@ -11,7 +11,7 @@ public class UpdateUiField extends UiFieldCreate {
 
 
 
-    public UpdateUiField() {
+    public UiFieldUpdate() {
     }
 
 
@@ -20,7 +20,7 @@ public class UpdateUiField extends UiFieldCreate {
         return id;
     }
 
-    public UpdateUiField setId(String id) {
+    public UiFieldUpdate setId(String id) {
         this.id = id;
         return this;
     }
@@ -30,7 +30,7 @@ public class UpdateUiField extends UiFieldCreate {
         return uiField;
     }
 
-    public UpdateUiField setUiField(UiField uiField) {
+    public UiFieldUpdate setUiField(UiField uiField) {
         this.uiField = uiField;
         return this;
     }

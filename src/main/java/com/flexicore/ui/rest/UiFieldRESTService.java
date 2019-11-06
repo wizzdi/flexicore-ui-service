@@ -67,7 +67,7 @@ public class UiFieldRESTService implements RestServicePlugin {
     @Path("updateUiField")
     public UiField updateUiField(
             @HeaderParam("authenticationKey") String authenticationKey,
-            UpdateUiField updateUiField, @Context SecurityContext securityContext) {
+            UiFieldUpdate updateUiField, @Context SecurityContext securityContext) {
         UiField uiField = updateUiField.getId() != null ? service.getByIdOrNull(updateUiField.getId(), UiField.class, null, securityContext) : null;
         if (uiField == null) {
             throw new BadRequestException("no ui field with id  " + updateUiField.getId());
@@ -99,11 +99,11 @@ public class UiFieldRESTService implements RestServicePlugin {
     public UiField createUiField(
             @HeaderParam("authenticationKey") String authenticationKey,
             UiFieldCreate createUiField, @Context SecurityContext securityContext) {
-        GridPreset preset = createUiField.getGridPresetId() != null ? service.getByIdOrNull(createUiField.getGridPresetId(), GridPreset.class, null, securityContext) : null;
+        GridPreset preset = createUiField.getPresetId() != null ? service.getByIdOrNull(createUiField.getPresetId(), GridPreset.class, null, securityContext) : null;
         if (preset == null) {
-            throw new BadRequestException("no GridPreset with id " + createUiField.getGridPresetId());
+            throw new BadRequestException("no GridPreset with id " + createUiField.getPresetId());
         }
-        createUiField.setGridPreset(preset);
+        createUiField.setPreset(preset);
         service.validate(createUiField, securityContext);
         return service.createUiField(createUiField, securityContext);
 
