@@ -4,12 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.flexicore.model.Category;
 import com.flexicore.ui.model.GridPreset;
 
-public class ColumnCreate extends UiFieldCreate{
+public class TableColumnCreate extends UiFieldCreate{
     private Boolean sortable;
     private Boolean filterable;
-    private Double defaultColumnWidth;
+    private Double defaultTableColumnWidth;
 
-    public ColumnCreate() {
+    public TableColumnCreate() {
     }
 
 
@@ -17,7 +17,7 @@ public class ColumnCreate extends UiFieldCreate{
         return sortable;
     }
 
-    public <T extends ColumnCreate> T setSortable(Boolean sortable) {
+    public <T extends TableColumnCreate> T setSortable(Boolean sortable) {
         this.sortable = sortable;
         return (T) this;
     }
@@ -26,17 +26,17 @@ public class ColumnCreate extends UiFieldCreate{
         return filterable;
     }
 
-    public <T extends ColumnCreate> T setFilterable(Boolean filterable) {
+    public <T extends TableColumnCreate> T setFilterable(Boolean filterable) {
         this.filterable = filterable;
         return (T) this;
     }
 
-    public Double getDefaultColumnWidth() {
-        return defaultColumnWidth;
+    public Double getDefaultTableColumnWidth() {
+        return defaultTableColumnWidth;
     }
 
-    public <T extends ColumnCreate> T setDefaultColumnWidth(Double defaultColumnWidth) {
-        this.defaultColumnWidth = defaultColumnWidth;
+    public <T extends TableColumnCreate> T setDefaultTableColumnWidth(Double defaultTableColumnWidth) {
+        this.defaultTableColumnWidth = defaultTableColumnWidth;
         return (T) this;
     }
 }
