@@ -51,7 +51,7 @@ public class UiFieldRESTService implements RestServicePlugin {
     @POST
     @Produces("application/json")
     @Operation(summary = "listAllUiFields", description = "List all Ui Fields")
-    @Path("listAllUiFields")
+    @Path("getAllUiFields")
     public PaginationResponse<UiField> getAllUiFields(
             @HeaderParam("authenticationKey") String authenticationKey,
             UiFieldFiltering uiFieldFiltering, @Context SecurityContext securityContext) {

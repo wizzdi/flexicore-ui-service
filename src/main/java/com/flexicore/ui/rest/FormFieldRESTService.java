@@ -49,8 +49,8 @@ public class FormFieldRESTService implements RestServicePlugin {
 
     @POST
     @Produces("application/json")
-    @Operation(summary = "listAllFormFields", description = "List all Ui Fields")
-    @Path("listAllFormFields")
+    @Operation(summary = "getAllFormFields", description = "List all Ui Fields")
+    @Path("getAllFormFields")
     public PaginationResponse<FormField> getAllFormFields(
             @HeaderParam("authenticationKey") String authenticationKey,
             FormFieldFiltering formFieldFiltering, @Context SecurityContext securityContext) {
@@ -60,7 +60,7 @@ public class FormFieldRESTService implements RestServicePlugin {
     }
 
 
-    @POST
+    @PUT
     @Produces("application/json")
     @Operation(summary = "updateFormField", description = "Updates Ui Field")
     @Path("updateFormField")

@@ -49,8 +49,8 @@ public class TableColumnRESTService implements RestServicePlugin {
 
     @POST
     @Produces("application/json")
-    @Operation(summary = "listAllTableColumns", description = "List all Ui Fields")
-    @Path("listAllTableColumns")
+    @Operation(summary = "getAllTableColumns", description = "List all Ui Fields")
+    @Path("getAllTableColumns")
     public PaginationResponse<TableColumn> getAllTableColumns(
             @HeaderParam("authenticationKey") String authenticationKey,
             TableColumnFiltering tableColumnFiltering, @Context SecurityContext securityContext) {
@@ -60,7 +60,7 @@ public class TableColumnRESTService implements RestServicePlugin {
     }
 
 
-    @POST
+    @PUT
     @Produces("application/json")
     @Operation(summary = "updateTableColumn", description = "Updates Ui Field")
     @Path("updateTableColumn")
