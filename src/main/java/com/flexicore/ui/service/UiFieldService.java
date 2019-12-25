@@ -4,6 +4,8 @@ import com.flexicore.annotations.plugins.PluginInfo;
 import com.flexicore.data.jsoncontainers.PaginationResponse;
 import com.flexicore.interfaces.ServicePlugin;
 import com.flexicore.model.*;
+import com.flexicore.request.CategoryCreate;
+import com.flexicore.request.CategoryFilter;
 import com.flexicore.security.SecurityContext;
 import com.flexicore.service.BaselinkService;
 import com.flexicore.service.CategoryService;
@@ -405,9 +407,9 @@ public class UiFieldService implements ServicePlugin {
         }
         massCreateUiFields.setGridPreset(preset);
         Map<String, List<UiFieldCreate>> map = massCreateUiFields.getUiFields().parallelStream().filter(f -> f.getCategoryName() != null).collect(Collectors.groupingBy(f -> f.getCategoryName(), Collectors.toList()));
-        Map<String, Category> categoryMap = categoryService.getCategoriesByNames(map.keySet(), securityContext).parallelStream().collect(Collectors.toMap(f -> f.getName(), f -> f, (a, b) -> a));
+        Map<String, Category> categoryMap = categoryService.listAllCategories(new CategoryFilter().setNames(map.keySet()), securityContext).parallelStream().collect(Collectors.toMap(f -> f.getName(), f -> f, (a, b) -> a));
         for (Map.Entry<String, List<UiFieldCreate>> entry : map.entrySet()) {
-            Category category = categoryMap.computeIfAbsent(entry.getKey(), f -> categoryService.createCategory(f, false, securityContext));
+            Category category = categoryMap.computeIfAbsent(entry.getKey(), f -> categoryService.createCategory(new CategoryCreate().setName(f), securityContext));
             for (UiFieldCreate createUiField : entry.getValue()) {
                 createUiField.setCategory(category);
             }
@@ -417,7 +419,7 @@ public class UiFieldService implements ServicePlugin {
 
 
     public void validate(UiFieldCreate createUiField, SecurityContext securityContext) {
-        Category category = categoryService.createCategory(createUiField.getCategoryName(), true, securityContext);
+        Category category = categoryService.createCategory(new CategoryCreate().setName(createUiField.getCategoryName()), securityContext);
         createUiField.setCategory(category);
     }
 
