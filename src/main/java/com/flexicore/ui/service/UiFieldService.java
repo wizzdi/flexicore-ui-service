@@ -34,6 +34,10 @@ public class UiFieldService implements ServicePlugin {
     private UiFieldRepository uiFieldRepository;
 
     @Inject
+    @PluginInfo(version = 1)
+    private PresetToEntityService presetToEntityService;
+
+    @Inject
     private BaselinkService baselinkService;
 
     @Inject
@@ -123,12 +127,7 @@ public class UiFieldService implements ServicePlugin {
 
 
     public void validate(PresetToUserCreate linkPresetToUser,  SecurityContext securityContext) {
-        String presetId = linkPresetToUser.getPresetId();
-        Preset preset = presetId != null ? getByIdOrNull(presetId, Preset.class, null, securityContext) : null;
-        if (preset == null) {
-            throw new BadRequestException("no preset with id " + presetId);
-        }
-        linkPresetToUser.setPreset(preset);
+        presetToEntityService.validate(linkPresetToUser,securityContext);
         String userId = linkPresetToUser.getUserId();
         User user = userId != null ? getByIdOrNull(userId, User.class, null, securityContext) : null;
         if (user == null) {
@@ -139,12 +138,8 @@ public class UiFieldService implements ServicePlugin {
 
 
     public void validate(PresetToRoleCreate presetToRoleCreate, SecurityContext securityContext) {
-        String presetId = presetToRoleCreate.getPresetId();
-        Preset preset = presetId != null ? getByIdOrNull(presetId, Preset.class, null, securityContext) : null;
-        if (preset == null) {
-            throw new BadRequestException("no preset with id " + presetId);
-        }
-        presetToRoleCreate.setPreset(preset);
+        presetToEntityService.validate(presetToRoleCreate,securityContext);
+
         String roleId = presetToRoleCreate.getRoleId();
         Role role = roleId != null ? getByIdOrNull(roleId, Role.class, null, securityContext) : null;
         if (role == null) {
@@ -155,12 +150,8 @@ public class UiFieldService implements ServicePlugin {
 
 
     public void validate(PresetToTenantCreate presetToTenantCreate, SecurityContext securityContext) {
-        String presetId = presetToTenantCreate.getPresetId();
-        Preset preset = presetId != null ? getByIdOrNull(presetId, Preset.class, null, securityContext) : null;
-        if (preset == null) {
-            throw new BadRequestException("no preset with id " + presetId);
-        }
-        presetToTenantCreate.setPreset(preset);
+        presetToEntityService.validate(presetToTenantCreate,securityContext);
+
         String tenantId = presetToTenantCreate.getTenantId();
         Tenant tenant = tenantId != null ? getByIdOrNull(tenantId, Tenant.class, null, securityContext) : null;
         if (tenant == null) {
@@ -238,20 +229,8 @@ public class UiFieldService implements ServicePlugin {
 
 
     public boolean  updatePresetToTenantNoMerge(PresetToTenantCreate presetToTenantCreate,PresetToTenant presetToTenant) {
-        boolean update = false;
-        if (presetToTenantCreate.getPriority() != null && presetToTenantCreate.getPriority() != presetToTenant.getPriority()) {
-            presetToTenant.setPriority(presetToTenantCreate.getPriority());
-            update = true;
-        }
-        if (presetToTenantCreate.getEnabled() != null && presetToTenantCreate.getEnabled() != presetToTenant.isEnabled()) {
-            presetToTenant.setEnabled(presetToTenantCreate.getEnabled());
-            update = true;
-        }
+        boolean update = presetToEntityService.presetToEntityUpdateNoMerge(presetToTenantCreate,presetToTenant);
 
-        if (presetToTenantCreate.getPreset() != null && (presetToTenant.getLeftside()==null||!presetToTenantCreate.getPreset().getId().equals(presetToTenant.getLeftside().getId()))) {
-            presetToTenant.setLeftside(presetToTenantCreate.getPreset());
-            update = true;
-        }
         if (presetToTenantCreate.getTenant() != null && (presetToTenant.getRightside()==null||!presetToTenantCreate.getTenant().getId().equals(presetToTenant.getRightside().getId()))) {
             presetToTenant.setRightside(presetToTenantCreate.getTenant());
             update = true;
@@ -275,20 +254,7 @@ public class UiFieldService implements ServicePlugin {
     }
 
     public boolean  updatePresetToUserNoMerge(PresetToUserCreate presetToUserCreate,PresetToUser presetToUser) {
-        boolean update = false;
-        if (presetToUserCreate.getPriority() != null && presetToUserCreate.getPriority() != presetToUser.getPriority()) {
-            presetToUser.setPriority(presetToUserCreate.getPriority());
-            update = true;
-        }
-        if (presetToUserCreate.getEnabled() != null && presetToUserCreate.getEnabled() != presetToUser.isEnabled()) {
-            presetToUser.setEnabled(presetToUserCreate.getEnabled());
-            update = true;
-        }
-
-        if (presetToUserCreate.getPreset() != null && (presetToUser.getLeftside()==null||!presetToUserCreate.getPreset().getId().equals(presetToUser.getLeftside().getId()))) {
-            presetToUser.setLeftside(presetToUserCreate.getPreset());
-            update = true;
-        }
+        boolean update = presetToEntityService.presetToEntityUpdateNoMerge(presetToUserCreate,presetToUser);
         if (presetToUserCreate.getUser() != null && (presetToUser.getRightside()==null||!presetToUserCreate.getUser().getId().equals(presetToUser.getRightside().getId()))) {
             presetToUser.setRightside(presetToUserCreate.getUser());
             update = true;
@@ -304,20 +270,7 @@ public class UiFieldService implements ServicePlugin {
     }
 
     public boolean  updatePresetToRoleNoMerge(PresetToRoleCreate presetToRoleCreate,PresetToRole presetToRole) {
-        boolean update = false;
-        if (presetToRoleCreate.getPriority() != null && presetToRoleCreate.getPriority() != presetToRole.getPriority()) {
-            presetToRole.setPriority(presetToRoleCreate.getPriority());
-            update = true;
-        }
-        if (presetToRoleCreate.getEnabled() != null && presetToRoleCreate.getEnabled() != presetToRole.isEnabled()) {
-            presetToRole.setEnabled(presetToRoleCreate.getEnabled());
-            update = true;
-        }
-
-        if (presetToRoleCreate.getPreset() != null && (presetToRole.getLeftside()==null||!presetToRoleCreate.getPreset().getId().equals(presetToRole.getLeftside().getId()))) {
-            presetToRole.setLeftside(presetToRoleCreate.getPreset());
-            update = true;
-        }
+        boolean update = presetToEntityService.presetToEntityUpdateNoMerge(presetToRoleCreate,presetToRole);
         if (presetToRoleCreate.getRole() != null && (presetToRole.getRightside()==null||!presetToRoleCreate.getRole().getId().equals(presetToRole.getRightside().getId()))) {
             presetToRole.setRightside(presetToRoleCreate.getRole());
             update = true;
@@ -452,5 +405,14 @@ public class UiFieldService implements ServicePlugin {
                 .setVisible(uiField.isVisible())
                 .setPriority(uiField.getPriority())
                 .setName(uiField.getName());
+    }
+
+    public void validate(PreferedPresetRequest preferedPresetRequest, SecurityContext securityContext) {
+
+    }
+
+
+    public List<Preset> getPreferredPresets(PreferedPresetRequest preferedPresetRequest, SecurityContext securityContext) {
+        return presetToEntityService.getPreferredPresets(preferedPresetRequest,securityContext);
     }
 }

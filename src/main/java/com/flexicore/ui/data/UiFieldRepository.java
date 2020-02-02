@@ -160,4 +160,6 @@ public class UiFieldRepository extends AbstractRepositoryPlugin {
         QueryInformationHolder<UiField> queryInformationHolder=new QueryInformationHolder<>(uiFieldFiltering,UiField.class,securityContext);
         return countAllFiltered(queryInformationHolder,preds,cb,q,r);
     }
+
+
 }

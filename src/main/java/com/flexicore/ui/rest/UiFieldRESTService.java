@@ -115,6 +115,18 @@ public class UiFieldRESTService implements RestServicePlugin {
 
     }
 
+    @POST
+    @Produces("application/json")
+    @Operation(summary = "getPreferredPresets", description = "returns preferred presets")
+    @Path("getPreferredPresets")
+    public List<Preset> getPreferredPresets(
+            @HeaderParam("authenticationKey") String authenticationKey,
+            PreferedPresetRequest linkPresetToRole, @Context SecurityContext securityContext) {
+        service.validate(linkPresetToRole, securityContext);
+        return service.getPreferredPresets(linkPresetToRole, securityContext);
+
+    }
+
 
     @POST
     @Produces("application/json")
