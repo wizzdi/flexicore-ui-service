@@ -91,9 +91,8 @@ public class DashboardService implements ServicePlugin {
 
 	private Dashboard createDashboardNoMerge(CreateDashboard createDashboard,
 			SecurityContext securityContext) {
-		Dashboard dashboard = Dashboard.s().CreateUnchecked(
+		Dashboard dashboard = new Dashboard(
 				createDashboard.getName(), securityContext);
-		dashboard.Init();
 		updateDashboardNoMerge(createDashboard, dashboard);
 		return dashboard;
 	}

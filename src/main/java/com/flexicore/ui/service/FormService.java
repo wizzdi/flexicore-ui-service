@@ -83,9 +83,8 @@ public class FormService implements ServicePlugin {
 
 	public Form createFormNoMerge(FormCreate createPreset,
 			SecurityContext securityContext) {
-		Form preset = Form.s().CreateUnchecked(createPreset.getName(),
+		Form preset = new Form(createPreset.getName(),
 				securityContext);
-		preset.Init();
 		updateFormNoMerge(createPreset, preset);
 		return preset;
 	}

@@ -86,9 +86,8 @@ public class PresetService implements ServicePlugin {
 
 	private Preset createPresetNoMerge(CreatePreset createPreset,
 			SecurityContext securityContext) {
-		Preset preset = Preset.s().CreateUnchecked(createPreset.getName(),
+		Preset preset = new Preset(createPreset.getName(),
 				securityContext);
-		preset.Init();
 		updatePresetNoMerge(createPreset, preset);
 		return preset;
 	}

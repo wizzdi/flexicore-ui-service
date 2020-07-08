@@ -96,9 +96,8 @@ public class GridPresetService implements ServicePlugin {
 
 	public GridPreset createGridPresetNoMerge(GridPresetCreate createPreset,
 			SecurityContext securityContext) {
-		GridPreset preset = GridPreset.s().CreateUnchecked(
+		GridPreset preset = new GridPreset(
 				createPreset.getName(), securityContext);
-		preset.Init();
 		updateGridPresetNoMerge(createPreset, preset);
 		return preset;
 	}
