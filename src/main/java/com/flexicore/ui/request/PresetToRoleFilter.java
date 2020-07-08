@@ -11,28 +11,26 @@ import java.util.Set;
 
 public class PresetToRoleFilter extends PresetLinkFilter {
 
-    private Set<String> roleIds=new HashSet<>();
-    @JsonIgnore
-    private List<Role> roles;
+	private Set<String> roleIds = new HashSet<>();
+	@JsonIgnore
+	private List<Role> roles;
 
+	public <T extends PresetToRoleFilter> T setRoleIds(Set<String> roleIds) {
+		this.roleIds = roleIds;
+		return (T) this;
+	}
 
+	@JsonIgnore
+	public List<Role> getRoles() {
+		return roles;
+	}
 
-    public <T extends PresetToRoleFilter> T setRoleIds(Set<String> roleIds) {
-        this.roleIds = roleIds;
-        return (T) this;
-    }
+	public <T extends PresetToRoleFilter> T setRoles(List<Role> roles) {
+		this.roles = roles;
+		return (T) this;
+	}
 
-    @JsonIgnore
-    public List<Role> getRoles() {
-        return roles;
-    }
-
-    public <T extends PresetToRoleFilter> T setRoles(List<Role> roles) {
-        this.roles = roles;
-        return (T) this;
-    }
-
-    public Set<String> getRoleIds() {
-        return roleIds;
-    }
+	public Set<String> getRoleIds() {
+		return roleIds;
+	}
 }

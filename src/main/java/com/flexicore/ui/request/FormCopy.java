@@ -5,26 +5,26 @@ import com.flexicore.ui.model.Form;
 
 public class FormCopy extends FormCreate {
 
-    private String id;
-    @JsonIgnore
-    private Form form;
+	private String id;
+	@JsonIgnore
+	private Form form;
 
-    public String getId() {
-        return id;
-    }
+	public String getId() {
+		return id;
+	}
 
-    public FormCopy setId(String id) {
-        this.id = id;
-        return this;
-    }
+	public FormCopy setId(String id) {
+		this.id = id;
+		return this;
+	}
 
-    @JsonIgnore
-    public Form getForm() {
-        return form;
-    }
+	@JsonIgnore
+	public Form getForm() {
+		return form;
+	}
 
-    public FormCopy setForm(Form form) {
-        this.form = form;
-        return this;
-    }
+	public FormCopy setForm(Form form) {
+		this.form = form;
+		return this;
+	}
 }

@@ -18,90 +18,87 @@ import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-import javax.inject.Inject;
 import javax.interceptor.Interceptors;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
+import org.pf4j.Extension;
+import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Created by Asaf on 04/06/2017.
  */
 
-
 @PluginInfo(version = 1)
 @OperationsInside
 @ProtectedREST
 @Path("plugins/FormFields")
-@OpenAPIDefinition(tags = {
-        @Tag(name = "FormFields", description = "FormFields Services")
-})
+@OpenAPIDefinition(tags = {@Tag(name = "FormFields", description = "FormFields Services")})
 @Tag(name = "FormFields")
-
+@Extension
+@Component
 public class FormFieldRESTService implements RestServicePlugin {
 
-    @Inject
-    @PluginInfo(version = 1)
-    private FormFieldService service;
+	@PluginInfo(version = 1)
+	@Autowired
+	private FormFieldService service;
 
-    @Inject
-    private CategoryService categoryService;
+	@Autowired
+	private CategoryService categoryService;
 
+	@POST
+	@Produces("application/json")
+	@Operation(summary = "getAllFormFields", description = "List all Ui Fields")
+	@Path("getAllFormFields")
+	public PaginationResponse<FormField> getAllFormFields(
+			@HeaderParam("authenticationKey") String authenticationKey,
+			FormFieldFiltering formFieldFiltering,
+			@Context SecurityContext securityContext) {
+		service.validate(formFieldFiltering, securityContext);
+		return service.getAllFormFields(formFieldFiltering, securityContext);
 
-    @POST
-    @Produces("application/json")
-    @Operation(summary = "getAllFormFields", description = "List all Ui Fields")
-    @Path("getAllFormFields")
-    public PaginationResponse<FormField> getAllFormFields(
-            @HeaderParam("authenticationKey") String authenticationKey,
-            FormFieldFiltering formFieldFiltering, @Context SecurityContext securityContext) {
-        service.validate(formFieldFiltering,securityContext);
-        return service.getAllFormFields(formFieldFiltering, securityContext);
+	}
 
-    }
+	@PUT
+	@Produces("application/json")
+	@Operation(summary = "updateFormField", description = "Updates Ui Field")
+	@Path("updateFormField")
+	public FormField updateFormField(
+			@HeaderParam("authenticationKey") String authenticationKey,
+			FormFieldUpdate formFieldUpdate,
+			@Context SecurityContext securityContext) {
+		FormField formField = formFieldUpdate.getId() != null ? service
+				.getByIdOrNull(formFieldUpdate.getId(), FormField.class, null,
+						securityContext) : null;
+		if (formField == null) {
+			throw new BadRequestException("no ui field with id  "
+					+ formFieldUpdate.getId());
+		}
+		formFieldUpdate.setFormField(formField);
 
+		return service.FormFieldUpdate(formFieldUpdate, securityContext);
 
-    @PUT
-    @Produces("application/json")
-    @Operation(summary = "updateFormField", description = "Updates Ui Field")
-    @Path("updateFormField")
-    public FormField updateFormField(
-            @HeaderParam("authenticationKey") String authenticationKey,
-            FormFieldUpdate formFieldUpdate, @Context SecurityContext securityContext) {
-        FormField formField = formFieldUpdate.getId() != null ? service.getByIdOrNull(formFieldUpdate.getId(), FormField.class, null, securityContext) : null;
-        if (formField == null) {
-            throw new BadRequestException("no ui field with id  " + formFieldUpdate.getId());
-        }
-        formFieldUpdate.setFormField(formField);
+	}
 
-        return service.FormFieldUpdate(formFieldUpdate, securityContext);
+	@POST
+	@Produces("application/json")
+	@Operation(summary = "createFormField", description = "Creates Ui Field ")
+	@Path("createFormField")
+	public FormField createFormField(
+			@HeaderParam("authenticationKey") String authenticationKey,
+			FormFieldCreate createFormField,
+			@Context SecurityContext securityContext) {
+		GridPreset preset = createFormField.getPresetId() != null ? service
+				.getByIdOrNull(createFormField.getPresetId(), GridPreset.class,
+						null, securityContext) : null;
+		if (preset == null) {
+			throw new BadRequestException("no GridPreset with id "
+					+ createFormField.getPresetId());
+		}
+		createFormField.setPreset(preset);
+		service.validate(createFormField, securityContext);
+		return service.createFormField(createFormField, securityContext);
 
-    }
-
-
-
-    @POST
-    @Produces("application/json")
-    @Operation(summary = "createFormField", description = "Creates Ui Field ")
-    @Path("createFormField")
-    public FormField createFormField(
-            @HeaderParam("authenticationKey") String authenticationKey,
-            FormFieldCreate createFormField, @Context SecurityContext securityContext) {
-        GridPreset preset = createFormField.getPresetId() != null ? service.getByIdOrNull(createFormField.getPresetId(), GridPreset.class, null, securityContext) : null;
-        if (preset == null) {
-            throw new BadRequestException("no GridPreset with id " + createFormField.getPresetId());
-        }
-        createFormField.setPreset(preset);
-        service.validate(createFormField, securityContext);
-        return service.createFormField(createFormField, securityContext);
-
-    }
-
-
-
-
-
-
-
+	}
 
 }
-

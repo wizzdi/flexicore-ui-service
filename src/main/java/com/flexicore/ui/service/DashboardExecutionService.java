@@ -15,103 +15,145 @@ import com.flexicore.ui.request.CreateDashboardExecution;
 import com.flexicore.ui.request.DashboardExecutionFiltering;
 import com.flexicore.ui.request.UpdateDashboardExecution;
 
-import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import java.util.List;
 import java.util.logging.Logger;
+import org.pf4j.Extension;
+import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @PluginInfo(version = 1)
-
+@Extension
+@Component
 public class DashboardExecutionService implements ServicePlugin {
 
-    @Inject
-    private Logger logger;
+	@Autowired
+	private Logger logger;
 
-    @Inject
-    @PluginInfo(version = 1)
-    private DashboardExecutionRepository dashboardExecutionRepository;
+	@PluginInfo(version = 1)
+	@Autowired
+	private DashboardExecutionRepository dashboardExecutionRepository;
 
+	public DashboardExecution updateDashboardExecution(
+			UpdateDashboardExecution updateDashboardExecution,
+			SecurityContext securityContext) {
+		if (updateDashboardExecutionNoMerge(updateDashboardExecution,
+				updateDashboardExecution.getDashboardExecution())) {
+			dashboardExecutionRepository.merge(updateDashboardExecution
+					.getDashboardExecution());
+		}
+		return updateDashboardExecution.getDashboardExecution();
+	}
 
+	public boolean updateDashboardExecutionNoMerge(
+			CreateDashboardExecution updateDashboardElement,
+			DashboardExecution dashboardElement) {
+		boolean update = false;
+		if (updateDashboardElement.getDescription() != null
+				&& (dashboardElement.getDescription() == null || !updateDashboardElement
+						.getDescription().equals(
+								dashboardElement.getDescription()))) {
+			update = true;
+			dashboardElement.setDescription(updateDashboardElement
+					.getDescription());
+		}
 
+		if (updateDashboardElement.getName() != null
+				&& !updateDashboardElement.getName().equals(
+						dashboardElement.getName())) {
+			update = true;
+			dashboardElement.setName(updateDashboardElement.getName());
+		}
 
+		if (updateDashboardElement.getDynamicExecution() != null
+				&& !updateDashboardElement.getDynamicExecution().equals(
+						dashboardElement.getDynamicExecution())) {
+			update = true;
+			dashboardElement.setDynamicExecution(updateDashboardElement
+					.getDynamicExecution());
+		}
 
-    public DashboardExecution updateDashboardExecution(UpdateDashboardExecution updateDashboardExecution, SecurityContext securityContext) {
-        if (updateDashboardExecutionNoMerge(updateDashboardExecution, updateDashboardExecution.getDashboardExecution())) {
-            dashboardExecutionRepository.merge(updateDashboardExecution.getDashboardExecution());
-        }
-        return updateDashboardExecution.getDashboardExecution();
-    }
+		if (updateDashboardElement.getDashboardElement() != null
+				&& (dashboardElement.getDashboardElement() == null || !updateDashboardElement
+						.getDashboardElement().getId()
+						.equals(dashboardElement.getDashboardElement().getId()))) {
+			update = true;
+			dashboardElement.setDashboardElement(updateDashboardElement
+					.getDashboardElement());
+		}
+		return update;
+	}
 
-    public boolean updateDashboardExecutionNoMerge(CreateDashboardExecution updateDashboardElement, DashboardExecution dashboardElement) {
-        boolean update=false;
-        if (updateDashboardElement.getDescription() != null && (dashboardElement.getDescription() == null || !updateDashboardElement.getDescription().equals(dashboardElement.getDescription()))) {
-            update = true;
-            dashboardElement.setDescription(updateDashboardElement.getDescription());
-        }
+	public <T extends Baseclass> T getByIdOrNull(String id, Class<T> c,
+			List<String> batchString, SecurityContext securityContext) {
+		return dashboardExecutionRepository.getByIdOrNull(id, c, batchString,
+				securityContext);
+	}
 
-        if (updateDashboardElement.getName() != null && !updateDashboardElement.getName().equals(dashboardElement.getName())) {
-            update = true;
-            dashboardElement.setName(updateDashboardElement.getName());
-        }
+	public PaginationResponse<DashboardExecution> getAllDashboardExecutions(
+			DashboardExecutionFiltering dashboardExecutionFiltering,
+			SecurityContext securityContext) {
+		List<DashboardExecution> list = listAllDashboardExecutions(
+				dashboardExecutionFiltering, securityContext);
+		long count = dashboardExecutionRepository.countAllDashboardExecutions(
+				dashboardExecutionFiltering, securityContext);
+		return new PaginationResponse<>(list, dashboardExecutionFiltering,
+				count);
+	}
 
-        if (updateDashboardElement.getDynamicExecution() != null && !updateDashboardElement.getDynamicExecution().equals(dashboardElement.getDynamicExecution())) {
-            update = true;
-            dashboardElement.setDynamicExecution(updateDashboardElement.getDynamicExecution());
-        }
+	public List<DashboardExecution> listAllDashboardExecutions(
+			DashboardExecutionFiltering dashboardExecutionFiltering,
+			SecurityContext securityContext) {
+		return dashboardExecutionRepository.listAllDashboardExecutions(
+				dashboardExecutionFiltering, securityContext);
+	}
 
-        if (updateDashboardElement.getDashboardElement() != null && (dashboardElement.getDashboardElement()==null||!updateDashboardElement.getDashboardElement().getId().equals(dashboardElement.getDashboardElement().getId()))) {
-            update = true;
-            dashboardElement.setDashboardElement(updateDashboardElement.getDashboardElement());
-        }
-        return update;
-    }
+	public DashboardExecution createDashboardExecution(
+			CreateDashboardExecution createDashboardExecution,
+			SecurityContext securityContext) {
+		DashboardExecution dashboardExecution = createDashboardExecutionNoMerge(
+				createDashboardExecution, securityContext);
+		dashboardExecutionRepository.merge(dashboardExecution);
+		return dashboardExecution;
 
+	}
 
-    public <T extends Baseclass> T getByIdOrNull(String id, Class<T> c, List<String> batchString, SecurityContext securityContext) {
-        return dashboardExecutionRepository.getByIdOrNull(id, c, batchString, securityContext);
-    }
+	private DashboardExecution createDashboardExecutionNoMerge(
+			CreateDashboardExecution createDashboardExecution,
+			SecurityContext securityContext) {
+		DashboardExecution dashboardExecution = DashboardExecution.s()
+				.CreateUnchecked(createDashboardExecution.getName(),
+						securityContext);
+		dashboardExecution.Init();
+		updateDashboardExecutionNoMerge(createDashboardExecution,
+				dashboardExecution);
+		return dashboardExecution;
+	}
 
-    public PaginationResponse<DashboardExecution> getAllDashboardExecutions(DashboardExecutionFiltering dashboardExecutionFiltering, SecurityContext securityContext) {
-       List<DashboardExecution> list=listAllDashboardExecutions(dashboardExecutionFiltering,securityContext);
-       long count=dashboardExecutionRepository.countAllDashboardExecutions(dashboardExecutionFiltering,securityContext);
-       return new PaginationResponse<>(list,dashboardExecutionFiltering,count);
-    }
+	public void validate(CreateDashboardExecution createDashboardExecution,
+			SecurityContext securityContext) {
 
-    public List<DashboardExecution> listAllDashboardExecutions(DashboardExecutionFiltering dashboardExecutionFiltering, SecurityContext securityContext) {
-       return dashboardExecutionRepository.listAllDashboardExecutions(dashboardExecutionFiltering,securityContext);
-    }
+		String dashboardElementId = createDashboardExecution
+				.getDashboardElementId();
+		DashboardElement dashboardElement = dashboardElementId != null
+				? getByIdOrNull(dashboardElementId, DashboardElement.class,
+						null, securityContext) : null;
+		if (dashboardElement == null) {
+			throw new BadRequestException("No dashboard element with id "
+					+ dashboardElementId);
+		}
+		createDashboardExecution.setDashboardElement(dashboardElement);
 
+		String dynamicExecutionId = createDashboardExecution
+				.getDynamicExecutionId();
+		DynamicExecution dynamicExecution = dynamicExecutionId != null
+				? getByIdOrNull(dynamicExecutionId, DynamicExecution.class,
+						null, securityContext) : null;
+		if (dynamicExecution == null) {
+			throw new BadRequestException("No DynamicExecution with ids "
+					+ dynamicExecutionId);
+		}
+		createDashboardExecution.setDynamicExecution(dynamicExecution);
 
-    public DashboardExecution createDashboardExecution(CreateDashboardExecution createDashboardExecution, SecurityContext securityContext) {
-        DashboardExecution dashboardExecution = createDashboardExecutionNoMerge(createDashboardExecution, securityContext);
-        dashboardExecutionRepository.merge(dashboardExecution);
-        return dashboardExecution;
-
-    }
-
-    private DashboardExecution createDashboardExecutionNoMerge(CreateDashboardExecution createDashboardExecution, SecurityContext securityContext) {
-        DashboardExecution dashboardExecution = DashboardExecution.s().CreateUnchecked(createDashboardExecution.getName(), securityContext);
-        dashboardExecution.Init();
-        updateDashboardExecutionNoMerge(createDashboardExecution, dashboardExecution);
-        return dashboardExecution;
-    }
-
-    public void validate(CreateDashboardExecution createDashboardExecution, SecurityContext securityContext) {
-
-        String dashboardElementId=createDashboardExecution.getDashboardElementId();
-        DashboardElement dashboardElement=dashboardElementId!=null?getByIdOrNull(dashboardElementId,DashboardElement.class,null,securityContext):null;
-        if(dashboardElement==null){
-            throw new BadRequestException("No dashboard element with id "+dashboardElementId);
-        }
-        createDashboardExecution.setDashboardElement(dashboardElement);
-
-
-        String dynamicExecutionId=createDashboardExecution.getDynamicExecutionId();
-        DynamicExecution dynamicExecution=dynamicExecutionId!=null?getByIdOrNull(dynamicExecutionId,DynamicExecution.class,null,securityContext):null;
-        if(dynamicExecution==null){
-            throw new BadRequestException("No DynamicExecution with ids "+dynamicExecutionId);
-        }
-        createDashboardExecution.setDynamicExecution(dynamicExecution);
-
-    }
+	}
 }

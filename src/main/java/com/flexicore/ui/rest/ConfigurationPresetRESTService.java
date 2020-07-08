@@ -16,74 +16,80 @@ import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-import javax.inject.Inject;
 import javax.interceptor.Interceptors;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
+import org.pf4j.Extension;
+import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Created by Asaf on 04/06/2017.
  */
 
-
 @PluginInfo(version = 1)
 @OperationsInside
 @ProtectedREST
 @Path("plugins/ConfigurationPresets")
-@OpenAPIDefinition(tags = {
-        @Tag(name = "ConfigurationPresets", description = "ConfigurationPresets Services")
-})
+@OpenAPIDefinition(tags = {@Tag(name = "ConfigurationPresets", description = "ConfigurationPresets Services")})
 @Tag(name = "ConfigurationPresets")
-
+@Extension
+@Component
 public class ConfigurationPresetRESTService implements RestServicePlugin {
 
-    @Inject
-    @PluginInfo(version = 1)
-    private ConfigurationPresetService service;
+	@PluginInfo(version = 1)
+	@Autowired
+	private ConfigurationPresetService service;
 
+	@POST
+	@Produces("application/json")
+	@Operation(summary = "getAllConfigurationPresets", description = "returns all ConfigurationPresets")
+	@Path("getAllConfigurationPresets")
+	public PaginationResponse<ConfigurationPreset> getAllConfigurationPresets(
+			@HeaderParam("authenticationKey") String authenticationKey,
+			ConfigurationPresetFiltering configurationPresetFiltering,
+			@Context SecurityContext securityContext) {
+		return service.getAllConfigurationPresets(configurationPresetFiltering,
+				securityContext);
 
-    @POST
-    @Produces("application/json")
-    @Operation(summary = "getAllConfigurationPresets", description="returns all ConfigurationPresets")
-    @Path("getAllConfigurationPresets")
-    public PaginationResponse<ConfigurationPreset> getAllConfigurationPresets(
-            @HeaderParam("authenticationKey") String authenticationKey,
-            ConfigurationPresetFiltering configurationPresetFiltering, @Context SecurityContext securityContext) {
-        return service.getAllConfigurationPresets(configurationPresetFiltering, securityContext);
+	}
 
-    }
+	@PUT
+	@Produces("application/json")
+	@Operation(summary = "updateConfigurationPreset", description = "Updates Dashbaord")
+	@Path("updateConfigurationPreset")
+	public ConfigurationPreset updateConfigurationPreset(
+			@HeaderParam("authenticationKey") String authenticationKey,
+			UpdateConfigurationPreset updateConfigurationPreset,
+			@Context SecurityContext securityContext) {
+		ConfigurationPreset configurationPresetToClazz = updateConfigurationPreset
+				.getId() != null ? service.getByIdOrNull(
+				updateConfigurationPreset.getId(), ConfigurationPreset.class,
+				null, securityContext) : null;
+		if (configurationPresetToClazz == null) {
+			throw new BadRequestException("no ui field with id  "
+					+ updateConfigurationPreset.getId());
+		}
+		updateConfigurationPreset
+				.setConfigurationPreset(configurationPresetToClazz);
 
+		return service.updateConfigurationPreset(updateConfigurationPreset,
+				securityContext);
 
-    @PUT
-    @Produces("application/json")
-    @Operation(summary = "updateConfigurationPreset", description="Updates Dashbaord")
-    @Path("updateConfigurationPreset")
-    public ConfigurationPreset updateConfigurationPreset(
-            @HeaderParam("authenticationKey") String authenticationKey,
-            UpdateConfigurationPreset updateConfigurationPreset, @Context SecurityContext securityContext) {
-        ConfigurationPreset configurationPresetToClazz = updateConfigurationPreset.getId() != null ? service.getByIdOrNull(updateConfigurationPreset.getId(), ConfigurationPreset.class, null, securityContext) : null;
-        if (configurationPresetToClazz == null) {
-            throw new BadRequestException("no ui field with id  " + updateConfigurationPreset.getId());
-        }
-        updateConfigurationPreset.setConfigurationPreset(configurationPresetToClazz);
+	}
 
-        return service.updateConfigurationPreset(updateConfigurationPreset, securityContext);
+	@POST
+	@Produces("application/json")
+	@Operation(summary = "createConfigurationPreset", description = "Creates Ui Field ")
+	@Path("createConfigurationPreset")
+	public ConfigurationPreset createConfigurationPreset(
+			@HeaderParam("authenticationKey") String authenticationKey,
+			CreateConfigurationPreset createConfigurationPreset,
+			@Context SecurityContext securityContext) {
+		service.validate(createConfigurationPreset, securityContext);
+		return service.createConfigurationPreset(createConfigurationPreset,
+				securityContext);
 
-    }
-
-
-    @POST
-    @Produces("application/json")
-    @Operation(summary = "createConfigurationPreset", description="Creates Ui Field ")
-    @Path("createConfigurationPreset")
-    public ConfigurationPreset createConfigurationPreset(
-            @HeaderParam("authenticationKey") String authenticationKey,
-            CreateConfigurationPreset createConfigurationPreset, @Context SecurityContext securityContext) {
-        service.validate(createConfigurationPreset, securityContext);
-        return service.createConfigurationPreset(createConfigurationPreset, securityContext);
-
-    }
-
+	}
 
 }
-

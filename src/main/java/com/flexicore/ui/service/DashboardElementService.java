@@ -13,96 +13,131 @@ import com.flexicore.ui.request.CreateDashboardElement;
 import com.flexicore.ui.request.DashboardElementFiltering;
 import com.flexicore.ui.request.UpdateDashboardElement;
 
-import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import java.util.List;
 import java.util.logging.Logger;
+import org.pf4j.Extension;
+import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @PluginInfo(version = 1)
-
+@Extension
+@Component
 public class DashboardElementService implements ServicePlugin {
 
-    @Inject
-    private Logger logger;
+	@Autowired
+	private Logger logger;
 
-    @Inject
-    @PluginInfo(version = 1)
-    private DashboardElementRepository dashboardElementRepository;
+	@PluginInfo(version = 1)
+	@Autowired
+	private DashboardElementRepository dashboardElementRepository;
 
+	public DashboardElement updateDashboardElement(
+			UpdateDashboardElement updateDashboardElement,
+			SecurityContext securityContext) {
+		if (updateDashboardElementNoMerge(updateDashboardElement,
+				updateDashboardElement.getDashboardElement())) {
+			dashboardElementRepository.merge(updateDashboardElement
+					.getDashboardElement());
+		}
+		return updateDashboardElement.getDashboardElement();
+	}
 
+	public boolean updateDashboardElementNoMerge(
+			CreateDashboardElement updateDashboardElement,
+			DashboardElement dashboardElement) {
+		boolean update = false;
 
-    public DashboardElement updateDashboardElement(UpdateDashboardElement updateDashboardElement, SecurityContext securityContext) {
-        if (updateDashboardElementNoMerge(updateDashboardElement, updateDashboardElement.getDashboardElement())) {
-            dashboardElementRepository.merge(updateDashboardElement.getDashboardElement());
-        }
-        return updateDashboardElement.getDashboardElement();
-    }
+		if (updateDashboardElement.getDescription() != null
+				&& (dashboardElement.getDescription() == null || !updateDashboardElement
+						.getDescription().equals(
+								dashboardElement.getDescription()))) {
+			update = true;
+			dashboardElement.setDescription(updateDashboardElement
+					.getDescription());
+		}
 
-    public boolean updateDashboardElementNoMerge(CreateDashboardElement updateDashboardElement, DashboardElement dashboardElement) {
-        boolean update = false;
+		if (updateDashboardElement.getName() != null
+				&& !updateDashboardElement.getName().equals(
+						dashboardElement.getName())) {
+			update = true;
+			dashboardElement.setName(updateDashboardElement.getName());
+		}
 
+		if (updateDashboardElement.getContextString() != null
+				&& !updateDashboardElement.getContextString().equals(
+						dashboardElement.getContextString())) {
+			update = true;
+			dashboardElement.setContextString(updateDashboardElement
+					.getContextString());
+		}
 
-        if (updateDashboardElement.getDescription() != null && (dashboardElement.getDescription() == null || !updateDashboardElement.getDescription().equals(dashboardElement.getDescription()))) {
-            update = true;
-            dashboardElement.setDescription(updateDashboardElement.getDescription());
-        }
+		if (updateDashboardElement.getDashboard() != null
+				&& (dashboardElement.getDashboard() == null || !updateDashboardElement
+						.getDashboard().getId()
+						.equals(dashboardElement.getDashboard().getId()))) {
+			update = true;
+			dashboardElement
+					.setDashboard(updateDashboardElement.getDashboard());
+		}
 
-        if (updateDashboardElement.getName() != null && !updateDashboardElement.getName().equals(dashboardElement.getName())) {
-            update = true;
-            dashboardElement.setName(updateDashboardElement.getName());
-        }
+		return update;
+	}
 
-        if (updateDashboardElement.getContextString() != null && !updateDashboardElement.getContextString().equals(dashboardElement.getContextString())) {
-            update = true;
-            dashboardElement.setContextString(updateDashboardElement.getContextString());
-        }
+	public <T extends Baseclass> T getByIdOrNull(String id, Class<T> c,
+			List<String> batchString, SecurityContext securityContext) {
+		return dashboardElementRepository.getByIdOrNull(id, c, batchString,
+				securityContext);
+	}
 
-        if (updateDashboardElement.getDashboard() != null && (dashboardElement.getDashboard()==null||!updateDashboardElement.getDashboard().getId().equals(dashboardElement.getDashboard().getId()))) {
-            update = true;
-            dashboardElement.setDashboard(updateDashboardElement.getDashboard());
-        }
+	public PaginationResponse<DashboardElement> getAllDashboardElements(
+			DashboardElementFiltering dashboardElementFiltering,
+			SecurityContext securityContext) {
+		List<DashboardElement> list = listAllDashboardElements(
+				dashboardElementFiltering, securityContext);
+		long count = dashboardElementRepository.countAllDashboardElements(
+				dashboardElementFiltering, securityContext);
+		return new PaginationResponse<>(list, dashboardElementFiltering, count);
+	}
 
-        return update;
-    }
+	public List<DashboardElement> listAllDashboardElements(
+			DashboardElementFiltering dashboardElementFiltering,
+			SecurityContext securityContext) {
+		return dashboardElementRepository.listAllDashboardElements(
+				dashboardElementFiltering, securityContext);
+	}
 
+	public DashboardElement createDashboardElement(
+			CreateDashboardElement createDashboardElement,
+			SecurityContext securityContext) {
+		DashboardElement dashboardElement = createDashboardElementNoMerge(
+				createDashboardElement, securityContext);
+		dashboardElementRepository.merge(dashboardElement);
+		return dashboardElement;
 
-    public <T extends Baseclass> T getByIdOrNull(String id, Class<T> c, List<String> batchString, SecurityContext securityContext) {
-        return dashboardElementRepository.getByIdOrNull(id, c, batchString, securityContext);
-    }
+	}
 
-    public PaginationResponse<DashboardElement> getAllDashboardElements(DashboardElementFiltering dashboardElementFiltering, SecurityContext securityContext) {
-       List<DashboardElement> list=listAllDashboardElements(dashboardElementFiltering,securityContext);
-       long count=dashboardElementRepository.countAllDashboardElements(dashboardElementFiltering,securityContext);
-       return new PaginationResponse<>(list,dashboardElementFiltering,count);
-    }
+	private DashboardElement createDashboardElementNoMerge(
+			CreateDashboardElement createDashboardElement,
+			SecurityContext securityContext) {
+		DashboardElement dashboardElement = DashboardElement.s()
+				.CreateUnchecked(createDashboardElement.getName(),
+						securityContext);
+		dashboardElement.Init();
+		updateDashboardElementNoMerge(createDashboardElement, dashboardElement);
+		return dashboardElement;
+	}
 
-    public List<DashboardElement> listAllDashboardElements(DashboardElementFiltering dashboardElementFiltering, SecurityContext securityContext) {
-       return dashboardElementRepository.listAllDashboardElements(dashboardElementFiltering,securityContext);
-    }
+	public void validate(CreateDashboardElement createDashboardElement,
+			SecurityContext securityContext) {
+		String dashboardId = createDashboardElement.getDashboardId();
+		Dashboard dashboard = dashboardId != null ? getByIdOrNull(dashboardId,
+				Dashboard.class, null, securityContext) : null;
+		if (dashboard == null) {
+			throw new BadRequestException("No Dashboard element with id "
+					+ dashboardId);
+		}
+		createDashboardElement.setDashboard(dashboard);
 
-
-    public DashboardElement createDashboardElement(CreateDashboardElement createDashboardElement, SecurityContext securityContext) {
-        DashboardElement dashboardElement = createDashboardElementNoMerge(createDashboardElement, securityContext);
-        dashboardElementRepository.merge(dashboardElement);
-        return dashboardElement;
-
-    }
-
-    private DashboardElement createDashboardElementNoMerge(CreateDashboardElement createDashboardElement, SecurityContext securityContext) {
-        DashboardElement dashboardElement = DashboardElement.s().CreateUnchecked(createDashboardElement.getName(), securityContext);
-        dashboardElement.Init();
-        updateDashboardElementNoMerge(createDashboardElement, dashboardElement);
-        return dashboardElement;
-    }
-
-    public void validate(CreateDashboardElement createDashboardElement, SecurityContext securityContext) {
-        String dashboardId=createDashboardElement.getDashboardId();
-        Dashboard dashboard=dashboardId!=null?getByIdOrNull(dashboardId,Dashboard.class,null,securityContext):null;
-        if(dashboard==null){
-            throw new BadRequestException("No Dashboard element with id "+dashboardId);
-        }
-        createDashboardElement.setDashboard(dashboard);
-
-
-    }
+	}
 }

@@ -16,74 +16,75 @@ import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-import javax.inject.Inject;
 import javax.interceptor.Interceptors;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
+import org.pf4j.Extension;
+import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Created by Asaf on 04/06/2017.
  */
 
-
 @PluginInfo(version = 1)
 @OperationsInside
 @ProtectedREST
 @Path("plugins/Dashboards")
-@OpenAPIDefinition(tags = {
-        @Tag(name = "Dashboards", description = "Dashboards Services")
-})
+@OpenAPIDefinition(tags = {@Tag(name = "Dashboards", description = "Dashboards Services")})
 @Tag(name = "Dashboards")
-
+@Extension
+@Component
 public class DashboardRESTService implements RestServicePlugin {
 
-    @Inject
-    @PluginInfo(version = 1)
-    private DashboardService service;
+	@PluginInfo(version = 1)
+	@Autowired
+	private DashboardService service;
 
+	@POST
+	@Produces("application/json")
+	@Operation(summary = "getAllDashboards", description = "returns all Dashboards")
+	@Path("getAllDashboards")
+	public PaginationResponse<Dashboard> getAllDashboards(
+			@HeaderParam("authenticationKey") String authenticationKey,
+			DashboardFiltering dashboardFiltering,
+			@Context SecurityContext securityContext) {
+		return service.getAllDashboards(dashboardFiltering, securityContext);
 
-    @POST
-    @Produces("application/json")
-    @Operation(summary = "getAllDashboards", description="returns all Dashboards")
-    @Path("getAllDashboards")
-    public PaginationResponse<Dashboard> getAllDashboards(
-            @HeaderParam("authenticationKey") String authenticationKey,
-            DashboardFiltering dashboardFiltering, @Context SecurityContext securityContext) {
-        return service.getAllDashboards(dashboardFiltering, securityContext);
+	}
 
-    }
+	@PUT
+	@Produces("application/json")
+	@Operation(summary = "updateDashboard", description = "Updates Dashbaord")
+	@Path("updateDashboard")
+	public Dashboard updateDashboard(
+			@HeaderParam("authenticationKey") String authenticationKey,
+			UpdateDashboard updateDashboard,
+			@Context SecurityContext securityContext) {
+		Dashboard dashboardToClazz = updateDashboard.getId() != null ? service
+				.getByIdOrNull(updateDashboard.getId(), Dashboard.class, null,
+						securityContext) : null;
+		if (dashboardToClazz == null) {
+			throw new BadRequestException("no ui field with id  "
+					+ updateDashboard.getId());
+		}
+		updateDashboard.setDashboard(dashboardToClazz);
 
+		return service.updateDashboard(updateDashboard, securityContext);
 
-    @PUT
-    @Produces("application/json")
-    @Operation(summary = "updateDashboard", description="Updates Dashbaord")
-    @Path("updateDashboard")
-    public Dashboard updateDashboard(
-            @HeaderParam("authenticationKey") String authenticationKey,
-            UpdateDashboard updateDashboard, @Context SecurityContext securityContext) {
-        Dashboard dashboardToClazz = updateDashboard.getId() != null ? service.getByIdOrNull(updateDashboard.getId(), Dashboard.class, null, securityContext) : null;
-        if (dashboardToClazz == null) {
-            throw new BadRequestException("no ui field with id  " + updateDashboard.getId());
-        }
-        updateDashboard.setDashboard(dashboardToClazz);
+	}
 
-        return service.updateDashboard(updateDashboard, securityContext);
+	@POST
+	@Produces("application/json")
+	@Operation(summary = "createDashboard", description = "Creates Ui Field ")
+	@Path("createDashboard")
+	public Dashboard createDashboard(
+			@HeaderParam("authenticationKey") String authenticationKey,
+			CreateDashboard createDashboard,
+			@Context SecurityContext securityContext) {
+		service.validate(createDashboard, securityContext);
+		return service.createDashboard(createDashboard, securityContext);
 
-    }
-
-
-    @POST
-    @Produces("application/json")
-    @Operation(summary = "createDashboard", description="Creates Ui Field ")
-    @Path("createDashboard")
-    public Dashboard createDashboard(
-            @HeaderParam("authenticationKey") String authenticationKey,
-            CreateDashboard createDashboard, @Context SecurityContext securityContext) {
-        service.validate(createDashboard, securityContext);
-        return service.createDashboard(createDashboard, securityContext);
-
-    }
-
+	}
 
 }
-

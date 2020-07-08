@@ -13,32 +13,42 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
+import org.pf4j.Extension;
+import org.springframework.stereotype.Component;
 
 @PluginInfo(version = 1)
+@Extension
+@Component
 public class DashboardRepository extends AbstractRepositoryPlugin {
 
+	public List<Dashboard> listAllDashboards(
+			DashboardFiltering dashboardFiltering,
+			SecurityContext securityContext) {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Dashboard> q = cb.createQuery(Dashboard.class);
+		Root<Dashboard> r = q.from(Dashboard.class);
+		List<Predicate> preds = new ArrayList<>();
+		addDashboardPredicates(preds, cb, r, dashboardFiltering);
+		QueryInformationHolder<Dashboard> queryInformationHolder = new QueryInformationHolder<>(
+				dashboardFiltering, Dashboard.class, securityContext);
+		return getAllFiltered(queryInformationHolder, preds, cb, q, r);
+	}
 
-    public List<Dashboard> listAllDashboards(DashboardFiltering dashboardFiltering, SecurityContext securityContext) {
-        CriteriaBuilder cb=em.getCriteriaBuilder();
-        CriteriaQuery<Dashboard> q=cb.createQuery(Dashboard.class);
-        Root<Dashboard> r=q.from(Dashboard.class);
-        List<Predicate> preds=new ArrayList<>();
-        addDashboardPredicates(preds,cb,r,dashboardFiltering);
-        QueryInformationHolder<Dashboard> queryInformationHolder=new QueryInformationHolder<>(dashboardFiltering,Dashboard.class,securityContext);
-        return getAllFiltered(queryInformationHolder,preds,cb,q,r);
-    }
+	private void addDashboardPredicates(List<Predicate> preds,
+			CriteriaBuilder cb, Root<Dashboard> r,
+			DashboardFiltering dashboardFiltering) {
 
-    private void addDashboardPredicates(List<Predicate> preds, CriteriaBuilder cb, Root<Dashboard> r, DashboardFiltering dashboardFiltering) {
+	}
 
-    }
-
-    public long countAllDashboards(DashboardFiltering dashboardFiltering, SecurityContext securityContext) {
-        CriteriaBuilder cb=em.getCriteriaBuilder();
-        CriteriaQuery<Long> q=cb.createQuery(Long.class);
-        Root<Dashboard> r=q.from(Dashboard.class);
-        List<Predicate> preds=new ArrayList<>();
-        addDashboardPredicates(preds,cb,r,dashboardFiltering);
-        QueryInformationHolder<Dashboard> queryInformationHolder=new QueryInformationHolder<>(dashboardFiltering,Dashboard.class,securityContext);
-        return countAllFiltered(queryInformationHolder,preds,cb,q,r);
-    }
+	public long countAllDashboards(DashboardFiltering dashboardFiltering,
+			SecurityContext securityContext) {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Long> q = cb.createQuery(Long.class);
+		Root<Dashboard> r = q.from(Dashboard.class);
+		List<Predicate> preds = new ArrayList<>();
+		addDashboardPredicates(preds, cb, r, dashboardFiltering);
+		QueryInformationHolder<Dashboard> queryInformationHolder = new QueryInformationHolder<>(
+				dashboardFiltering, Dashboard.class, securityContext);
+		return countAllFiltered(queryInformationHolder, preds, cb, q, r);
+	}
 }

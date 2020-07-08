@@ -13,32 +13,48 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
+import org.pf4j.Extension;
+import org.springframework.stereotype.Component;
 
 @PluginInfo(version = 1)
+@Extension
+@Component
 public class DashboardExecutionRepository extends AbstractRepositoryPlugin {
 
+	public List<DashboardExecution> listAllDashboardExecutions(
+			DashboardExecutionFiltering dashboardExecutionFiltering,
+			SecurityContext securityContext) {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<DashboardExecution> q = cb
+				.createQuery(DashboardExecution.class);
+		Root<DashboardExecution> r = q.from(DashboardExecution.class);
+		List<Predicate> preds = new ArrayList<>();
+		addDashboardExecutionPredicates(preds, cb, r,
+				dashboardExecutionFiltering);
+		QueryInformationHolder<DashboardExecution> queryInformationHolder = new QueryInformationHolder<>(
+				dashboardExecutionFiltering, DashboardExecution.class,
+				securityContext);
+		return getAllFiltered(queryInformationHolder, preds, cb, q, r);
+	}
 
-    public List<DashboardExecution> listAllDashboardExecutions(DashboardExecutionFiltering dashboardExecutionFiltering, SecurityContext securityContext) {
-        CriteriaBuilder cb=em.getCriteriaBuilder();
-        CriteriaQuery<DashboardExecution> q=cb.createQuery(DashboardExecution.class);
-        Root<DashboardExecution> r=q.from(DashboardExecution.class);
-        List<Predicate> preds=new ArrayList<>();
-        addDashboardExecutionPredicates(preds,cb,r,dashboardExecutionFiltering);
-        QueryInformationHolder<DashboardExecution> queryInformationHolder=new QueryInformationHolder<>(dashboardExecutionFiltering,DashboardExecution.class,securityContext);
-        return getAllFiltered(queryInformationHolder,preds,cb,q,r);
-    }
+	private void addDashboardExecutionPredicates(List<Predicate> preds,
+			CriteriaBuilder cb, Root<DashboardExecution> r,
+			DashboardExecutionFiltering dashboardExecutionFiltering) {
 
-    private void addDashboardExecutionPredicates(List<Predicate> preds, CriteriaBuilder cb, Root<DashboardExecution> r, DashboardExecutionFiltering dashboardExecutionFiltering) {
+	}
 
-    }
-
-    public long countAllDashboardExecutions(DashboardExecutionFiltering dashboardExecutionFiltering, SecurityContext securityContext) {
-        CriteriaBuilder cb=em.getCriteriaBuilder();
-        CriteriaQuery<Long> q=cb.createQuery(Long.class);
-        Root<DashboardExecution> r=q.from(DashboardExecution.class);
-        List<Predicate> preds=new ArrayList<>();
-        addDashboardExecutionPredicates(preds,cb,r,dashboardExecutionFiltering);
-        QueryInformationHolder<DashboardExecution> queryInformationHolder=new QueryInformationHolder<>(dashboardExecutionFiltering,DashboardExecution.class,securityContext);
-        return countAllFiltered(queryInformationHolder,preds,cb,q,r);
-    }
+	public long countAllDashboardExecutions(
+			DashboardExecutionFiltering dashboardExecutionFiltering,
+			SecurityContext securityContext) {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Long> q = cb.createQuery(Long.class);
+		Root<DashboardExecution> r = q.from(DashboardExecution.class);
+		List<Predicate> preds = new ArrayList<>();
+		addDashboardExecutionPredicates(preds, cb, r,
+				dashboardExecutionFiltering);
+		QueryInformationHolder<DashboardExecution> queryInformationHolder = new QueryInformationHolder<>(
+				dashboardExecutionFiltering, DashboardExecution.class,
+				securityContext);
+		return countAllFiltered(queryInformationHolder, preds, cb, q, r);
+	}
 }

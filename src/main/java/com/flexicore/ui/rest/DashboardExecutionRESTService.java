@@ -16,71 +16,79 @@ import com.flexicore.ui.service.DashboardExecutionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-import javax.inject.Inject;
 import javax.interceptor.Interceptors;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
+import org.pf4j.Extension;
+import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Created by Asaf on 04/06/2017.
  */
-
 
 @PluginInfo(version = 1)
 @OperationsInside
 @ProtectedREST
 @Path("plugins/DashboardExecutions")
 @Tag(name = "DashboardExecutions")
-
+@Extension
+@Component
 public class DashboardExecutionRESTService implements RestServicePlugin {
 
-    @Inject
-    @PluginInfo(version = 1)
-    private DashboardExecutionService service;
+	@PluginInfo(version = 1)
+	@Autowired
+	private DashboardExecutionService service;
 
+	@POST
+	@Produces("application/json")
+	@Operation(summary = "getAllDashboardExecutions", description = "returns all DashboardExecutions")
+	@Path("getAllDashboardExecutions")
+	public PaginationResponse<DashboardExecution> getAllDashboardExecutions(
+			@HeaderParam("authenticationKey") String authenticationKey,
+			DashboardExecutionFiltering dashboardExecutionFiltering,
+			@Context SecurityContext securityContext) {
+		return service.getAllDashboardExecutions(dashboardExecutionFiltering,
+				securityContext);
 
-    @POST
-    @Produces("application/json")
-    @Operation(summary = "getAllDashboardExecutions", description="returns all DashboardExecutions")
-    @Path("getAllDashboardExecutions")
-    public PaginationResponse<DashboardExecution> getAllDashboardExecutions(
-            @HeaderParam("authenticationKey") String authenticationKey,
-            DashboardExecutionFiltering dashboardExecutionFiltering, @Context SecurityContext securityContext) {
-        return service.getAllDashboardExecutions(dashboardExecutionFiltering, securityContext);
+	}
 
-    }
+	@PUT
+	@Produces("application/json")
+	@Operation(summary = "updateDashboardExecution", description = "Updates Dashbaord")
+	@Path("updateDashboardExecution")
+	public DashboardExecution updateDashboardExecution(
+			@HeaderParam("authenticationKey") String authenticationKey,
+			UpdateDashboardExecution updateDashboardExecution,
+			@Context SecurityContext securityContext) {
+		DashboardExecution dashboardExecutionToClazz = updateDashboardExecution
+				.getId() != null ? service.getByIdOrNull(
+				updateDashboardExecution.getId(), DashboardExecution.class,
+				null, securityContext) : null;
+		if (dashboardExecutionToClazz == null) {
+			throw new BadRequestException("no ui field with id  "
+					+ updateDashboardExecution.getId());
+		}
+		updateDashboardExecution
+				.setDashboardExecution(dashboardExecutionToClazz);
 
+		return service.updateDashboardExecution(updateDashboardExecution,
+				securityContext);
 
-    @PUT
-    @Produces("application/json")
-    @Operation(summary = "updateDashboardExecution", description="Updates Dashbaord")
-    @Path("updateDashboardExecution")
-    public DashboardExecution updateDashboardExecution(
-            @HeaderParam("authenticationKey") String authenticationKey,
-            UpdateDashboardExecution updateDashboardExecution, @Context SecurityContext securityContext) {
-        DashboardExecution dashboardExecutionToClazz = updateDashboardExecution.getId() != null ? service.getByIdOrNull(updateDashboardExecution.getId(), DashboardExecution.class, null, securityContext) : null;
-        if (dashboardExecutionToClazz == null) {
-            throw new BadRequestException("no ui field with id  " + updateDashboardExecution.getId());
-        }
-        updateDashboardExecution.setDashboardExecution(dashboardExecutionToClazz);
+	}
 
-        return service.updateDashboardExecution(updateDashboardExecution, securityContext);
+	@POST
+	@Produces("application/json")
+	@Operation(summary = "createDashboardExecution", description = "Creates Ui Field ")
+	@Path("createDashboardExecution")
+	public DashboardExecution createDashboardExecution(
+			@HeaderParam("authenticationKey") String authenticationKey,
+			CreateDashboardExecution createDashboardExecution,
+			@Context SecurityContext securityContext) {
+		service.validate(createDashboardExecution, securityContext);
+		return service.createDashboardExecution(createDashboardExecution,
+				securityContext);
 
-    }
-
-
-    @POST
-    @Produces("application/json")
-    @Operation(summary = "createDashboardExecution", description="Creates Ui Field ")
-    @Path("createDashboardExecution")
-    public DashboardExecution createDashboardExecution(
-            @HeaderParam("authenticationKey") String authenticationKey,
-            CreateDashboardExecution createDashboardExecution, @Context SecurityContext securityContext) {
-        service.validate(createDashboardExecution, securityContext);
-        return service.createDashboardExecution(createDashboardExecution, securityContext);
-
-    }
-
+	}
 
 }
-

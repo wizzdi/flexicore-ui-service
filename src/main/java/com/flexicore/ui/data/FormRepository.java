@@ -13,32 +13,40 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
+import org.pf4j.Extension;
+import org.springframework.stereotype.Component;
 
 @PluginInfo(version = 1)
+@Extension
+@Component
 public class FormRepository extends AbstractRepositoryPlugin {
 
+	public List<Form> listAllForms(FormFiltering formFiltering,
+			SecurityContext securityContext) {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Form> q = cb.createQuery(Form.class);
+		Root<Form> r = q.from(Form.class);
+		List<Predicate> preds = new ArrayList<>();
+		addFormPredicates(preds, cb, r, formFiltering);
+		QueryInformationHolder<Form> queryInformationHolder = new QueryInformationHolder<>(
+				formFiltering, Form.class, securityContext);
+		return getAllFiltered(queryInformationHolder, preds, cb, q, r);
+	}
 
-    public List<Form> listAllForms(FormFiltering formFiltering, SecurityContext securityContext) {
-        CriteriaBuilder cb=em.getCriteriaBuilder();
-        CriteriaQuery<Form> q=cb.createQuery(Form.class);
-        Root<Form> r=q.from(Form.class);
-        List<Predicate> preds=new ArrayList<>();
-        addFormPredicates(preds,cb,r,formFiltering);
-        QueryInformationHolder<Form> queryInformationHolder=new QueryInformationHolder<>(formFiltering,Form.class,securityContext);
-        return getAllFiltered(queryInformationHolder,preds,cb,q,r);
-    }
+	private void addFormPredicates(List<Predicate> preds, CriteriaBuilder cb,
+			Root<Form> r, FormFiltering formFiltering) {
 
-    private void addFormPredicates(List<Predicate> preds, CriteriaBuilder cb, Root<Form> r, FormFiltering formFiltering) {
+	}
 
-    }
-
-    public long countAllForms(FormFiltering formFiltering, SecurityContext securityContext) {
-        CriteriaBuilder cb=em.getCriteriaBuilder();
-        CriteriaQuery<Long> q=cb.createQuery(Long.class);
-        Root<Form> r=q.from(Form.class);
-        List<Predicate> preds=new ArrayList<>();
-        addFormPredicates(preds,cb,r,formFiltering);
-        QueryInformationHolder<Form> queryInformationHolder=new QueryInformationHolder<>(formFiltering,Form.class,securityContext);
-        return countAllFiltered(queryInformationHolder,preds,cb,q,r);
-    }
+	public long countAllForms(FormFiltering formFiltering,
+			SecurityContext securityContext) {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Long> q = cb.createQuery(Long.class);
+		Root<Form> r = q.from(Form.class);
+		List<Predicate> preds = new ArrayList<>();
+		addFormPredicates(preds, cb, r, formFiltering);
+		QueryInformationHolder<Form> queryInformationHolder = new QueryInformationHolder<>(
+				formFiltering, Form.class, securityContext);
+		return countAllFiltered(queryInformationHolder, preds, cb, q, r);
+	}
 }

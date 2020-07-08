@@ -13,32 +13,40 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
+import org.pf4j.Extension;
+import org.springframework.stereotype.Component;
 
 @PluginInfo(version = 1)
+@Extension
+@Component
 public class PresetRepository extends AbstractRepositoryPlugin {
 
+	public List<Preset> listAllPresets(PresetFiltering presetFiltering,
+			SecurityContext securityContext) {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Preset> q = cb.createQuery(Preset.class);
+		Root<Preset> r = q.from(Preset.class);
+		List<Predicate> preds = new ArrayList<>();
+		addPresetPredicates(preds, cb, r, presetFiltering);
+		QueryInformationHolder<Preset> queryInformationHolder = new QueryInformationHolder<>(
+				presetFiltering, Preset.class, securityContext);
+		return getAllFiltered(queryInformationHolder, preds, cb, q, r);
+	}
 
-    public List<Preset> listAllPresets(PresetFiltering presetFiltering, SecurityContext securityContext) {
-        CriteriaBuilder cb=em.getCriteriaBuilder();
-        CriteriaQuery<Preset> q=cb.createQuery(Preset.class);
-        Root<Preset> r=q.from(Preset.class);
-        List<Predicate> preds=new ArrayList<>();
-        addPresetPredicates(preds,cb,r,presetFiltering);
-        QueryInformationHolder<Preset> queryInformationHolder=new QueryInformationHolder<>(presetFiltering,Preset.class,securityContext);
-        return getAllFiltered(queryInformationHolder,preds,cb,q,r);
-    }
+	private void addPresetPredicates(List<Predicate> preds, CriteriaBuilder cb,
+			Root<Preset> r, PresetFiltering presetFiltering) {
 
-    private void addPresetPredicates(List<Predicate> preds, CriteriaBuilder cb, Root<Preset> r, PresetFiltering presetFiltering) {
+	}
 
-    }
-
-    public long countAllPresets(PresetFiltering presetFiltering, SecurityContext securityContext) {
-        CriteriaBuilder cb=em.getCriteriaBuilder();
-        CriteriaQuery<Long> q=cb.createQuery(Long.class);
-        Root<Preset> r=q.from(Preset.class);
-        List<Predicate> preds=new ArrayList<>();
-        addPresetPredicates(preds,cb,r,presetFiltering);
-        QueryInformationHolder<Preset> queryInformationHolder=new QueryInformationHolder<>(presetFiltering,Preset.class,securityContext);
-        return countAllFiltered(queryInformationHolder,preds,cb,q,r);
-    }
+	public long countAllPresets(PresetFiltering presetFiltering,
+			SecurityContext securityContext) {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Long> q = cb.createQuery(Long.class);
+		Root<Preset> r = q.from(Preset.class);
+		List<Predicate> preds = new ArrayList<>();
+		addPresetPredicates(preds, cb, r, presetFiltering);
+		QueryInformationHolder<Preset> queryInformationHolder = new QueryInformationHolder<>(
+				presetFiltering, Preset.class, securityContext);
+		return countAllFiltered(queryInformationHolder, preds, cb, q, r);
+	}
 }

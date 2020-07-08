@@ -13,73 +13,93 @@ import com.flexicore.ui.request.CreateDashboard;
 import com.flexicore.ui.request.DashboardFiltering;
 import com.flexicore.ui.request.UpdateDashboard;
 
-import javax.inject.Inject;
 import java.util.List;
 import java.util.logging.Logger;
+import org.pf4j.Extension;
+import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @PluginInfo(version = 1)
-
+@Extension
+@Component
 public class DashboardService implements ServicePlugin {
 
-    @Inject
-    private Logger logger;
+	@Autowired
+	private Logger logger;
 
-    @Inject
-    @PluginInfo(version = 1)
-    private DashboardRepository dashboardRepository;
+	@PluginInfo(version = 1)
+	@Autowired
+	private DashboardRepository dashboardRepository;
 
-    @Inject
-    @PluginInfo(version = 1)
-    private PresetService presetService;
+	@PluginInfo(version = 1)
+	@Autowired
+	private PresetService presetService;
 
+	public Dashboard updateDashboard(UpdateDashboard updateDashboard,
+			SecurityContext securityContext) {
+		if (updateDashboardNoMerge(updateDashboard,
+				updateDashboard.getDashboard())) {
+			dashboardRepository.merge(updateDashboard.getDashboard());
+		}
+		return updateDashboard.getDashboard();
+	}
 
-    public Dashboard updateDashboard(UpdateDashboard updateDashboard, SecurityContext securityContext) {
-        if (updateDashboardNoMerge(updateDashboard, updateDashboard.getDashboard())) {
-            dashboardRepository.merge(updateDashboard.getDashboard());
-        }
-        return updateDashboard.getDashboard();
-    }
+	public boolean updateDashboardNoMerge(CreateDashboard createDashboard,
+			Dashboard dashboard) {
+		boolean update = presetService.updatePresetNoMerge(createDashboard,
+				dashboard);
+		if (createDashboard.getContextString() != null
+				&& !createDashboard.getContextString().equals(
+						dashboard.getContextString())) {
+			update = true;
+			dashboard.setContextString(createDashboard.getContextString());
+		}
+		return update;
+	}
 
-    public boolean updateDashboardNoMerge(CreateDashboard createDashboard, Dashboard dashboard) {
-        boolean update = presetService.updatePresetNoMerge(createDashboard,dashboard);
-        if (createDashboard.getContextString() != null && !createDashboard.getContextString().equals(dashboard.getContextString())) {
-            update = true;
-            dashboard.setContextString(createDashboard.getContextString());
-        }
-        return update;
-    }
+	public <T extends Baseclass> T getByIdOrNull(String id, Class<T> c,
+			List<String> batchString, SecurityContext securityContext) {
+		return dashboardRepository.getByIdOrNull(id, c, batchString,
+				securityContext);
+	}
 
+	public PaginationResponse<Dashboard> getAllDashboards(
+			DashboardFiltering dashboardFiltering,
+			SecurityContext securityContext) {
+		List<Dashboard> list = listAllDashboards(dashboardFiltering,
+				securityContext);
+		long count = dashboardRepository.countAllDashboards(dashboardFiltering,
+				securityContext);
+		return new PaginationResponse<>(list, dashboardFiltering, count);
+	}
 
-    public <T extends Baseclass> T getByIdOrNull(String id, Class<T> c, List<String> batchString, SecurityContext securityContext) {
-        return dashboardRepository.getByIdOrNull(id, c, batchString, securityContext);
-    }
+	public List<Dashboard> listAllDashboards(
+			DashboardFiltering dashboardFiltering,
+			SecurityContext securityContext) {
+		return dashboardRepository.listAllDashboards(dashboardFiltering,
+				securityContext);
+	}
 
-    public PaginationResponse<Dashboard> getAllDashboards(DashboardFiltering dashboardFiltering, SecurityContext securityContext) {
-       List<Dashboard> list=listAllDashboards(dashboardFiltering,securityContext);
-       long count=dashboardRepository.countAllDashboards(dashboardFiltering,securityContext);
-       return new PaginationResponse<>(list,dashboardFiltering,count);
-    }
+	public Dashboard createDashboard(CreateDashboard createDashboard,
+			SecurityContext securityContext) {
+		Dashboard dashboard = createDashboardNoMerge(createDashboard,
+				securityContext);
+		dashboardRepository.merge(dashboard);
+		return dashboard;
 
-    public List<Dashboard> listAllDashboards(DashboardFiltering dashboardFiltering, SecurityContext securityContext) {
-       return dashboardRepository.listAllDashboards(dashboardFiltering,securityContext);
-    }
+	}
 
+	private Dashboard createDashboardNoMerge(CreateDashboard createDashboard,
+			SecurityContext securityContext) {
+		Dashboard dashboard = Dashboard.s().CreateUnchecked(
+				createDashboard.getName(), securityContext);
+		dashboard.Init();
+		updateDashboardNoMerge(createDashboard, dashboard);
+		return dashboard;
+	}
 
-    public Dashboard createDashboard(CreateDashboard createDashboard, SecurityContext securityContext) {
-        Dashboard dashboard = createDashboardNoMerge(createDashboard, securityContext);
-        dashboardRepository.merge(dashboard);
-        return dashboard;
+	public void validate(CreateDashboard createDashboard,
+			SecurityContext securityContext) {
 
-    }
-
-    private Dashboard createDashboardNoMerge(CreateDashboard createDashboard, SecurityContext securityContext) {
-        Dashboard dashboard = Dashboard.s().CreateUnchecked(createDashboard.getName(), securityContext);
-        dashboard.Init();
-        updateDashboardNoMerge(createDashboard, dashboard);
-        return dashboard;
-    }
-
-    public void validate(CreateDashboard createDashboard, SecurityContext securityContext) {
-
-    }
+	}
 }
