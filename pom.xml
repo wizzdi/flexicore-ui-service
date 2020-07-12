@@ -128,7 +128,7 @@
                   <manifestEntries>
                     <Plugin-Id>${artifactId}</Plugin-Id>
                     <Plugin-Version>${version}</Plugin-Version>
-                  <!--suppress UnresolvedMavenProperty --><Plugin-Dependencies/></manifestEntries>
+                  </manifestEntries>
                 </transformer>
               </transformers>
             </configuration>
