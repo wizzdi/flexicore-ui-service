@@ -9,7 +9,7 @@ public class PresetToTenantCreate extends PresetToEntityCreate {
 	@JsonIgnore
 	private Tenant preferredTenant;
 
-	public String getTenantId() {
+	public String getPreferredTenantId() {
 		return preferredTenantId;
 	}
 
@@ -20,7 +20,7 @@ public class PresetToTenantCreate extends PresetToEntityCreate {
 	}
 
 	@JsonIgnore
-	public Tenant getTenant() {
+	public Tenant getPreferredTenant() {
 		return preferredTenant;
 	}
 

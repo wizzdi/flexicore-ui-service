@@ -40,6 +40,8 @@ public class ConfigurationPresetRepository extends AbstractRepositoryPlugin {
 	private void addConfigurationPresetPredicates(List<Predicate> preds,
 			CriteriaBuilder cb, Root<ConfigurationPreset> r,
 			ConfigurationPresetFiltering configurationPresetFiltering) {
+		PresetRepository.addPresetPredicates(preds,cb,r,configurationPresetFiltering);
+
 
 	}
 

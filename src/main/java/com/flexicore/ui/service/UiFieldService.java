@@ -168,7 +168,7 @@ public class UiFieldService implements ServicePlugin {
                          SecurityContext securityContext) {
         presetToEntityService.validate(presetToTenantCreate, securityContext);
 
-        String tenantId = presetToTenantCreate.getTenantId();
+        String tenantId = presetToTenantCreate.getPreferredTenantId();
         Tenant tenant = tenantId != null ? getByIdOrNull(tenantId,
                 Tenant.class, null, securityContext) : null;
         if (tenant == null) {
@@ -214,12 +214,7 @@ public class UiFieldService implements ServicePlugin {
             PresetToTenantCreate presetToTenantCreate,
             SecurityContext securityContext) {
         PresetToTenant toRet;
-        List<PresetToTenant> existing = listAllPresetToTenant(
-                new PresetToTenantFilter().setTenants(
-                        Collections.singletonList(presetToTenantCreate
-                                .getTenant())).setPresets(
-                        Collections.singletonList(presetToTenantCreate
-                                .getPreset())), securityContext);
+        List<PresetToTenant> existing = listAllPresetToTenant(new PresetToTenantFilter().setTenants(Collections.singletonList(presetToTenantCreate.getPreferredTenant())).setPresets(Collections.singletonList(presetToTenantCreate.getPreset())), securityContext);
         if (existing.isEmpty()) {
             toRet = createPresetToTenantNoMerge(presetToTenantCreate,
                     securityContext);
@@ -231,13 +226,10 @@ public class UiFieldService implements ServicePlugin {
         return toRet;
     }
 
-    private PresetToTenant createPresetToTenantNoMerge(
+    public PresetToTenant createPresetToTenantNoMerge(
             PresetToTenantCreate presetToTenantCreate,
             SecurityContext securityContext) {
-        PresetToTenant presetToTenant = new PresetToTenant(
-                "presetToTenant", securityContext);
-        presetToTenant.setLeftside(presetToTenantCreate.getPreset());
-        presetToTenant.setRightside(presetToTenantCreate.getTenant());
+        PresetToTenant presetToTenant = new PresetToTenant(presetToTenantCreate.getName(), securityContext);
         updatePresetToTenantNoMerge(presetToTenantCreate, presetToTenant);
         return presetToTenant;
     }
@@ -280,11 +272,11 @@ public class UiFieldService implements ServicePlugin {
         boolean update = presetToEntityService.presetToEntityUpdateNoMerge(
                 presetToTenantCreate, presetToTenant);
 
-        if (presetToTenantCreate.getTenant() != null
+        if (presetToTenantCreate.getPreferredTenant() != null
                 && (presetToTenant.getRightside() == null || !presetToTenantCreate
-                .getTenant().getId()
+                .getPreferredTenant().getId()
                 .equals(presetToTenant.getRightside().getId()))) {
-            presetToTenant.setRightside(presetToTenantCreate.getTenant());
+            presetToTenant.setRightside(presetToTenantCreate.getPreferredTenant());
             update = true;
         }
         return update;

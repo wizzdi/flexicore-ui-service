@@ -1,25 +1,17 @@
 package com.flexicore.ui.request;
 
-public class CreatePreset {
-	private String name;
-	private String description;
+import com.flexicore.request.BaseclassCreate;
 
-	public String getName() {
-		return name;
+public class CreatePreset extends BaseclassCreate {
+
+	private String externalId;
+
+	public String getExternalId() {
+		return externalId;
 	}
 
-	public <T extends CreatePreset> T setName(String name) {
-		this.name = name;
+	public <T extends CreatePreset> T setExternalId(String externalId) {
+		this.externalId = externalId;
 		return (T) this;
 	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public <T extends CreatePreset> T setDescription(String description) {
-		this.description = description;
-		return (T) this;
-	}
-
 }

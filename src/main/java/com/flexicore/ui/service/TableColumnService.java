@@ -60,12 +60,12 @@ public class TableColumnService implements ServicePlugin {
 			tableColumn.setFilterable(tableColumnCreate.getFilterable());
 		}
 
-		if (tableColumnCreate.getDefaultTableColumnWidth() != null
-				&& tableColumnCreate.getDefaultTableColumnWidth() != tableColumn
+		if (tableColumnCreate.getDefaultColumnWidth() != null
+				&& tableColumnCreate.getDefaultColumnWidth() != tableColumn
 						.getDefaultColumnWidth()) {
 			update = true;
 			tableColumn.setDefaultColumnWidth(tableColumnCreate
-					.getDefaultTableColumnWidth());
+					.getDefaultColumnWidth());
 		}
 
 		return update;
@@ -125,7 +125,7 @@ public class TableColumnService implements ServicePlugin {
 		return new TableColumnCreate()
 				.setFilterable(tableColumn.isFilterable())
 				.setSortable(tableColumn.isSortable())
-				.setDefaultTableColumnWidth(tableColumn.getDefaultColumnWidth())
+				.setDefaultColumnWidth(tableColumn.getDefaultColumnWidth())
 				.setPreset(tableColumn.getPreset())
 				.setCategory(tableColumn.getCategory())
 				.setDisplayName(tableColumn.getDisplayName())

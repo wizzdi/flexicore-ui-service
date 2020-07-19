@@ -37,6 +37,8 @@ public class DashboardRepository extends AbstractRepositoryPlugin {
 	private void addDashboardPredicates(List<Predicate> preds,
 			CriteriaBuilder cb, Root<Dashboard> r,
 			DashboardFiltering dashboardFiltering) {
+		PresetRepository.addPresetPredicates(preds,cb,r,dashboardFiltering);
+
 
 	}
 

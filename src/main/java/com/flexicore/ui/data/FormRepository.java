@@ -35,6 +35,8 @@ public class FormRepository extends AbstractRepositoryPlugin {
 
 	private void addFormPredicates(List<Predicate> preds, CriteriaBuilder cb,
 			Root<Form> r, FormFiltering formFiltering) {
+		PresetRepository.addPresetPredicates(preds,cb,r,formFiltering);
+
 
 	}
 

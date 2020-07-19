@@ -37,6 +37,7 @@ public class GridPresetRepository extends AbstractRepositoryPlugin {
 	private void addGridPresetPredicates(List<Predicate> preds,
 			CriteriaBuilder cb, Root<GridPreset> r,
 			GridPresetFiltering gridPresetFiltering) {
+		PresetRepository.addPresetPredicates(preds,cb,r,gridPresetFiltering);
 
 	}
 
