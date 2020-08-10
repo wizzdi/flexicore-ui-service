@@ -7,6 +7,7 @@ import com.flexicore.model.*;
 import com.flexicore.request.CategoryCreate;
 import com.flexicore.request.CategoryFilter;
 import com.flexicore.security.SecurityContext;
+import com.flexicore.service.BaseclassNewService;
 import com.flexicore.service.BaselinkService;
 import com.flexicore.service.CategoryService;
 import com.flexicore.ui.data.UiFieldRepository;
@@ -41,12 +42,7 @@ public class UiFieldService implements ServicePlugin {
     private PresetToEntityService presetToEntityService;
 
     @Autowired
-    private BaselinkService baselinkService;
-
-    @PluginInfo(version = 1)
-    @Autowired
-    private PresetService presetService;
-
+    private BaseclassNewService baseclassNewService;
     @Autowired
     private CategoryService categoryService;
 
@@ -58,54 +54,47 @@ public class UiFieldService implements ServicePlugin {
         return updateUiField.getUiField();
     }
 
-    public boolean updateUiFieldNoMerge(UiFieldCreate updateUiField,
+    public boolean updateUiFieldNoMerge(UiFieldCreate uiFieldCreate,
                                         UiField uiField) {
-        boolean update = false;
-        if (updateUiField.getVisible() != null
-                && updateUiField.getVisible() != uiField.isVisible()) {
+        boolean update = baseclassNewService.updateBaseclassNoMerge(uiFieldCreate,uiField);
+        if (uiFieldCreate.getVisible() != null
+                && uiFieldCreate.getVisible() != uiField.isVisible()) {
             update = true;
-            uiField.setVisible(updateUiField.getVisible());
+            uiField.setVisible(uiFieldCreate.getVisible());
+        }
+        if (uiFieldCreate.getDynamicField() != null
+                && uiFieldCreate.getDynamicField() != uiField.isDynamicField()) {
+            update = true;
+            uiField.setDynamicField(uiFieldCreate.getDynamicField());
         }
 
-        if (updateUiField.getPriority() != null
-                && updateUiField.getPriority() != uiField.getPriority()) {
+        if (uiFieldCreate.getPriority() != null
+                && uiFieldCreate.getPriority() != uiField.getPriority()) {
             update = true;
-            uiField.setPriority(updateUiField.getPriority());
+            uiField.setPriority(uiFieldCreate.getPriority());
         }
 
-        if (updateUiField.getDescription() != null
-                && (uiField.getDescription() == null || !updateUiField
-                .getDescription().equals(uiField.getDescription()))) {
-            update = true;
-            uiField.setDescription(updateUiField.getDescription());
-        }
 
-        if (updateUiField.getName() != null
-                && !updateUiField.getName().equals(uiField.getName())) {
-            update = true;
-            uiField.setName(updateUiField.getName());
-        }
-
-        if (updateUiField.getCategory() != null
-                && (uiField.getCategory() == null || !updateUiField
+        if (uiFieldCreate.getCategory() != null
+                && (uiField.getCategory() == null || !uiFieldCreate
                 .getCategory().getId()
                 .equals(uiField.getCategory().getId()))) {
             update = true;
-            uiField.setCategory(updateUiField.getCategory());
+            uiField.setCategory(uiFieldCreate.getCategory());
         }
 
-        if (updateUiField.getPreset() != null
-                && (uiField.getPreset() == null || !updateUiField.getPreset()
+        if (uiFieldCreate.getPreset() != null
+                && (uiField.getPreset() == null || !uiFieldCreate.getPreset()
                 .getId().equals(uiField.getPreset().getId()))) {
             update = true;
-            uiField.setPreset(updateUiField.getPreset());
+            uiField.setPreset(uiFieldCreate.getPreset());
         }
 
-        if (updateUiField.getDisplayName() != null
-                && !updateUiField.getDisplayName().equals(
+        if (uiFieldCreate.getDisplayName() != null
+                && !uiFieldCreate.getDisplayName().equals(
                 uiField.getDisplayName())) {
             update = true;
-            uiField.setDisplayName(updateUiField.getDisplayName());
+            uiField.setDisplayName(uiFieldCreate.getDisplayName());
         }
 
         return update;
@@ -494,6 +483,7 @@ public class UiFieldService implements ServicePlugin {
 
     public void validate(UiFieldCreate createUiField,
                          SecurityContext securityContext) {
+        baseclassNewService.validateCreate(createUiField,securityContext);
         Category category = categoryService.createCategory(
                 new CategoryCreate().setName(createUiField.getCategoryName()),
                 securityContext);
@@ -515,17 +505,12 @@ public class UiFieldService implements ServicePlugin {
 
     public void validate(UiFieldFiltering uiFieldFiltering,
                          SecurityContext securityContext) {
+        baseclassNewService.validateFilter(uiFieldFiltering,securityContext);
         Set<String> gridPresetIds = uiFieldFiltering.getPresetIds();
-        Map<String, GridPreset> gridPresetMap = gridPresetIds.isEmpty()
-                ? new HashMap<>()
-                : uiFieldRepository
-                .listByIds(GridPreset.class, gridPresetIds,
-                        securityContext).parallelStream()
-                .collect(Collectors.toMap(f -> f.getId(), f -> f));
+        Map<String, GridPreset> gridPresetMap = gridPresetIds.isEmpty() ? new HashMap<>() : uiFieldRepository.listByIds(GridPreset.class, gridPresetIds, securityContext).parallelStream().collect(Collectors.toMap(f -> f.getId(), f -> f));
         gridPresetIds.removeAll(gridPresetMap.keySet());
         if (!gridPresetIds.isEmpty()) {
-            throw new BadRequestException("No Grid Presets with ids "
-                    + gridPresetIds);
+            throw new BadRequestException("No Grid Presets with ids " + gridPresetIds);
         }
         uiFieldFiltering.setPresets(new ArrayList<>(gridPresetMap.values()));
     }
@@ -534,9 +519,10 @@ public class UiFieldService implements ServicePlugin {
         return new UiFieldCreate().setPreset(uiField.getPreset())
                 .setCategory(uiField.getCategory())
                 .setDisplayName(uiField.getDisplayName())
-                .setDescription(uiField.getDescription())
                 .setVisible(uiField.isVisible())
-                .setPriority(uiField.getPriority()).setName(uiField.getName());
+                .setPriority(uiField.getPriority())
+                .setDescription(uiField.getDescription())
+                .setName(uiField.getName());
     }
 
     public void validate(PreferedPresetRequest preferedPresetRequest,

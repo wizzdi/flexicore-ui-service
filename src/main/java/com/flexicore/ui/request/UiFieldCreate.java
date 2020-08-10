@@ -2,16 +2,16 @@ package com.flexicore.ui.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.flexicore.model.Category;
+import com.flexicore.request.BaseclassCreate;
 import com.flexicore.ui.model.Preset;
 
-public class UiFieldCreate {
-	private String name;
-	private String description;
+public class UiFieldCreate extends BaseclassCreate {
 	private String presetId;
 	@JsonIgnore
 	private Preset preset;
 	private Integer priority;
 	private Boolean visible;
+	private Boolean dynamicField;
 	private String categoryName;
 	@JsonIgnore
 	private Category category;
@@ -20,23 +20,6 @@ public class UiFieldCreate {
 	public UiFieldCreate() {
 	}
 
-	public String getName() {
-		return name;
-	}
-
-	public <T extends UiFieldCreate> T setName(String name) {
-		this.name = name;
-		return (T) this;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public <T extends UiFieldCreate> T setDescription(String description) {
-		this.description = description;
-		return (T) this;
-	}
 
 	public String getPresetId() {
 		return presetId;
@@ -98,6 +81,15 @@ public class UiFieldCreate {
 
 	public <T extends UiFieldCreate> T setDisplayName(String displayName) {
 		this.displayName = displayName;
+		return (T) this;
+	}
+
+	public Boolean getDynamicField() {
+		return dynamicField;
+	}
+
+	public <T extends UiFieldCreate> T setDynamicField(Boolean dynamicField) {
+		this.dynamicField = dynamicField;
 		return (T) this;
 	}
 }

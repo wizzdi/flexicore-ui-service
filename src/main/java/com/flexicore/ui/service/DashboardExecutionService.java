@@ -121,12 +121,8 @@ public class DashboardExecutionService implements ServicePlugin {
 	private DashboardExecution createDashboardExecutionNoMerge(
 			CreateDashboardExecution createDashboardExecution,
 			SecurityContext securityContext) {
-		DashboardExecution dashboardExecution = DashboardExecution.s()
-				.CreateUnchecked(createDashboardExecution.getName(),
-						securityContext);
-		dashboardExecution.Init();
-		updateDashboardExecutionNoMerge(createDashboardExecution,
-				dashboardExecution);
+		DashboardExecution dashboardExecution = new DashboardExecution(createDashboardExecution.getName(), securityContext);
+		updateDashboardExecutionNoMerge(createDashboardExecution, dashboardExecution);
 		return dashboardExecution;
 	}
 

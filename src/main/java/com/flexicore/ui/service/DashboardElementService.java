@@ -120,10 +120,7 @@ public class DashboardElementService implements ServicePlugin {
 	private DashboardElement createDashboardElementNoMerge(
 			CreateDashboardElement createDashboardElement,
 			SecurityContext securityContext) {
-		DashboardElement dashboardElement = DashboardElement.s()
-				.CreateUnchecked(createDashboardElement.getName(),
-						securityContext);
-		dashboardElement.Init();
+		DashboardElement dashboardElement = new DashboardElement(createDashboardElement.getName(), securityContext);
 		updateDashboardElementNoMerge(createDashboardElement, dashboardElement);
 		return dashboardElement;
 	}

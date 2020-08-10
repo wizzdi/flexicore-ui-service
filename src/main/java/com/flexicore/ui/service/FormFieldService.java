@@ -148,9 +148,9 @@ public class FormFieldService implements ServicePlugin {
 				.setPreset(formField.getPreset())
 				.setCategory(formField.getCategory())
 				.setDisplayName(formField.getDisplayName())
-				.setDescription(formField.getDescription())
 				.setVisible(formField.isVisible())
 				.setPriority(formField.getPriority())
+				.setDescription(formField.getDescription())
 				.setName(formField.getName());
 	}
 }

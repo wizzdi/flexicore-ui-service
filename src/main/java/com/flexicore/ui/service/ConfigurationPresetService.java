@@ -7,9 +7,9 @@ import com.flexicore.model.Baseclass;
 import com.flexicore.security.SecurityContext;
 import com.flexicore.ui.data.ConfigurationPresetRepository;
 import com.flexicore.ui.model.ConfigurationPreset;
-import com.flexicore.ui.request.CreateConfigurationPreset;
+import com.flexicore.ui.request.ConfigurationPresetCreate;
 import com.flexicore.ui.request.ConfigurationPresetFiltering;
-import com.flexicore.ui.request.UpdateConfigurationPreset;
+import com.flexicore.ui.request.ConfigurationPresetUpdate;
 
 import java.util.List;
 import java.util.logging.Logger;
@@ -34,7 +34,7 @@ public class ConfigurationPresetService implements ServicePlugin {
 	private PresetService presetService;
 
 	public ConfigurationPreset updateConfigurationPreset(
-			UpdateConfigurationPreset updateConfigurationPreset,
+			ConfigurationPresetUpdate updateConfigurationPreset,
 			SecurityContext securityContext) {
 		if (updateConfigurationPresetNoMerge(updateConfigurationPreset,
 				updateConfigurationPreset.getConfigurationPreset())) {
@@ -45,7 +45,7 @@ public class ConfigurationPresetService implements ServicePlugin {
 	}
 
 	public boolean updateConfigurationPresetNoMerge(
-			CreateConfigurationPreset createConfigurationPreset,
+			ConfigurationPresetCreate createConfigurationPreset,
 			ConfigurationPreset configurationPreset) {
 		boolean update = presetService.updatePresetNoMerge(
 				createConfigurationPreset, configurationPreset);
@@ -85,7 +85,7 @@ public class ConfigurationPresetService implements ServicePlugin {
 	}
 
 	public ConfigurationPreset createConfigurationPreset(
-			CreateConfigurationPreset createConfigurationPreset,
+			ConfigurationPresetCreate createConfigurationPreset,
 			SecurityContext securityContext) {
 		ConfigurationPreset configurationPreset = createConfigurationPresetNoMerge(
 				createConfigurationPreset, securityContext);
@@ -95,19 +95,16 @@ public class ConfigurationPresetService implements ServicePlugin {
 	}
 
 	private ConfigurationPreset createConfigurationPresetNoMerge(
-			CreateConfigurationPreset createConfigurationPreset,
+			ConfigurationPresetCreate createConfigurationPreset,
 			SecurityContext securityContext) {
-		ConfigurationPreset configurationPreset = ConfigurationPreset.s()
-				.CreateUnchecked(createConfigurationPreset.getName(),
-						securityContext);
-		configurationPreset.Init();
+		ConfigurationPreset configurationPreset = new ConfigurationPreset(createConfigurationPreset.getName(), securityContext);
 		updateConfigurationPresetNoMerge(createConfigurationPreset,
 				configurationPreset);
 		return configurationPreset;
 	}
 
-	public void validate(CreateConfigurationPreset createConfigurationPreset,
-			SecurityContext securityContext) {
+	public void validate(ConfigurationPresetCreate createConfigurationPreset, SecurityContext securityContext) {
+
 
 	}
 }

@@ -129,9 +129,9 @@ public class TableColumnService implements ServicePlugin {
 				.setPreset(tableColumn.getPreset())
 				.setCategory(tableColumn.getCategory())
 				.setDisplayName(tableColumn.getDisplayName())
-				.setDescription(tableColumn.getDescription())
 				.setVisible(tableColumn.isVisible())
 				.setPriority(tableColumn.getPriority())
+				.setDescription(tableColumn.getDescription())
 				.setName(tableColumn.getName());
 	}
 }

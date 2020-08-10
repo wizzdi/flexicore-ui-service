@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.wizzdi</groupId>
   <artifactId>flexicore-ui-service</artifactId>
-  <version>3.1.3</version>
+  <version>3.1.7</version>
   <distributionManagement>
     <repository>
       <id>flexicore-local</id>
@@ -33,7 +33,7 @@
     <dependency>
       <groupId>com.wizzdi</groupId>
       <artifactId>flexicore-ui-model</artifactId>
-      <version>3.0.4</version>
+      <version>3.0.7</version>
       <scope>provided</scope>
     </dependency>
     <dependency>

@@ -8,15 +8,14 @@ import com.flexicore.annotations.ProtectedREST;
 import com.flexicore.interfaces.RestServicePlugin;
 import com.flexicore.security.SecurityContext;
 import com.flexicore.ui.model.ConfigurationPreset;
-import com.flexicore.ui.request.CreateConfigurationPreset;
+import com.flexicore.ui.request.ConfigurationPresetCreate;
 import com.flexicore.ui.request.ConfigurationPresetFiltering;
-import com.flexicore.ui.request.UpdateConfigurationPreset;
+import com.flexicore.ui.request.ConfigurationPresetUpdate;
 import com.flexicore.ui.service.ConfigurationPresetService;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-import javax.interceptor.Interceptors;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import org.pf4j.Extension;
@@ -60,7 +59,7 @@ public class ConfigurationPresetRESTService implements RestServicePlugin {
 	@Path("updateConfigurationPreset")
 	public ConfigurationPreset updateConfigurationPreset(
 			@HeaderParam("authenticationKey") String authenticationKey,
-			UpdateConfigurationPreset updateConfigurationPreset,
+			ConfigurationPresetUpdate updateConfigurationPreset,
 			@Context SecurityContext securityContext) {
 		ConfigurationPreset configurationPresetToClazz = updateConfigurationPreset
 				.getId() != null ? service.getByIdOrNull(
@@ -84,7 +83,7 @@ public class ConfigurationPresetRESTService implements RestServicePlugin {
 	@Path("createConfigurationPreset")
 	public ConfigurationPreset createConfigurationPreset(
 			@HeaderParam("authenticationKey") String authenticationKey,
-			CreateConfigurationPreset createConfigurationPreset,
+			ConfigurationPresetCreate createConfigurationPreset,
 			@Context SecurityContext securityContext) {
 		service.validate(createConfigurationPreset, securityContext);
 		return service.createConfigurationPreset(createConfigurationPreset,

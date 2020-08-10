@@ -3,7 +3,7 @@ package com.flexicore.ui.request;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.flexicore.ui.model.ConfigurationPreset;
 
-public class UpdateConfigurationPreset extends CreateConfigurationPreset {
+public class ConfigurationPresetUpdate extends ConfigurationPresetCreate {
 	private String id;
 	@JsonIgnore
 	private ConfigurationPreset configurationPreset;
@@ -12,7 +12,7 @@ public class UpdateConfigurationPreset extends CreateConfigurationPreset {
 		return id;
 	}
 
-	public UpdateConfigurationPreset setId(String id) {
+	public ConfigurationPresetUpdate setId(String id) {
 		this.id = id;
 		return this;
 	}
@@ -22,7 +22,7 @@ public class UpdateConfigurationPreset extends CreateConfigurationPreset {
 		return configurationPreset;
 	}
 
-	public UpdateConfigurationPreset setConfigurationPreset(
+	public ConfigurationPresetUpdate setConfigurationPreset(
 			ConfigurationPreset configurationPreset) {
 		this.configurationPreset = configurationPreset;
 		return this;
