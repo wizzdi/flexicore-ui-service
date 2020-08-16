@@ -46,14 +46,7 @@ public class DashboardService implements ServicePlugin {
 
 	public boolean updateDashboardNoMerge(CreateDashboard createDashboard,
 			Dashboard dashboard) {
-		boolean update = presetService.updatePresetNoMerge(createDashboard,
-				dashboard);
-		if (createDashboard.getContextString() != null
-				&& !createDashboard.getContextString().equals(
-						dashboard.getContextString())) {
-			update = true;
-			dashboard.setContextString(createDashboard.getContextString());
-		}
+		boolean update = presetService.updatePresetNoMerge(createDashboard, dashboard);
 		return update;
 	}
 
