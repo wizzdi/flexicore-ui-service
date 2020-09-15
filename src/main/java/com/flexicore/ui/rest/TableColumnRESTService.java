@@ -1,5 +1,6 @@
 package com.flexicore.ui.rest;
 
+import com.flexicore.annotations.HasFeature;
 import com.flexicore.annotations.OperationsInside;
 import com.flexicore.annotations.plugins.PluginInfo;
 import com.flexicore.data.jsoncontainers.PaginationResponse;
@@ -49,6 +50,7 @@ public class TableColumnRESTService implements RestServicePlugin {
 	@POST
 	@Produces("application/json")
 	@Operation(summary = "getAllTableColumns", description = "List all Ui Fields")
+
 	@Path("getAllTableColumns")
 	public PaginationResponse<TableColumn> getAllTableColumns(
 			@HeaderParam("authenticationKey") String authenticationKey,

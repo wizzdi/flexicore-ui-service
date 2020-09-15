@@ -1,11 +1,17 @@
 package com.flexicore.ui.service;
 
 import com.flexicore.annotations.plugins.PluginInfo;
+import com.flexicore.data.jsoncontainers.CreatePermissionGroupLinkRequest;
 import com.flexicore.data.jsoncontainers.PaginationResponse;
+import com.flexicore.events.BaseclassCreated;
 import com.flexicore.interfaces.ServicePlugin;
 import com.flexicore.model.Baseclass;
+import com.flexicore.model.PermissionGroup;
+import com.flexicore.model.PermissionGroupToBaseclass;
 import com.flexicore.security.SecurityContext;
 import com.flexicore.service.BaseclassNewService;
+import com.flexicore.service.PermissionGroupService;
+import com.flexicore.service.SecurityService;
 import com.flexicore.ui.data.FilterPropertiesRepository;
 import com.flexicore.ui.model.FilterProperties;
 import com.flexicore.ui.model.GridPreset;
@@ -13,12 +19,15 @@ import com.flexicore.ui.request.FilterPropertiesCreate;
 import com.flexicore.ui.request.FilterPropertiesFiltering;
 import com.flexicore.ui.request.FilterPropertiesUpdate;
 import org.pf4j.Extension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.BadRequestException;
 import java.util.*;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @PluginInfo(version = 1)
@@ -26,8 +35,8 @@ import java.util.stream.Collectors;
 @Component
 public class FilterPropertiesService implements ServicePlugin {
 
-	@Autowired
-	private Logger logger;
+	private static final Logger logger= LoggerFactory.getLogger(FilterPropertiesService.class);
+
 
 	@PluginInfo(version = 1)
 	@Autowired
@@ -35,6 +44,12 @@ public class FilterPropertiesService implements ServicePlugin {
 
 	@Autowired
 	private BaseclassNewService baseclassNewService;
+
+	@Autowired
+	private SecurityService securityService;
+	@Autowired
+	private PermissionGroupService permissionGroupService;
+	private SecurityContext adminSecurityContext;
 
 	public FilterProperties updateFilterProperties(FilterPropertiesUpdate filterPropertiesUpdate, SecurityContext securityContext) {
 		if (FilterPropertiesUpdateNoMerge(filterPropertiesUpdate,
@@ -123,6 +138,38 @@ public class FilterPropertiesService implements ServicePlugin {
 			throw new BadRequestException("No Grid Presets with ids "+presetIds);
 		}
 		filterPropertiesFiltering.setGridPresets(new ArrayList<>(presetMap.values()));
+	}
+
+
+	@EventListener
+	@Async
+	public void handlePresetPermissionGroupCreated(BaseclassCreated<PermissionGroupToBaseclass> baseclassCreated){
+		PermissionGroupToBaseclass permissionGroupToBaseclass = baseclassCreated.getBaseclass();
+		PermissionGroup permissionGroup=permissionGroupToBaseclass.getLeftside();
+		if(permissionGroupToBaseclass.getRightside() instanceof GridPreset){
+			SecurityContext securityContext=getAdminSecurityContext();
+			GridPreset preset= (GridPreset) permissionGroupToBaseclass.getRightside();
+				logger.info("grid preset "+preset.getName() +"("+preset.getId()+") was attached to permission group "+permissionGroup.getName()+"("+permissionGroup.getId()+") , will attach filter properties");
+				List<FilterProperties> filterProperties=listAllFilterProperties(new FilterPropertiesFiltering().setGridPresets(Collections.singletonList(preset)),securityContext);
+				if(!filterProperties.isEmpty()){
+					CreatePermissionGroupLinkRequest createPermissionGroupLinkRequest = new CreatePermissionGroupLinkRequest()
+							.setPermissionGroups(Collections.singletonList(permissionGroup))
+							.setBaseclasses(new ArrayList<>(filterProperties));
+					permissionGroupService.connectPermissionGroupsToBaseclasses(createPermissionGroupLinkRequest,securityContext);
+				}
+
+
+
+
+		}
+
+	}
+
+	private SecurityContext getAdminSecurityContext() {
+		if(adminSecurityContext==null){
+			adminSecurityContext=securityService.getAdminUserSecurityContext();
+		}
+		return adminSecurityContext;
 	}
 
 }

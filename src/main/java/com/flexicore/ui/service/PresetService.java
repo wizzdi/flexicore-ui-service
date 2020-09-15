@@ -2,19 +2,24 @@ package com.flexicore.ui.service;
 
 import com.flexicore.annotations.plugins.PluginInfo;
 import com.flexicore.data.jsoncontainers.PaginationResponse;
+import com.flexicore.events.BaseclassCreated;
 import com.flexicore.interfaces.ServicePlugin;
 import com.flexicore.model.Baseclass;
+import com.flexicore.model.PermissionGroupToBaseclass;
 import com.flexicore.security.SecurityContext;
 import com.flexicore.service.BaseclassNewService;
 import com.flexicore.ui.data.PresetRepository;
 import com.flexicore.ui.model.Preset;
-import com.flexicore.ui.request.CreatePreset;
+import com.flexicore.ui.model.UiField;
+import com.flexicore.ui.request.PresetCreate;
 import com.flexicore.ui.request.PresetFiltering;
-import com.flexicore.ui.request.UpdatePreset;
+import com.flexicore.ui.request.PresetUpdate;
 
 import java.util.List;
 import java.util.logging.Logger;
 import org.pf4j.Extension;
+import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -33,15 +38,15 @@ public class PresetService implements ServicePlugin {
 	@Autowired
 	private BaseclassNewService baseclassNewService;
 
-	public Preset updatePreset(UpdatePreset updatePreset,
-			SecurityContext securityContext) {
+	public Preset updatePreset(PresetUpdate updatePreset,
+							   SecurityContext securityContext) {
 		if (updatePresetNoMerge(updatePreset, updatePreset.getPreset())) {
 			presetRepository.merge(updatePreset.getPreset());
 		}
 		return updatePreset.getPreset();
 	}
 
-	public boolean updatePresetNoMerge(CreatePreset createPreset, Preset preset) {
+	public boolean updatePresetNoMerge(PresetCreate createPreset, Preset preset) {
 		boolean update = baseclassNewService.updateBaseclassNoMerge(createPreset,preset);
 
 		if (createPreset.getExternalId() != null && (preset.getExternalId() == null || !createPreset.getExternalId().equals(preset.getExternalId()))) {
@@ -69,19 +74,29 @@ public class PresetService implements ServicePlugin {
 		return presetRepository.listAllPresets(presetFiltering, securityContext);
 	}
 
-	public Preset createPreset(CreatePreset createPreset,
-			SecurityContext securityContext) {
+	public Preset createPreset(PresetCreate createPreset,
+                               SecurityContext securityContext) {
 		Preset preset = createPresetNoMerge(createPreset, securityContext);
 		presetRepository.merge(preset);
 		return preset;
 
 	}
 
-	private Preset createPresetNoMerge(CreatePreset createPreset,
-			SecurityContext securityContext) {
+
+
+	private Preset createPresetNoMerge(PresetCreate createPreset,
+                                       SecurityContext securityContext) {
 		Preset preset = new Preset(createPreset.getName(), securityContext);
 		updatePresetNoMerge(createPreset, preset);
 		return preset;
+	}
+
+	public void validate(PresetCreate presetCreate,SecurityContext securityContext){
+		baseclassNewService.validateCreate(presetCreate,securityContext);
+	}
+
+	public void validate(PresetFiltering presetFiltering,SecurityContext securityContext){
+		baseclassNewService.validateFilter(presetFiltering,securityContext);
 	}
 
 }

@@ -1,15 +1,15 @@
 package com.flexicore.ui.service;
 
 import com.flexicore.annotations.plugins.PluginInfo;
+import com.flexicore.data.jsoncontainers.CreatePermissionGroupLinkRequest;
 import com.flexicore.data.jsoncontainers.PaginationResponse;
+import com.flexicore.events.BaseclassCreated;
 import com.flexicore.interfaces.ServicePlugin;
 import com.flexicore.model.*;
 import com.flexicore.request.CategoryCreate;
 import com.flexicore.request.CategoryFilter;
 import com.flexicore.security.SecurityContext;
-import com.flexicore.service.BaseclassNewService;
-import com.flexicore.service.BaselinkService;
-import com.flexicore.service.CategoryService;
+import com.flexicore.service.*;
 import com.flexicore.ui.data.UiFieldRepository;
 import com.flexicore.ui.model.*;
 import com.flexicore.ui.request.*;
@@ -18,6 +18,8 @@ import com.flexicore.ui.response.PresetToTenantContainer;
 import com.flexicore.ui.response.PresetToUserContainer;
 import org.pf4j.Extension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.BadRequestException;
@@ -45,6 +47,12 @@ public class UiFieldService implements ServicePlugin {
     private BaseclassNewService baseclassNewService;
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private SecurityService securityService;
+    @Autowired
+    private PermissionGroupService permissionGroupService;
+    private SecurityContext adminSecurityContext;
 
     public UiField updateUiField(UiFieldUpdate updateUiField,
                                  SecurityContext securityContext) {
@@ -528,6 +536,35 @@ public class UiFieldService implements ServicePlugin {
     public void validate(PreferedPresetRequest preferedPresetRequest,
                          SecurityContext securityContext) {
 
+    }
+
+    @EventListener
+    @Async
+    public void handlePresetPermissionGroupCreated(BaseclassCreated<PermissionGroupToBaseclass> baseclassCreated){
+        PermissionGroupToBaseclass permissionGroupToBaseclass = baseclassCreated.getBaseclass();
+        PermissionGroup permissionGroup=permissionGroupToBaseclass.getLeftside();
+        if(permissionGroupToBaseclass.getRightside() instanceof Preset){
+            SecurityContext securityContext=getAdminSecurityContext();
+            Preset preset= (Preset) permissionGroupToBaseclass.getRightside();
+            logger.info("preset "+preset.getName() +"("+preset.getId()+") was attached to permission group "+permissionGroup.getName()+"("+permissionGroup.getId()+") , will attach ui fields as well");
+
+            List<UiField> fields=listAllUiFields(new UiFieldFiltering().setPresets(Collections.singletonList(preset)),securityContext);
+            CreatePermissionGroupLinkRequest createPermissionGroupLinkRequest = new CreatePermissionGroupLinkRequest()
+                    .setPermissionGroups(Collections.singletonList(permissionGroup))
+                    .setBaseclasses(new ArrayList<>(fields));
+            if(!fields.isEmpty()){
+                permissionGroupService.connectPermissionGroupsToBaseclasses(createPermissionGroupLinkRequest,securityContext);
+            }
+        }
+
+
+    }
+
+    private SecurityContext getAdminSecurityContext() {
+        if(adminSecurityContext==null){
+            adminSecurityContext=securityService.getAdminUserSecurityContext();
+        }
+        return adminSecurityContext;
     }
 
     public List<Preset> getPreferredPresets(

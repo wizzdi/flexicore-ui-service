@@ -3,7 +3,7 @@ package com.flexicore.ui.request;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.flexicore.model.dynamic.DynamicExecution;
 
-public class FormCreate extends CreatePreset {
+public class FormCreate extends PresetCreate {
 
 	private String dynamicExecutionId;
 	@JsonIgnore

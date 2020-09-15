@@ -1,6 +1,6 @@
 package com.flexicore.ui.request;
 
-public class MapPresetCreate extends CreatePreset {
+public class MapPresetCreate extends PresetCreate {
 
 	private Double latCenter;
 	private Double lonCenter;

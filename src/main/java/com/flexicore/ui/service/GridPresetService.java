@@ -1,28 +1,40 @@
 package com.flexicore.ui.service;
 
 import com.flexicore.annotations.plugins.PluginInfo;
+import com.flexicore.data.jsoncontainers.CreatePermissionGroupLinkRequest;
 import com.flexicore.data.jsoncontainers.PaginationResponse;
+import com.flexicore.events.BaseclassCreated;
 import com.flexicore.interfaces.ServicePlugin;
 import com.flexicore.model.Baseclass;
+import com.flexicore.model.PermissionGroup;
+import com.flexicore.model.PermissionGroupToBaseclass;
 import com.flexicore.model.dynamic.DynamicExecution;
 import com.flexicore.security.SecurityContext;
-import com.flexicore.ui.model.UiField;
-import com.flexicore.ui.request.*;
+import com.flexicore.service.PermissionGroupService;
+import com.flexicore.service.SecurityService;
 import com.flexicore.ui.data.GridPresetRepository;
 import com.flexicore.ui.model.GridPreset;
+import com.flexicore.ui.model.UiField;
+import com.flexicore.ui.request.*;
+import org.pf4j.Extension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
 
 import javax.ws.rs.BadRequestException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.pf4j.Extension;
-import org.springframework.stereotype.Component;
-import org.springframework.beans.factory.annotation.Autowired;
 
 @PluginInfo(version = 1)
 @Extension
 @Component
 public class GridPresetService implements ServicePlugin {
+
+	private static final Logger logger= LoggerFactory.getLogger(GridPresetService.class);
 
 	@PluginInfo(version = 1)
 	@Autowired
@@ -35,6 +47,12 @@ public class GridPresetService implements ServicePlugin {
 	@PluginInfo(version = 1)
 	@Autowired
 	private UiFieldService uiFieldService;
+
+	@Autowired
+	private SecurityService securityService;
+	@Autowired
+	private PermissionGroupService permissionGroupService;
+	private SecurityContext adminSecurityContext;
 
 	public PaginationResponse<GridPreset> getAllGridPresets(
 			GridPresetFiltering gridPresetFiltering,
@@ -57,18 +75,22 @@ public class GridPresetService implements ServicePlugin {
 			GridPreset preset) {
 		boolean update = presetService
 				.updatePresetNoMerge(createPreset, preset);
-		if (createPreset.getRelatedClassCanonicalName() != null
-				&& !createPreset.getRelatedClassCanonicalName().equals(
-						preset.getRelatedClassCanonicalName())) {
-			preset.setRelatedClassCanonicalName(createPreset
-					.getRelatedClassCanonicalName());
+		if (createPreset.getRelatedClassCanonicalName() != null && !createPreset.getRelatedClassCanonicalName().equals(preset.getRelatedClassCanonicalName())) {
+			preset.setRelatedClassCanonicalName(createPreset.getRelatedClassCanonicalName());
 			update = true;
 		}
 
-		if (createPreset.getDynamicExecution() != null
-				&& (preset.getDynamicExecution() == null || !createPreset
-						.getDynamicExecution().getId()
-						.equals(preset.getDynamicExecution().getId()))) {
+		if (createPreset.getLatMapping() != null && !createPreset.getLatMapping().equals(preset.getLatMapping())) {
+			preset.setLatMapping(createPreset.getLatMapping());
+			update = true;
+		}
+
+		if (createPreset.getLonMapping() != null && !createPreset.getLonMapping().equals(preset.getLonMapping())) {
+			preset.setLonMapping(createPreset.getLonMapping());
+			update = true;
+		}
+
+		if (createPreset.getDynamicExecution() != null && (preset.getDynamicExecution() == null || !createPreset.getDynamicExecution().getId().equals(preset.getDynamicExecution().getId()))) {
 			preset.setDynamicExecution(createPreset.getDynamicExecution());
 			update = true;
 		}
@@ -160,6 +182,36 @@ public class GridPresetService implements ServicePlugin {
 		return gridPreset;
 
 	}
+
+	@EventListener
+	@Async
+	public void handlePresetPermissionGroupCreated(BaseclassCreated<PermissionGroupToBaseclass> baseclassCreated){
+		PermissionGroupToBaseclass permissionGroupToBaseclass = baseclassCreated.getBaseclass();
+		PermissionGroup permissionGroup=permissionGroupToBaseclass.getLeftside();
+		if(permissionGroupToBaseclass.getRightside() instanceof GridPreset){
+			SecurityContext securityContext=getAdminSecurityContext();
+			GridPreset preset= (GridPreset) permissionGroupToBaseclass.getRightside();
+			if(preset.getDynamicExecution()!=null){
+				logger.info("grid preset "+preset.getName() +"("+preset.getId()+") was attached to permission group "+permissionGroup.getName()+"("+permissionGroup.getId()+") , will attach dynamic execution");
+
+				CreatePermissionGroupLinkRequest createPermissionGroupLinkRequest = new CreatePermissionGroupLinkRequest()
+						.setPermissionGroups(Collections.singletonList(permissionGroup))
+						.setBaseclasses(Collections.singletonList(preset.getDynamicExecution()));
+				permissionGroupService.connectPermissionGroupsToBaseclasses(createPermissionGroupLinkRequest,securityContext);
+
+			}
+
+		}
+
+	}
+
+	private SecurityContext getAdminSecurityContext() {
+		if(adminSecurityContext==null){
+			adminSecurityContext=securityService.getAdminUserSecurityContext();
+		}
+		return adminSecurityContext;
+	}
+
 
 	private GridPresetCreate getCreateContainer(GridPreset preset) {
 		return new GridPresetCreate()

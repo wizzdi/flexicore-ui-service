@@ -3,12 +3,14 @@ package com.flexicore.ui.request;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.flexicore.model.dynamic.DynamicExecution;
 
-public class GridPresetCreate extends CreatePreset {
+public class GridPresetCreate extends PresetCreate {
 
 	private String relatedClassCanonicalName;
 	private String dynamicExecutionId;
 	@JsonIgnore
 	private DynamicExecution dynamicExecution;
+	private String latMapping;
+	private String lonMapping;
 
 	public String getRelatedClassCanonicalName() {
 		return relatedClassCanonicalName;
@@ -41,4 +43,21 @@ public class GridPresetCreate extends CreatePreset {
 		return (T) this;
 	}
 
+	public String getLatMapping() {
+		return latMapping;
+	}
+
+	public <T extends GridPresetCreate> T setLatMapping(String latMapping) {
+		this.latMapping = latMapping;
+		return (T) this;
+	}
+
+	public String getLonMapping() {
+		return lonMapping;
+	}
+
+	public <T extends GridPresetCreate> T setLonMapping(String lonMapping) {
+		this.lonMapping = lonMapping;
+		return (T) this;
+	}
 }

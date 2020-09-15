@@ -1,6 +1,6 @@
 package com.flexicore.ui.request;
 
-public class ConfigurationPresetCreate extends CreatePreset {
+public class ConfigurationPresetCreate extends PresetCreate {
 
 	private String configurationUI;
 

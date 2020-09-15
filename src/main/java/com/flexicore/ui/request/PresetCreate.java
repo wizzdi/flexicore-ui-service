@@ -2,7 +2,7 @@ package com.flexicore.ui.request;
 
 import com.flexicore.request.BaseclassCreate;
 
-public class CreatePreset extends BaseclassCreate {
+public class PresetCreate extends BaseclassCreate {
 
 	private String externalId;
 
@@ -10,7 +10,7 @@ public class CreatePreset extends BaseclassCreate {
 		return externalId;
 	}
 
-	public <T extends CreatePreset> T setExternalId(String externalId) {
+	public <T extends PresetCreate> T setExternalId(String externalId) {
 		this.externalId = externalId;
 		return (T) this;
 	}
