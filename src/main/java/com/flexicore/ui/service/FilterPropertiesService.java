@@ -62,6 +62,11 @@ public class FilterPropertiesService implements ServicePlugin {
 	public boolean FilterPropertiesUpdateNoMerge(FilterPropertiesCreate filterPropertiesCreate, FilterProperties filterProperties) {
 		boolean update = baseclassNewService.updateBaseclassNoMerge(filterPropertiesCreate, filterProperties);
 
+		if (filterPropertiesCreate.getFilterPath() != null && !filterPropertiesCreate.getFilterPath().equals(filterProperties.getFilterPath())) {
+			filterProperties.setFilterPath(filterPropertiesCreate.getFilterPath());
+			update = true;
+		}
+
 		if (filterPropertiesCreate.getExternalize() != null && filterPropertiesCreate.getExternalize() != filterProperties.isExternalize()) {
 			filterProperties.setExternalize(filterPropertiesCreate.getExternalize());
 			update = true;

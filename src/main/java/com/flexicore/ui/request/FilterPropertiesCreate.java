@@ -6,6 +6,7 @@ import com.flexicore.ui.model.GridPreset;
 
 public class FilterPropertiesCreate extends BaseclassCreate {
 
+    private String filterPath;
     private Boolean externalize;
     private String presetId;
     @JsonIgnore
@@ -36,6 +37,15 @@ public class FilterPropertiesCreate extends BaseclassCreate {
 
     public <T extends FilterPropertiesCreate> T setGridPreset(GridPreset gridPreset) {
         this.gridPreset = gridPreset;
+        return (T) this;
+    }
+
+    public String getFilterPath() {
+        return filterPath;
+    }
+
+    public <T extends FilterPropertiesCreate> T setFilterPath(String filterPath) {
+        this.filterPath = filterPath;
         return (T) this;
     }
 }
