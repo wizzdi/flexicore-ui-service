@@ -7,7 +7,6 @@ import com.flexicore.data.jsoncontainers.PaginationResponse;
 import com.flexicore.annotations.ProtectedREST;
 import com.flexicore.interfaces.RestServicePlugin;
 import com.flexicore.security.SecurityContext;
-import com.flexicore.service.CategoryService;
 import com.flexicore.ui.model.FormField;
 import com.flexicore.ui.model.GridPreset;
 import com.flexicore.ui.request.FormFieldCreate;
@@ -18,7 +17,6 @@ import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-import javax.interceptor.Interceptors;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import org.pf4j.Extension;
@@ -43,8 +41,6 @@ public class FormFieldRESTService implements RestServicePlugin {
 	@Autowired
 	private FormFieldService service;
 
-	@Autowired
-	private CategoryService categoryService;
 
 	@POST
 	@Produces("application/json")

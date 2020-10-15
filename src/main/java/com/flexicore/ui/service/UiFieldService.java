@@ -1,13 +1,16 @@
 package com.flexicore.ui.service;
 
 import com.flexicore.annotations.plugins.PluginInfo;
+import com.flexicore.category.model.Category;
+import com.flexicore.category.model.CategoryFilter;
+import com.flexicore.category.model.CategoryNameFiltering;
+import com.flexicore.category.request.CategoryCreate;
+import com.flexicore.category.service.CategoryService;
 import com.flexicore.data.jsoncontainers.CreatePermissionGroupLinkRequest;
 import com.flexicore.data.jsoncontainers.PaginationResponse;
 import com.flexicore.events.BaseclassCreated;
 import com.flexicore.interfaces.ServicePlugin;
 import com.flexicore.model.*;
-import com.flexicore.request.CategoryCreate;
-import com.flexicore.request.CategoryFilter;
 import com.flexicore.security.SecurityContext;
 import com.flexicore.service.*;
 import com.flexicore.ui.data.UiFieldRepository;
@@ -46,6 +49,7 @@ public class UiFieldService implements ServicePlugin {
     @Autowired
     private BaseclassNewService baseclassNewService;
     @Autowired
+    @PluginInfo(version = 1)
     private CategoryService categoryService;
 
     @Autowired
@@ -472,7 +476,7 @@ public class UiFieldService implements ServicePlugin {
                         Collectors.groupingBy(f -> f.getCategoryName(),
                                 Collectors.toList()));
         Map<String, Category> categoryMap = categoryService
-                .listAllCategories(new CategoryFilter().setNames(map.keySet()),
+                .listAllCategories(new CategoryFilter().setNames(map.keySet().stream().map(e->new CategoryNameFiltering(e)).collect(Collectors.toSet())),
                         securityContext)
                 .parallelStream()
                 .collect(

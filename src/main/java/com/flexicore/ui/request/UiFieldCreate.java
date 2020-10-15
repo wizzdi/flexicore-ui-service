@@ -1,7 +1,7 @@
 package com.flexicore.ui.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.flexicore.model.Category;
+import com.flexicore.category.model.Category;
 import com.flexicore.request.BaseclassCreate;
 import com.flexicore.ui.model.Preset;
 

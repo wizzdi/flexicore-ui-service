@@ -46,6 +46,7 @@ public class FilterPropertiesRESTService implements RestServicePlugin {
 			@HeaderParam("authenticationKey") String authenticationKey,
 			FilterPropertiesFiltering filterPropertiesFiltering,
 			@Context SecurityContext securityContext) {
+		service.validate(filterPropertiesFiltering,securityContext);
 		return service.getAllFilterProperties(filterPropertiesFiltering, securityContext);
 
 	}

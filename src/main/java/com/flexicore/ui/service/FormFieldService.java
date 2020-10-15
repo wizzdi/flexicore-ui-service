@@ -3,24 +3,19 @@ package com.flexicore.ui.service;
 import com.flexicore.annotations.plugins.PluginInfo;
 import com.flexicore.data.jsoncontainers.PaginationResponse;
 import com.flexicore.interfaces.ServicePlugin;
-import com.flexicore.model.*;
+import com.flexicore.model.Baseclass;
 import com.flexicore.security.SecurityContext;
-import com.flexicore.service.BaselinkService;
-import com.flexicore.service.CategoryService;
 import com.flexicore.ui.data.FormFieldRepository;
-import com.flexicore.ui.model.*;
-import com.flexicore.ui.request.*;
-import com.flexicore.ui.response.PresetToRoleContainer;
-import com.flexicore.ui.response.PresetToTenantContainer;
-import com.flexicore.ui.response.PresetToUserContainer;
-
-import javax.ws.rs.BadRequestException;
-import java.util.*;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
+import com.flexicore.ui.model.FormField;
+import com.flexicore.ui.request.FormFieldCreate;
+import com.flexicore.ui.request.FormFieldFiltering;
+import com.flexicore.ui.request.FormFieldUpdate;
 import org.pf4j.Extension;
-import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.logging.Logger;
 
 @PluginInfo(version = 1)
 @Extension

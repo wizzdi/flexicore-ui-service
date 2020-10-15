@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.wizzdi</groupId>
   <artifactId>flexicore-ui-service</artifactId>
-  <version>3.2.4</version>
+  <version>3.2.6</version>
   <distributionManagement>
     <repository>
       <id>flexicore-local</id>
@@ -14,9 +14,10 @@
     <version.jackson>2.11.0</version.jackson>
     <maven.compiler.target>1.8</maven.compiler.target>
     <version.eclipselink>2.7.7</version.eclipselink>
-    <flexicore-api.version>4.0.16</flexicore-api.version>
+    <flexicore-api.version>4.0.21-SNAPSHOT</flexicore-api.version>
     <maven.compiler.source>1.8</maven.compiler.source>
     <pf4j-spring.version>0.6.0</pf4j-spring.version>
+    <category-service.version>1.0.0</category-service.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -32,8 +33,20 @@
   <dependencies>
     <dependency>
       <groupId>com.wizzdi</groupId>
+      <artifactId>category-model</artifactId>
+      <version>1.0.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.wizzdi</groupId>
+      <artifactId>category-service</artifactId>
+      <version>${category-service.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.wizzdi</groupId>
       <artifactId>flexicore-ui-model</artifactId>
-      <version>3.1.2</version>
+      <version>3.1.3</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -128,7 +141,9 @@
                   <manifestEntries>
                     <Plugin-Id>${artifactId}</Plugin-Id>
                     <Plugin-Version>${version}</Plugin-Version>
-                  </manifestEntries>
+                    <!--suppress UnresolvedMavenProperty --><Plugin-Dependencies>category-service@&gt;=${category-service.version}</Plugin-Dependencies>
+
+                </manifestEntries>
                 </transformer>
               </transformers>
             </configuration>

@@ -4,11 +4,8 @@ import com.flexicore.annotations.OperationsInside;
 import com.flexicore.annotations.ProtectedREST;
 import com.flexicore.annotations.plugins.PluginInfo;
 import com.flexicore.data.jsoncontainers.PaginationResponse;
-
-import com.flexicore.annotations.ProtectedREST;
 import com.flexicore.interfaces.RestServicePlugin;
 import com.flexicore.security.SecurityContext;
-import com.flexicore.service.CategoryService;
 import com.flexicore.ui.model.*;
 import com.flexicore.ui.request.*;
 import com.flexicore.ui.response.PresetToRoleContainer;
@@ -18,14 +15,13 @@ import com.flexicore.ui.service.UiFieldService;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.pf4j.Extension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import javax.interceptor.Interceptors;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import java.util.List;
-import org.pf4j.Extension;
-import org.springframework.stereotype.Component;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Created by Asaf on 04/06/2017.
@@ -45,8 +41,6 @@ public class UiFieldRESTService implements RestServicePlugin {
 	@Autowired
 	private UiFieldService service;
 
-	@Autowired
-	private CategoryService categoryService;
 
 	@POST
 	@Produces("application/json")
