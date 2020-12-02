@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.wizzdi</groupId>
     <artifactId>flexicore-ui-service</artifactId>
-    <version>3.2.6-SNAPSHOT</version>
+    <version>3.2.6</version>
     <name>${project.artifactId}</name>
     <description>FlexiCore service plugin , adds dynamic ui support</description>
     <url>https://wizzdi.com</url>
@@ -55,7 +54,7 @@
         <connection>scm:git:git://wizzdi/flexicore-ui-service.git</connection>
         <developerConnection>scm:git:git@github.com:wizzdi/flexicore-ui-service.git</developerConnection>
         <url>https://github.com/wizzdi/flexicore-ui-service</url>
-        <tag>flexicore-ui-service-{version}</tag>
+        <tag>flexicore-ui-service-3.2.6</tag>
     </scm>
     <dependencyManagement>
         <dependencies>
@@ -162,8 +161,7 @@
                             <dependencyReducedPomLocation>${java.io.tmpdir}/dependency-reduced-pom.xml
                             </dependencyReducedPomLocation>
                             <transformers>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
                                         <Plugin-Id>${artifactId}</Plugin-Id>
                                         <Plugin-Version>${version}</Plugin-Version>
