@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 @Component
 public class PresetToPresetService implements ServicePlugin {
 
-	@PluginInfo(version = 1)
 	@Autowired
 	private BaseclassNewService baseclassNewService;
 
