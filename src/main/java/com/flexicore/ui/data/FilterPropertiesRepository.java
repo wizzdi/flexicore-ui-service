@@ -2,6 +2,7 @@ package com.flexicore.ui.data;
 
 import com.flexicore.annotations.plugins.PluginInfo;
 import com.flexicore.interfaces.AbstractRepositoryPlugin;
+import com.flexicore.model.Baseclass;
 import com.flexicore.model.QueryInformationHolder;
 import com.flexicore.security.SecurityContext;
 import com.flexicore.ui.model.FilterProperties;
@@ -37,9 +38,9 @@ public class FilterPropertiesRepository extends AbstractRepositoryPlugin {
 
 	private void addFilterPropertiesPredicates(List<Predicate> preds, CriteriaBuilder cb,
 			Root<FilterProperties> r, FilterPropertiesFiltering filterPropertiesFiltering) {
-		if(filterPropertiesFiltering.getGridPresets()!=null &&!filterPropertiesFiltering.getGridPresets().isEmpty()){
-			Set<String> ids=filterPropertiesFiltering.getGridPresets().stream().map(f->f.getId()).collect(Collectors.toSet());
-			Join<FilterProperties, GridPreset> join=r.join(FilterProperties_.gridPreset);
+		if(filterPropertiesFiltering.getBaseclasses()!=null &&!filterPropertiesFiltering.getBaseclasses().isEmpty()){
+			Set<String> ids=filterPropertiesFiltering.getBaseclasses().stream().map(f->f.getId()).collect(Collectors.toSet());
+			Join<FilterProperties, Baseclass> join=r.join(FilterProperties_.relatedBaseclass);
 			preds.add(join.get(GridPreset_.id).in(ids));
 		}
 

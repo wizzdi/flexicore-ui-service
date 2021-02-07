@@ -1,8 +1,8 @@
 package com.flexicore.ui.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.flexicore.model.Baseclass;
 import com.flexicore.model.FilteringInformationHolder;
-import com.flexicore.ui.model.GridPreset;
 
 import java.util.HashSet;
 import java.util.List;
@@ -10,26 +10,26 @@ import java.util.Set;
 
 public class FilterPropertiesFiltering extends FilteringInformationHolder {
 
-    private Set<String> presetIds=new HashSet<>();
+    private Set<String> baseclassIds =new HashSet<>();
     @JsonIgnore
-    private List<GridPreset> gridPresets;
+    private List<Baseclass> baseclasses;
 
-    public Set<String> getPresetIds() {
-        return presetIds;
+    public Set<String> getBaseclassIds() {
+        return baseclassIds;
     }
 
-    public <T extends FilterPropertiesFiltering> T setPresetIds(Set<String> presetIds) {
-        this.presetIds = presetIds;
+    public <T extends FilterPropertiesFiltering> T setBaseclassIds(Set<String> baseclassIds) {
+        this.baseclassIds = baseclassIds;
         return (T) this;
     }
 
     @JsonIgnore
-    public List<GridPreset> getGridPresets() {
-        return gridPresets;
+    public List<Baseclass> getBaseclasses() {
+        return baseclasses;
     }
 
-    public <T extends FilterPropertiesFiltering> T setGridPresets(List<GridPreset> gridPresets) {
-        this.gridPresets = gridPresets;
+    public <T extends FilterPropertiesFiltering> T setBaseclasses(List<Baseclass> baseclasses) {
+        this.baseclasses = baseclasses;
         return (T) this;
     }
 }

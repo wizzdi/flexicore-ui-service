@@ -72,8 +72,8 @@ public class FilterPropertiesService implements ServicePlugin {
 			update = true;
 		}
 
-		if (filterPropertiesCreate.getGridPreset() != null &&(filterProperties.getGridPreset()==null|| !filterPropertiesCreate.getGridPreset().getId().equals(filterProperties.getGridPreset().getId()))) {
-			filterProperties.setGridPreset(filterPropertiesCreate.getGridPreset());
+		if (filterPropertiesCreate.getBaseclass() != null &&(filterProperties.getRelatedBaseclass()==null|| !filterPropertiesCreate.getBaseclass().getId().equals(filterProperties.getRelatedBaseclass().getId()))) {
+			filterProperties.setRelatedBaseclass(filterPropertiesCreate.getBaseclass());
 			update = true;
 		}
 
@@ -125,24 +125,24 @@ public class FilterPropertiesService implements ServicePlugin {
 	public void validate(FilterPropertiesCreate createFilterProperties,
 			SecurityContext securityContext) {
 		baseclassNewService.validate(createFilterProperties, securityContext);
-		String presetId=createFilterProperties.getPresetId();
-		GridPreset gridPreset=presetId!=null?getByIdOrNull(presetId,GridPreset.class,null,securityContext):null;
-		if(gridPreset==null){
-			throw new BadRequestException("No Grid preset with id "+presetId);
+		String baseclassId=createFilterProperties.getBaseclassId();
+		Baseclass baseclass=baseclassId!=null?getByIdOrNull(baseclassId,Baseclass.class,null,securityContext):null;
+		if(baseclass==null){
+			throw new BadRequestException("No Baseclass with id "+baseclassId);
 		}
-		createFilterProperties.setGridPreset(gridPreset);
+		createFilterProperties.setBaseclass(baseclass);
 	}
 
 	public void validate(FilterPropertiesFiltering filterPropertiesFiltering,
 			SecurityContext securityContext) {
 		baseclassNewService.validateFilter(filterPropertiesFiltering, securityContext);
-		Set<String> presetIds=filterPropertiesFiltering.getPresetIds();
-		Map<String,GridPreset> presetMap=presetIds.isEmpty()?new HashMap<>():filterPropertiesRepository.listByIds(GridPreset.class,presetIds,securityContext).stream().collect(Collectors.toMap(f->f.getId(),f->f,(a,b)->a));
-		presetIds.removeAll(presetMap.keySet());
-		if(!presetIds.isEmpty()){
-			throw new BadRequestException("No Grid Presets with ids "+presetIds);
+		Set<String> baseclassIds=filterPropertiesFiltering.getBaseclassIds();
+		Map<String,Baseclass> baseclassMap=baseclassIds.isEmpty()?new HashMap<>():filterPropertiesRepository.listByIds(Baseclass.class,baseclassIds,securityContext).stream().collect(Collectors.toMap(f->f.getId(),f->f,(a,b)->a));
+		baseclassIds.removeAll(baseclassMap.keySet());
+		if(!baseclassIds.isEmpty()){
+			throw new BadRequestException("No Baseclass with ids "+baseclassIds);
 		}
-		filterPropertiesFiltering.setGridPresets(new ArrayList<>(presetMap.values()));
+		filterPropertiesFiltering.setBaseclasses(new ArrayList<>(baseclassMap.values()));
 	}
 
 
@@ -155,7 +155,7 @@ public class FilterPropertiesService implements ServicePlugin {
 			SecurityContext securityContext=getAdminSecurityContext();
 			GridPreset preset= (GridPreset) permissionGroupToBaseclass.getRightside();
 				logger.info("grid preset "+preset.getName() +"("+preset.getId()+") was attached to permission group "+permissionGroup.getName()+"("+permissionGroup.getId()+") , will attach filter properties");
-				List<FilterProperties> filterProperties=listAllFilterProperties(new FilterPropertiesFiltering().setGridPresets(Collections.singletonList(preset)),securityContext);
+				List<FilterProperties> filterProperties=listAllFilterProperties(new FilterPropertiesFiltering().setBaseclasses(Collections.singletonList(preset)),securityContext);
 				if(!filterProperties.isEmpty()){
 					CreatePermissionGroupLinkRequest createPermissionGroupLinkRequest = new CreatePermissionGroupLinkRequest()
 							.setPermissionGroups(Collections.singletonList(permissionGroup))

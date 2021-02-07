@@ -1,16 +1,16 @@
 package com.flexicore.ui.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.flexicore.model.Baseclass;
 import com.flexicore.request.BaseclassCreate;
-import com.flexicore.ui.model.GridPreset;
 
 public class FilterPropertiesCreate extends BaseclassCreate {
 
     private String filterPath;
     private Boolean externalize;
-    private String presetId;
+    private String baseclassId;
     @JsonIgnore
-    private GridPreset gridPreset;
+    private Baseclass baseclass;
 
     public Boolean getExternalize() {
         return externalize;
@@ -21,22 +21,22 @@ public class FilterPropertiesCreate extends BaseclassCreate {
         return (T) this;
     }
 
-    public String getPresetId() {
-        return presetId;
+    public String getBaseclassId() {
+        return baseclassId;
     }
 
-    public <T extends FilterPropertiesCreate> T setPresetId(String presetId) {
-        this.presetId = presetId;
+    public <T extends FilterPropertiesCreate> T setBaseclassId(String baseclassId) {
+        this.baseclassId = baseclassId;
         return (T) this;
     }
 
     @JsonIgnore
-    public GridPreset getGridPreset() {
-        return gridPreset;
+    public Baseclass getBaseclass() {
+        return baseclass;
     }
 
-    public <T extends FilterPropertiesCreate> T setGridPreset(GridPreset gridPreset) {
-        this.gridPreset = gridPreset;
+    public <T extends FilterPropertiesCreate> T setBaseclass(Baseclass baseclass) {
+        this.baseclass = baseclass;
         return (T) this;
     }
 

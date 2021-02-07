@@ -8,7 +8,6 @@ import com.flexicore.interfaces.ServicePlugin;
 import com.flexicore.model.Baseclass;
 import com.flexicore.model.PermissionGroup;
 import com.flexicore.model.PermissionGroupToBaseclass;
-import com.flexicore.model.dynamic.DynamicExecution;
 import com.flexicore.security.SecurityContext;
 import com.flexicore.service.PermissionGroupService;
 import com.flexicore.service.SecurityService;
@@ -16,6 +15,8 @@ import com.flexicore.ui.data.GridPresetRepository;
 import com.flexicore.ui.model.GridPreset;
 import com.flexicore.ui.model.UiField;
 import com.flexicore.ui.request.*;
+import com.wizzdi.flexicore.boot.dynamic.invokers.model.DynamicExecution;
+import com.wizzdi.flexicore.boot.dynamic.invokers.service.DynamicExecutionService;
 import org.pf4j.Extension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +53,8 @@ public class GridPresetService implements ServicePlugin {
 	private SecurityService securityService;
 	@Autowired
 	private PermissionGroupService permissionGroupService;
+	@Autowired
+	private DynamicExecutionService dynamicExecutionService;
 	private SecurityContext adminSecurityContext;
 
 	public PaginationResponse<GridPreset> getAllGridPresets(
@@ -148,8 +151,7 @@ public class GridPresetService implements ServicePlugin {
 		String dynamicExecutionId = createGridPreset.getDynamicExecutionId();
 		DynamicExecution dynamicExecution = dynamicExecutionId == null
 				? null
-				: getByIdOrNull(dynamicExecutionId, DynamicExecution.class,
-						null, securityContext);
+				: dynamicExecutionService.getByIdOrNull(dynamicExecutionId, DynamicExecution.class, securityContext);
 		if (dynamicExecution == null && dynamicExecutionId != null) {
 			throw new BadRequestException("No Dynamic Execution with id "
 					+ dynamicExecutionId);
@@ -193,11 +195,13 @@ public class GridPresetService implements ServicePlugin {
 			GridPreset preset= (GridPreset) permissionGroupToBaseclass.getRightside();
 			if(preset.getDynamicExecution()!=null){
 				logger.info("grid preset "+preset.getName() +"("+preset.getId()+") was attached to permission group "+permissionGroup.getName()+"("+permissionGroup.getId()+") , will attach dynamic execution");
+				if(preset.getDynamicExecution().getSecurity()!=null){
+					CreatePermissionGroupLinkRequest createPermissionGroupLinkRequest = new CreatePermissionGroupLinkRequest()
+							.setPermissionGroups(Collections.singletonList(permissionGroup))
+							.setBaseclasses(Collections.singletonList(preset.getDynamicExecution().getSecurity()));
+					permissionGroupService.connectPermissionGroupsToBaseclasses(createPermissionGroupLinkRequest,securityContext);
+				}
 
-				CreatePermissionGroupLinkRequest createPermissionGroupLinkRequest = new CreatePermissionGroupLinkRequest()
-						.setPermissionGroups(Collections.singletonList(permissionGroup))
-						.setBaseclasses(Collections.singletonList(preset.getDynamicExecution()));
-				permissionGroupService.connectPermissionGroupsToBaseclasses(createPermissionGroupLinkRequest,securityContext);
 
 			}
 

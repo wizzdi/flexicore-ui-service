@@ -4,7 +4,6 @@ import com.flexicore.annotations.plugins.PluginInfo;
 import com.flexicore.data.jsoncontainers.PaginationResponse;
 import com.flexicore.interfaces.ServicePlugin;
 import com.flexicore.model.Baseclass;
-import com.flexicore.model.dynamic.DynamicExecution;
 import com.flexicore.security.SecurityContext;
 import com.flexicore.ui.data.FormRepository;
 import com.flexicore.ui.model.Form;
@@ -15,6 +14,9 @@ import javax.ws.rs.BadRequestException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import com.wizzdi.flexicore.boot.dynamic.invokers.model.DynamicExecution;
+import com.wizzdi.flexicore.boot.dynamic.invokers.service.DynamicExecutionService;
 import org.pf4j.Extension;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +37,8 @@ public class FormService implements ServicePlugin {
 	@PluginInfo(version = 1)
 	@Autowired
 	private UiFieldService uiFieldService;
+	@Autowired
+	private DynamicExecutionService dynamicExecutionService;
 
 	public PaginationResponse<Form> getAllForms(FormFiltering formFiltering,
 			SecurityContext securityContext) {
@@ -110,8 +114,7 @@ public class FormService implements ServicePlugin {
 		String dynamicExecutionId = createForm.getDynamicExecutionId();
 		DynamicExecution dynamicExecution = dynamicExecutionId == null
 				? null
-				: getByIdOrNull(dynamicExecutionId, DynamicExecution.class,
-						null, securityContext);
+				: dynamicExecutionService.getByIdOrNull(dynamicExecutionId, DynamicExecution.class, securityContext);
 		if (dynamicExecution == null && dynamicExecutionId != null) {
 			throw new BadRequestException("No Dynamic Execution with id "
 					+ dynamicExecutionId);
