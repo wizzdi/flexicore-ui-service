@@ -4,6 +4,7 @@ import com.flexicore.annotations.plugins.PluginInfo;
 import com.flexicore.data.jsoncontainers.PaginationResponse;
 import com.flexicore.interfaces.ServicePlugin;
 import com.flexicore.model.Baseclass;
+import com.flexicore.model.SecuredBasic_;
 import com.flexicore.security.SecurityContext;
 import com.flexicore.ui.data.FormRepository;
 import com.flexicore.ui.model.Form;
@@ -114,7 +115,7 @@ public class FormService implements ServicePlugin {
 		String dynamicExecutionId = createForm.getDynamicExecutionId();
 		DynamicExecution dynamicExecution = dynamicExecutionId == null
 				? null
-				: dynamicExecutionService.getByIdOrNull(dynamicExecutionId, DynamicExecution.class, securityContext);
+				: dynamicExecutionService.getByIdOrNull(dynamicExecutionId, DynamicExecution.class, SecuredBasic_.security, securityContext);
 		if (dynamicExecution == null && dynamicExecutionId != null) {
 			throw new BadRequestException("No Dynamic Execution with id "
 					+ dynamicExecutionId);

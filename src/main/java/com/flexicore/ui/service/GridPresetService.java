@@ -8,6 +8,7 @@ import com.flexicore.interfaces.ServicePlugin;
 import com.flexicore.model.Baseclass;
 import com.flexicore.model.PermissionGroup;
 import com.flexicore.model.PermissionGroupToBaseclass;
+import com.flexicore.model.SecuredBasic_;
 import com.flexicore.security.SecurityContext;
 import com.flexicore.service.PermissionGroupService;
 import com.flexicore.service.SecurityService;
@@ -16,6 +17,7 @@ import com.flexicore.ui.model.GridPreset;
 import com.flexicore.ui.model.UiField;
 import com.flexicore.ui.request.*;
 import com.wizzdi.flexicore.boot.dynamic.invokers.model.DynamicExecution;
+import com.wizzdi.flexicore.boot.dynamic.invokers.model.DynamicExecution_;
 import com.wizzdi.flexicore.boot.dynamic.invokers.service.DynamicExecutionService;
 import org.pf4j.Extension;
 import org.slf4j.Logger;
@@ -151,7 +153,7 @@ public class GridPresetService implements ServicePlugin {
 		String dynamicExecutionId = createGridPreset.getDynamicExecutionId();
 		DynamicExecution dynamicExecution = dynamicExecutionId == null
 				? null
-				: dynamicExecutionService.getByIdOrNull(dynamicExecutionId, DynamicExecution.class, securityContext);
+				: dynamicExecutionService.getByIdOrNull(dynamicExecutionId, DynamicExecution.class, SecuredBasic_.security, securityContext);
 		if (dynamicExecution == null && dynamicExecutionId != null) {
 			throw new BadRequestException("No Dynamic Execution with id "
 					+ dynamicExecutionId);

@@ -168,8 +168,7 @@ public class PresetToEntityService implements ServicePlugin {
 						securityContext)
 				.parallelStream()
 				.filter(f -> f.getLeftside() != null)
-				.sorted(PRESET_LINK_COMPARATOR.thenComparing(f -> f
-						.getPriority())).collect(Collectors.toList());
+				.sorted(PRESET_LINK_COMPARATOR.thenComparing(PresetToEntity::getPriority)).collect(Collectors.toList());
 		for (PresetToEntity presetToEntity : links) {
 			String canonicalName = presetToEntity.getLeftside().getClass()
 					.getCanonicalName();
