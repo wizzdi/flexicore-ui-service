@@ -14,4 +14,9 @@ public class PresetCreate extends BaseclassCreate {
 		this.externalId = externalId;
 		return (T) this;
 	}
+
+	@Override
+	public boolean supportingDynamic() {
+		return true;
+	}
 }
