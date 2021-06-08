@@ -2,15 +2,16 @@ package com.flexicore.ui.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.flexicore.model.Baseclass;
-import com.flexicore.request.BaseclassCreate;
+import com.flexicore.ui.model.Preset;
+import com.wizzdi.flexicore.security.request.BasicCreate;
 
-public class FilterPropertiesCreate extends BaseclassCreate {
+public class FilterPropertiesCreate extends BasicCreate {
 
     private String filterPath;
     private Boolean externalize;
     private String baseclassId;
     @JsonIgnore
-    private Baseclass baseclass;
+    private Preset baseclass;
 
     public Boolean getExternalize() {
         return externalize;
@@ -31,11 +32,11 @@ public class FilterPropertiesCreate extends BaseclassCreate {
     }
 
     @JsonIgnore
-    public Baseclass getBaseclass() {
+    public Preset getBaseclass() {
         return baseclass;
     }
 
-    public <T extends FilterPropertiesCreate> T setBaseclass(Baseclass baseclass) {
+    public <T extends FilterPropertiesCreate> T setBaseclass(Preset baseclass) {
         this.baseclass = baseclass;
         return (T) this;
     }

@@ -1,6 +1,6 @@
 package com.flexicore.ui.response;
 
-import com.flexicore.model.User;
+import com.flexicore.model.SecurityUser;
 import com.flexicore.ui.model.Preset;
 import com.flexicore.ui.model.PresetToUser;
 
@@ -9,14 +9,14 @@ public class PresetToUserContainer {
 	private boolean enabled;
 	private int priority;
 	private Preset preset;
-	private User user;
+	private SecurityUser securityUser;
 
 	public PresetToUserContainer(PresetToUser other) {
 		this.id = other.getId();
 		this.enabled = other.isEnabled();
 		this.priority = other.getPriority();
-		this.preset = other.getLeftside();
-		this.user = other.getRightside();
+		this.preset = other.getPreset();
+		this.securityUser = other.getEntity();
 	}
 
 	public String getId() {
@@ -55,12 +55,12 @@ public class PresetToUserContainer {
 		return (T) this;
 	}
 
-	public User getUser() {
-		return user;
+	public SecurityUser getUser() {
+		return securityUser;
 	}
 
-	public <T extends PresetToUserContainer> T setUser(User user) {
-		this.user = user;
+	public <T extends PresetToUserContainer> T setUser(SecurityUser securityUser) {
+		this.securityUser = securityUser;
 		return (T) this;
 	}
 }

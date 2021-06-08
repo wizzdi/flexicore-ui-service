@@ -2,17 +2,18 @@ package com.flexicore.ui.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.flexicore.model.Baseclass;
-import com.flexicore.model.FilteringInformationHolder;
+import com.flexicore.ui.model.Preset;
+import com.wizzdi.flexicore.security.request.PaginationFilter;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class FilterPropertiesFiltering extends FilteringInformationHolder {
+public class FilterPropertiesFiltering extends PaginationFilter  {
 
     private Set<String> baseclassIds =new HashSet<>();
     @JsonIgnore
-    private List<Baseclass> baseclasses;
+    private List<Preset> baseclasses;
 
     public Set<String> getBaseclassIds() {
         return baseclassIds;
@@ -24,11 +25,11 @@ public class FilterPropertiesFiltering extends FilteringInformationHolder {
     }
 
     @JsonIgnore
-    public List<Baseclass> getBaseclasses() {
+    public List<Preset> getBaseclasses() {
         return baseclasses;
     }
 
-    public <T extends FilterPropertiesFiltering> T setBaseclasses(List<Baseclass> baseclasses) {
+    public <T extends FilterPropertiesFiltering> T setBaseclasses(List<Preset> baseclasses) {
         this.baseclasses = baseclasses;
         return (T) this;
     }

@@ -1,14 +1,14 @@
 package com.flexicore.ui.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.flexicore.model.FilteringInformationHolder;
+import com.wizzdi.flexicore.security.request.PaginationFilter;
 import com.flexicore.ui.model.Preset;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class PresetLinkFilter extends FilteringInformationHolder {
+public class PresetLinkFilter extends PaginationFilter  {
 
 	private Set<String> presetIds = new HashSet<>();
 	@JsonIgnore

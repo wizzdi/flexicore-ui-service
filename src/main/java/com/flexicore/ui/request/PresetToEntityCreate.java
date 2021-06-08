@@ -1,10 +1,10 @@
 package com.flexicore.ui.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.flexicore.request.BaseclassCreate;
+import com.wizzdi.flexicore.security.request.BasicCreate;
 import com.flexicore.ui.model.Preset;
 
-public class PresetToEntityCreate extends BaseclassCreate {
+public class PresetToEntityCreate extends BasicCreate {
 
 	private String presetId;
 	@JsonIgnore

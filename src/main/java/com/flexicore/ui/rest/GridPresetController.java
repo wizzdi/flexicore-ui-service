@@ -1,12 +1,16 @@
 package com.flexicore.ui.rest;
 
 import com.flexicore.annotations.OperationsInside;
-import com.flexicore.annotations.plugins.PluginInfo;
-import com.flexicore.data.jsoncontainers.PaginationResponse;
 
-import com.flexicore.annotations.ProtectedREST;
-import com.flexicore.interfaces.RestServicePlugin;
-import com.flexicore.security.SecurityContext;
+import com.flexicore.ui.model.GridPreset_;
+import com.wizzdi.flexicore.security.response.PaginationResponse;
+
+import com.wizzdi.flexicore.boot.base.interfaces.Plugin;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
+
+import com.flexicore.security.SecurityContextBase;
 import com.flexicore.ui.request.GridPresetCopy;
 import com.flexicore.ui.request.GridPresetCreate;
 import com.flexicore.ui.request.GridPresetUpdate;
@@ -16,9 +20,9 @@ import com.flexicore.ui.service.GridPresetService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-import javax.interceptor.Interceptors;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
+
+
+
 import org.pf4j.Extension;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,45 +31,43 @@ import org.springframework.beans.factory.annotation.Autowired;
  * Created by Asaf on 04/06/2017.
  */
 
-@PluginInfo(version = 1)
+
 @OperationsInside
-@ProtectedREST
-@Path("plugins/GridPresets")
+@RestController
+@RequestMapping("plugins/GridPresets")
 @Tag(name = "GridPresets", description = "Grid presets support free definition of grids using Dynamic Execution as source of data")
 @Tag(name = "Presets")
 @Extension
 @Component
-public class GridPresetRESTService implements RestServicePlugin {
+public class GridPresetController implements Plugin {
 
-	@PluginInfo(version = 1)
+	
 	@Autowired
 	private GridPresetService service;
 
-	@POST
-	@Produces("application/json")
+	
+
 	@Operation(summary = "getAllGridPresets", description = "returns all GridPresets")
-	@Path("getAllGridPresets")
+	@PostMapping("getAllGridPresets")
 	public PaginationResponse<GridPreset> getAllGridPresets(
-			@HeaderParam("authenticationKey") String authenticationKey,
+			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody 
 			GridPresetFiltering gridPresetFiltering,
-			@Context SecurityContext securityContext) {
+			@RequestAttribute SecurityContextBase securityContext) {
 		return service.getAllGridPresets(gridPresetFiltering, securityContext);
 
 	}
 
-	@PUT
-	@Produces("application/json")
+	
+
 	@Operation(summary = "updateGridPreset", description = "Updates Dashbaord")
-	@Path("updateGridPreset")
+	@PutMapping("updateGridPreset")
 	public GridPreset updateGridPreset(
-			@HeaderParam("authenticationKey") String authenticationKey,
+			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody 
 			GridPresetUpdate updateGridPreset,
-			@Context SecurityContext securityContext) {
-		GridPreset gridPreset = updateGridPreset.getId() != null ? service
-				.getByIdOrNull(updateGridPreset.getId(), GridPreset.class,
-						null, securityContext) : null;
+			@RequestAttribute SecurityContextBase securityContext) {
+		GridPreset gridPreset = updateGridPreset.getId() != null ? service.getByIdOrNull(updateGridPreset.getId(), GridPreset.class, GridPreset_.security, securityContext) : null;
 		if (gridPreset == null) {
-			throw new BadRequestException("no ui field with id  "
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"no GridPreset with id  "
 					+ updateGridPreset.getId());
 		}
 		updateGridPreset.setPreset(gridPreset);
@@ -75,27 +77,27 @@ public class GridPresetRESTService implements RestServicePlugin {
 
 	}
 
-	@POST
-	@Produces("application/json")
+	
+
 	@Operation(summary = "createGridPreset", description = "Creates Grid Preset ")
-	@Path("createGridPreset")
+	@PostMapping("createGridPreset")
 	public GridPreset createGridPreset(
-			@HeaderParam("authenticationKey") String authenticationKey,
+			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody 
 			GridPresetCreate createGridPreset,
-			@Context SecurityContext securityContext) {
+			@RequestAttribute SecurityContextBase securityContext) {
 		service.validate(createGridPreset, securityContext);
 		return service.createGridPreset(createGridPreset, securityContext);
 
 	}
 
-	@POST
-	@Produces("application/json")
+	
+
 	@Operation(summary = "copyGridPreset", description = "Copies Grid Preset")
-	@Path("copyGridPreset")
+	@RequestMapping("copyGridPreset")
 	public GridPreset copyGridPreset(
-			@HeaderParam("authenticationKey") String authenticationKey,
+			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody 
 			GridPresetCopy gridPresetCopy,
-			@Context SecurityContext securityContext) {
+			@RequestAttribute SecurityContextBase securityContext) {
 		service.validate(gridPresetCopy, securityContext);
 		return service.copyGridPreset(gridPresetCopy, securityContext);
 

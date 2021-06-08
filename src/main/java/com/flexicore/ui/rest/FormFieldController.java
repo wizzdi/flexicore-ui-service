@@ -1,12 +1,16 @@
 package com.flexicore.ui.rest;
 
 import com.flexicore.annotations.OperationsInside;
-import com.flexicore.annotations.plugins.PluginInfo;
-import com.flexicore.data.jsoncontainers.PaginationResponse;
 
-import com.flexicore.annotations.ProtectedREST;
-import com.flexicore.interfaces.RestServicePlugin;
-import com.flexicore.security.SecurityContext;
+import com.flexicore.ui.model.FormField_;
+import com.wizzdi.flexicore.security.response.PaginationResponse;
+
+import com.wizzdi.flexicore.boot.base.interfaces.Plugin;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
+
+import com.flexicore.security.SecurityContextBase;
 import com.flexicore.ui.model.FormField;
 import com.flexicore.ui.model.GridPreset;
 import com.flexicore.ui.request.FormFieldCreate;
@@ -17,8 +21,8 @@ import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
+
+
 import org.pf4j.Extension;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,68 +31,64 @@ import org.springframework.beans.factory.annotation.Autowired;
  * Created by Asaf on 04/06/2017.
  */
 
-@PluginInfo(version = 1)
+
 @OperationsInside
-@ProtectedREST
-@Path("plugins/FormFields")
-@OpenAPIDefinition(tags = {@Tag(name = "FormFields", description = "FormFields Services")})
+@RestController
+@RequestMapping("plugins/FormFields")
+
 @Tag(name = "FormFields")
 @Extension
 @Component
-public class FormFieldRESTService implements RestServicePlugin {
+public class FormFieldController implements Plugin {
 
-	@PluginInfo(version = 1)
+	
 	@Autowired
 	private FormFieldService service;
 
 
-	@POST
-	@Produces("application/json")
+	
+
 	@Operation(summary = "getAllFormFields", description = "List all Ui Fields")
-	@Path("getAllFormFields")
+	@PostMapping("getAllFormFields")
 	public PaginationResponse<FormField> getAllFormFields(
-			@HeaderParam("authenticationKey") String authenticationKey,
+			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody 
 			FormFieldFiltering formFieldFiltering,
-			@Context SecurityContext securityContext) {
+			@RequestAttribute SecurityContextBase securityContext) {
 		service.validate(formFieldFiltering, securityContext);
 		return service.getAllFormFields(formFieldFiltering, securityContext);
 
 	}
 
-	@PUT
-	@Produces("application/json")
+
+
 	@Operation(summary = "updateFormField", description = "Updates Ui Field")
-	@Path("updateFormField")
+	@PutMapping("updateFormField")
 	public FormField updateFormField(
-			@HeaderParam("authenticationKey") String authenticationKey,
+			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody 
 			FormFieldUpdate formFieldUpdate,
-			@Context SecurityContext securityContext) {
-		FormField formField = formFieldUpdate.getId() != null ? service
-				.getByIdOrNull(formFieldUpdate.getId(), FormField.class, null,
-						securityContext) : null;
+			@RequestAttribute SecurityContextBase securityContext) {
+		FormField formField = formFieldUpdate.getId() != null ? service.getByIdOrNull(formFieldUpdate.getId(), FormField.class, FormField_.security, securityContext) : null;
 		if (formField == null) {
-			throw new BadRequestException("no ui field with id  "
-					+ formFieldUpdate.getId());
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"no FormField with id  " + formFieldUpdate.getId());
 		}
 		formFieldUpdate.setFormField(formField);
-
 		return service.FormFieldUpdate(formFieldUpdate, securityContext);
 
 	}
 
-	@POST
-	@Produces("application/json")
+	
+
 	@Operation(summary = "createFormField", description = "Creates Ui Field ")
-	@Path("createFormField")
+	@PostMapping("createFormField")
 	public FormField createFormField(
-			@HeaderParam("authenticationKey") String authenticationKey,
+			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody 
 			FormFieldCreate createFormField,
-			@Context SecurityContext securityContext) {
+			@RequestAttribute SecurityContextBase securityContext) {
 		GridPreset preset = createFormField.getPresetId() != null ? service
 				.getByIdOrNull(createFormField.getPresetId(), GridPreset.class,
 						null, securityContext) : null;
 		if (preset == null) {
-			throw new BadRequestException("no GridPreset with id "
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"no GridPreset with id "
 					+ createFormField.getPresetId());
 		}
 		createFormField.setPreset(preset);

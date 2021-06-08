@@ -1,61 +1,114 @@
 package com.flexicore.ui.data;
 
-import com.flexicore.annotations.plugins.PluginInfo;
-import com.flexicore.interfaces.AbstractRepositoryPlugin;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
+import com.flexicore.model.Basic;
+import com.flexicore.ui.model.*;
+import com.wizzdi.flexicore.boot.base.interfaces.Plugin;
+import com.wizzdi.flexicore.security.data.BasicRepository;
+import com.wizzdi.flexicore.security.data.SecuredBasicRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import com.flexicore.model.Baseclass;
-import com.flexicore.model.QueryInformationHolder;
-import com.flexicore.security.SecurityContext;
-import com.flexicore.ui.model.FilterProperties;
-import com.flexicore.ui.model.FilterProperties_;
-import com.flexicore.ui.model.GridPreset;
-import com.flexicore.ui.model.GridPreset_;
+
+import com.flexicore.security.SecurityContextBase;
 import com.flexicore.ui.request.FilterPropertiesFiltering;
 import org.pf4j.Extension;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
+import javax.persistence.metamodel.SingularAttribute;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@PluginInfo(version = 1)
+
 @Extension
 @Component
-public class FilterPropertiesRepository extends AbstractRepositoryPlugin {
+public class FilterPropertiesRepository implements Plugin {
+    @PersistenceContext
+    private EntityManager em;
+    @Autowired
+    private SecuredBasicRepository securedBasicRepository;
 
-	public List<FilterProperties> listAllFilterProperties(FilterPropertiesFiltering filterPropertiesFiltering,
-			SecurityContext securityContext) {
-		CriteriaBuilder cb = em.getCriteriaBuilder();
-		CriteriaQuery<FilterProperties> q = cb.createQuery(FilterProperties.class);
-		Root<FilterProperties> r = q.from(FilterProperties.class);
-		List<Predicate> preds = new ArrayList<>();
-		addFilterPropertiesPredicates(preds, cb, r, filterPropertiesFiltering);
-		QueryInformationHolder<FilterProperties> queryInformationHolder = new QueryInformationHolder<>(
-				filterPropertiesFiltering, FilterProperties.class, securityContext);
-		return getAllFiltered(queryInformationHolder, preds, cb, q, r);
-	}
+    public List<FilterProperties> listAllFilterProperties(FilterPropertiesFiltering filterPropertiesFiltering,
+                                                          SecurityContextBase securityContext) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<FilterProperties> q = cb.createQuery(FilterProperties.class);
+        Root<FilterProperties> r = q.from(FilterProperties.class);
+        List<Predicate> preds = new ArrayList<>();
+        addFilterPropertiesPredicates(preds, cb,q, r, filterPropertiesFiltering,securityContext);
+        q.select(r).where(preds.toArray(new Predicate[0]));
+        TypedQuery<FilterProperties> query = em.createQuery(q);
+        BasicRepository.addPagination(filterPropertiesFiltering, query);
+        return query.getResultList();
+    }
 
-	private void addFilterPropertiesPredicates(List<Predicate> preds, CriteriaBuilder cb,
-			Root<FilterProperties> r, FilterPropertiesFiltering filterPropertiesFiltering) {
-		if(filterPropertiesFiltering.getBaseclasses()!=null &&!filterPropertiesFiltering.getBaseclasses().isEmpty()){
-			Set<String> ids=filterPropertiesFiltering.getBaseclasses().stream().map(f->f.getId()).collect(Collectors.toSet());
-			Join<FilterProperties, Baseclass> join=r.join(FilterProperties_.relatedBaseclass);
-			preds.add(join.get(GridPreset_.id).in(ids));
-		}
+    public <T extends FilterProperties> void addFilterPropertiesPredicates(List<Predicate> preds, CriteriaBuilder cb,CommonAbstractCriteria q,
+                                               From<?,T> r, FilterPropertiesFiltering filterPropertiesFiltering,SecurityContextBase securityContextBase) {
+        securedBasicRepository.addSecuredBasicPredicates(null,cb,q,r,preds,securityContextBase);
+        if (filterPropertiesFiltering.getBaseclasses() != null && !filterPropertiesFiltering.getBaseclasses().isEmpty()) {
+            Set<String> ids = filterPropertiesFiltering.getBaseclasses().stream().map(f -> f.getId()).collect(Collectors.toSet());
+            Join<T, Preset> join = r.join(FilterProperties_.relatedBaseclass);
+            preds.add(join.get(GridPreset_.id).in(ids));
+        }
 
 
-	}
+    }
 
-	public long countAllFilterProperties(FilterPropertiesFiltering filterPropertiesFiltering,
-			SecurityContext securityContext) {
-		CriteriaBuilder cb = em.getCriteriaBuilder();
-		CriteriaQuery<Long> q = cb.createQuery(Long.class);
-		Root<FilterProperties> r = q.from(FilterProperties.class);
-		List<Predicate> preds = new ArrayList<>();
-		addFilterPropertiesPredicates(preds, cb, r, filterPropertiesFiltering);
-		QueryInformationHolder<FilterProperties> queryInformationHolder = new QueryInformationHolder<>(
-				filterPropertiesFiltering, FilterProperties.class, securityContext);
-		return countAllFiltered(queryInformationHolder, preds, cb, q, r);
-	}
+    public long countAllFilterProperties(FilterPropertiesFiltering filterPropertiesFiltering,
+                                         SecurityContextBase securityContext) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Long> q = cb.createQuery(Long.class);
+        Root<FilterProperties> r = q.from(FilterProperties.class);
+        List<Predicate> preds = new ArrayList<>();
+        addFilterPropertiesPredicates(preds, cb,q, r, filterPropertiesFiltering,securityContext);
+        q.select(cb.count(r)).where(preds.toArray(new Predicate[0]));
+        TypedQuery<Long> query = em.createQuery(q);
+        BasicRepository.addPagination(filterPropertiesFiltering, query);
+        return query.getSingleResult();
+    }
+
+
+    public <T extends Baseclass> List<T> listByIds(Class<T> c, Set<String> ids, SecurityContextBase securityContext) {
+        return securedBasicRepository.listByIds(c, ids, securityContext);
+    }
+
+    public <T extends Baseclass> T getByIdOrNull(String id, Class<T> c, SecurityContextBase securityContext) {
+        return securedBasicRepository.getByIdOrNull(id, c, securityContext);
+    }
+
+    public <D extends Basic, E extends Baseclass, T extends D> T getByIdOrNull(String id, Class<T> c, SingularAttribute<D, E> baseclassAttribute, SecurityContextBase securityContext) {
+        return securedBasicRepository.getByIdOrNull(id, c, baseclassAttribute, securityContext);
+    }
+
+    public <D extends Basic, E extends Baseclass, T extends D> List<T> listByIds(Class<T> c, Set<String> ids, SingularAttribute<D, E> baseclassAttribute, SecurityContextBase securityContext) {
+        return securedBasicRepository.listByIds(c, ids, baseclassAttribute, securityContext);
+    }
+
+    public <D extends Basic, T extends D> List<T> findByIds(Class<T> c, Set<String> ids, SingularAttribute<D, String> idAttribute) {
+        return securedBasicRepository.findByIds(c, ids, idAttribute);
+    }
+
+    public <T extends Basic> List<T> findByIds(Class<T> c, Set<String> requested) {
+        return securedBasicRepository.findByIds(c, requested);
+    }
+
+    public <T> T findByIdOrNull(Class<T> type, String id) {
+        return securedBasicRepository.findByIdOrNull(type, id);
+    }
+
+    @Transactional
+    public void merge(Object base) {
+        securedBasicRepository.merge(base);
+    }
+
+    @Transactional
+    public void massMerge(List<?> toMerge) {
+        securedBasicRepository.massMerge(toMerge);
+    }
 }

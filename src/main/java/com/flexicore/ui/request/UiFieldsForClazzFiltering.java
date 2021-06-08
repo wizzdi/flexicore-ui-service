@@ -2,9 +2,9 @@ package com.flexicore.ui.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.flexicore.model.Clazz;
-import com.flexicore.model.FilteringInformationHolder;
+import com.wizzdi.flexicore.security.request.PaginationFilter;
 
-public class UiFieldsForClazzFiltering extends FilteringInformationHolder {
+public class UiFieldsForClazzFiltering extends PaginationFilter  {
 
 	private String clazzName;
 	@JsonIgnore

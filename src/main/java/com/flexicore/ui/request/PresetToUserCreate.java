@@ -1,14 +1,14 @@
 package com.flexicore.ui.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.flexicore.model.User;
+import com.flexicore.model.SecurityUser;
 import com.flexicore.ui.model.Preset;
 
 public class PresetToUserCreate extends PresetToEntityCreate {
 
 	private String userId;
 	@JsonIgnore
-	private User user;
+	private SecurityUser securityUser;
 
 	public String getUserId() {
 		return userId;
@@ -20,12 +20,12 @@ public class PresetToUserCreate extends PresetToEntityCreate {
 	}
 
 	@JsonIgnore
-	public User getUser() {
-		return user;
+	public SecurityUser getUser() {
+		return securityUser;
 	}
 
-	public <T extends PresetToUserCreate> T setUser(User user) {
-		this.user = user;
+	public <T extends PresetToUserCreate> T setUser(SecurityUser securityUser) {
+		this.securityUser = securityUser;
 		return (T) this;
 	}
 }

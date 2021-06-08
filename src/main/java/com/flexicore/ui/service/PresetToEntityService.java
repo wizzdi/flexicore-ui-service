@@ -1,34 +1,38 @@
 package com.flexicore.ui.service;
 
-import com.flexicore.annotations.plugins.PluginInfo;
-import com.flexicore.data.jsoncontainers.PaginationResponse;
-import com.flexicore.data.jsoncontainers.SortingOrder;
-import com.flexicore.interfaces.ServicePlugin;
+
 import com.flexicore.model.Baseclass;
-import com.flexicore.model.SortParameter;
-import com.flexicore.request.RoleFilter;
-import com.flexicore.security.SecurityContext;
-import com.flexicore.service.BaseclassNewService;
-import com.flexicore.service.RoleService;
+import com.flexicore.model.Basic;
+import com.flexicore.security.SecurityContextBase;
 import com.flexicore.ui.data.PresetToEntityRepository;
 import com.flexicore.ui.model.*;
 import com.flexicore.ui.request.PreferedPresetRequest;
 import com.flexicore.ui.request.PresetToEntityCreate;
 import com.flexicore.ui.request.PresetToEntityFiltering;
 import com.flexicore.ui.request.PresetToEntityUpdate;
-
-import javax.ws.rs.BadRequestException;
-import java.util.*;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
+import com.wizzdi.flexicore.boot.base.interfaces.Plugin;
+import com.wizzdi.flexicore.security.request.RoleToUserFilter;
+import com.wizzdi.flexicore.security.response.PaginationResponse;
+import com.wizzdi.flexicore.security.service.BaseclassService;
+import com.wizzdi.flexicore.security.service.BasicService;
+import com.wizzdi.flexicore.security.service.RoleToUserService;
 import org.pf4j.Extension;
-import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
-@PluginInfo(version = 1)
+import javax.persistence.metamodel.SingularAttribute;
+import java.util.*;
+import java.util.stream.Collectors;
+
+
 @Extension
 @Component
-public class PresetToEntityService implements ServicePlugin {
+public class PresetToEntityService implements Plugin {
 
 	private static final Map<String, Integer> orderMap;
 
@@ -43,26 +47,23 @@ public class PresetToEntityService implements ServicePlugin {
 	private static final Comparator<PresetToEntity> PRESET_LINK_COMPARATOR = Comparator
 			.comparing(f -> orderMap.getOrDefault(f.getClass()
 					.getCanonicalName(), Integer.MAX_VALUE));
-	@Autowired
-	private Logger logger;
+	private static final Logger logger=LoggerFactory.getLogger(PresetToEntityService.class);
 
-	@PluginInfo(version = 1)
+	
 	@Autowired
 	private PresetToEntityRepository presetToEntityRepository;
 
 	@Autowired
-	private BaseclassNewService baseclassNewService;
+	private BasicService basicService;
 
 	@Autowired
-	private RoleService roleService;
+	private RoleToUserService roleToUserService;
 
 	public PresetToEntity presetToEntityUpdate(
 			PresetToEntityUpdate presetToEntityUpdate,
-			SecurityContext securityContext) {
-		if (presetToEntityUpdateNoMerge(presetToEntityUpdate,
-				presetToEntityUpdate.getPresetToEntity())) {
-			presetToEntityRepository.merge(presetToEntityUpdate
-					.getPresetToEntity());
+			SecurityContextBase securityContext) {
+		if (presetToEntityUpdateNoMerge(presetToEntityUpdate, presetToEntityUpdate.getPresetToEntity())) {
+			presetToEntityRepository.merge(presetToEntityUpdate.getPresetToEntity());
 		}
 		return presetToEntityUpdate.getPresetToEntity();
 	}
@@ -70,26 +71,18 @@ public class PresetToEntityService implements ServicePlugin {
 	public boolean presetToEntityUpdateNoMerge(
 			PresetToEntityCreate presetToEntityCreate,
 			PresetToEntity presetToEntity) {
-		boolean update = baseclassNewService.updateBaseclassNoMerge(
-				presetToEntityCreate, presetToEntity);
-		if (presetToEntityCreate.getPriority() != null
-				&& presetToEntityCreate.getPriority() != presetToEntity
-						.getPriority()) {
+		boolean update = basicService.updateBasicNoMerge(presetToEntityCreate, presetToEntity);
+		if (presetToEntityCreate.getPriority() != null && presetToEntityCreate.getPriority() != presetToEntity.getPriority()) {
 			presetToEntity.setPriority(presetToEntityCreate.getPriority());
 			update = true;
 		}
-		if (presetToEntityCreate.getEnabled() != null
-				&& presetToEntityCreate.getEnabled() != presetToEntity
-						.isEnabled()) {
+		if (presetToEntityCreate.getEnabled() != null && presetToEntityCreate.getEnabled() != presetToEntity.isEnabled()) {
 			presetToEntity.setEnabled(presetToEntityCreate.getEnabled());
 			update = true;
 		}
 
-		if (presetToEntityCreate.getPreset() != null
-				&& (presetToEntity.getLeftside() == null || !presetToEntityCreate
-						.getPreset().getId()
-						.equals(presetToEntity.getLeftside().getId()))) {
-			presetToEntity.setLeftside(presetToEntityCreate.getPreset());
+		if (presetToEntityCreate.getPreset() != null && (presetToEntity.getPreset() == null || !presetToEntityCreate.getPreset().getId().equals(presetToEntity.getPreset().getId()))) {
+			presetToEntity.setPreset(presetToEntityCreate.getPreset());
 			update = true;
 		}
 
@@ -97,44 +90,31 @@ public class PresetToEntityService implements ServicePlugin {
 	}
 
 	public void validate(PresetToEntityCreate presetToEntityCreate,
-			SecurityContext securityContext) {
+			SecurityContextBase securityContext) {
 		String presetId = presetToEntityCreate.getPresetId();
-		Preset preset = presetId != null ? getByIdOrNull(presetId,
-				Preset.class, null, securityContext) : null;
+		Preset preset = presetId != null ? getByIdOrNull(presetId, Preset.class, Preset_.security, securityContext) : null;
 		if (preset == null) {
-			throw new BadRequestException("no preset with id " + presetId);
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"no preset with id " + presetId);
 		}
 		presetToEntityCreate.setPreset(preset);
 	}
 
-	public <T extends Baseclass> T getByIdOrNull(String id, Class<T> c,
-			List<String> batchString, SecurityContext securityContext) {
-		return presetToEntityRepository.getByIdOrNull(id, c, batchString,
-				securityContext);
-	}
-
 	public PaginationResponse<PresetToEntity> getAllPresetToEntities(
 			PresetToEntityFiltering presetToEntityFiltering,
-			SecurityContext securityContext) {
-		List<PresetToEntity> list = listAllPresetToEntities(
-				presetToEntityFiltering, securityContext);
-		long count = presetToEntityRepository.countAllPresetToEntities(
-				presetToEntityFiltering, securityContext);
+			SecurityContextBase securityContext) {
+		List<PresetToEntity> list = listAllPresetToEntities(presetToEntityFiltering, securityContext);
+		long count = presetToEntityRepository.countAllPresetToEntities(presetToEntityFiltering, securityContext);
 		return new PaginationResponse<>(list, presetToEntityFiltering, count);
 	}
 
-	public List<PresetToEntity> listAllPresetToEntities(
-			PresetToEntityFiltering presetToEntityFiltering,
-			SecurityContext securityContext) {
-		return presetToEntityRepository.listAllPresetToEntities(
-				presetToEntityFiltering, securityContext);
+	public List<PresetToEntity> listAllPresetToEntities(PresetToEntityFiltering presetToEntityFiltering, SecurityContextBase securityContext) {
+		return presetToEntityRepository.listAllPresetToEntities(presetToEntityFiltering, securityContext);
 	}
 
 	public PresetToEntity presetToEntityCreate(
 			PresetToEntityCreate presetToEntityCreate,
-			SecurityContext securityContext) {
-		PresetToEntity presetToEntity = presetToEntityCreateNoMerge(
-				presetToEntityCreate, securityContext);
+			SecurityContextBase securityContext) {
+		PresetToEntity presetToEntity = presetToEntityCreateNoMerge(presetToEntityCreate, securityContext);
 		presetToEntityRepository.merge(presetToEntity);
 		return presetToEntity;
 
@@ -142,51 +122,70 @@ public class PresetToEntityService implements ServicePlugin {
 
 	private PresetToEntity presetToEntityCreateNoMerge(
 			PresetToEntityCreate presetToEntityCreate,
-			SecurityContext securityContext) {
-		PresetToEntity presetToEntity = new PresetToEntity(
-				presetToEntityCreate.getName(), securityContext);
+			SecurityContextBase securityContext) {
+		PresetToEntity presetToEntity = new PresetToEntity();
+		presetToEntity.setId(UUID.randomUUID().toString());
 		presetToEntityUpdateNoMerge(presetToEntityCreate, presetToEntity);
+		BaseclassService.createSecurityObjectNoMerge(presetToEntity,securityContext);
 		return presetToEntity;
 	}
 
-	public List<Preset> getPreferredPresets(
-			PreferedPresetRequest preferedPresetRequest,
-			SecurityContext securityContext) {
+	public List<Preset> getPreferredPresets(PreferedPresetRequest preferedPresetRequest, SecurityContextBase securityContext) {
 		Map<String, List<PresetToEntity>> map = new HashMap<>();
 		PresetToEntityFiltering presetToEntityFiltering = new PresetToEntityFiltering();
-		presetToEntityFiltering.setSort(Arrays.asList(new SortParameter(
-				"priority", SortingOrder.DESCENDING)));
-		ArrayList<Baseclass> rightside = new ArrayList<>(
-				securityContext.getTenants());
+		ArrayList<Baseclass> rightside = new ArrayList<>(securityContext.getTenants());
 		rightside.add(securityContext.getUser());
-		rightside.addAll(roleService.listAllRoles(
-				new RoleFilter().setUsers(Collections
-						.singletonList(securityContext.getUser())), null));
-		presetToEntityFiltering.setRightside(rightside);
-		List<PresetToEntity> links = presetToEntityRepository
-				.listAllPresetToEntities(presetToEntityFiltering,
-						securityContext)
-				.parallelStream()
-				.filter(f -> f.getLeftside() != null)
-				.sorted(PRESET_LINK_COMPARATOR.thenComparing(PresetToEntity::getPriority)).collect(Collectors.toList());
+		rightside.addAll(roleToUserService.listAllRoleToUsers(new RoleToUserFilter().setSecurityUsers(Collections.singletonList(securityContext.getUser())), null).stream().map(f->f.getLeftside()).collect(Collectors.toList()));
+		presetToEntityFiltering.setEntities(rightside);
+		List<PresetToEntity> links = presetToEntityRepository.listAllPresetToEntities(presetToEntityFiltering, securityContext).parallelStream().filter(f -> f.getPreset() != null).sorted(PRESET_LINK_COMPARATOR.thenComparing(PresetToEntity::getPriority)).collect(Collectors.toList());
 		for (PresetToEntity presetToEntity : links) {
-			String canonicalName = presetToEntity.getLeftside().getClass()
-					.getCanonicalName();
-			List<PresetToEntity> presetToEntities = map.computeIfAbsent(
-					canonicalName, f -> new ArrayList<>());
-			PresetToEntity last = presetToEntities.isEmpty()
-					? null
-					: presetToEntities.get(0);
-			if (last == null
-					|| (last.getClass().equals(presetToEntity.getClass()) && last
-							.getPriority() == presetToEntity.getPriority())) {
+			String canonicalName = presetToEntity.getPreset().getClass().getCanonicalName();
+			List<PresetToEntity> presetToEntities = map.computeIfAbsent(canonicalName, f -> new ArrayList<>());
+			PresetToEntity last = presetToEntities.isEmpty() ? null : presetToEntities.get(0);
+			if (last == null || (last.getClass().equals(presetToEntity.getClass()) && last.getPriority() == presetToEntity.getPriority())) {
 				presetToEntities.add(presetToEntity);
 			}
 
 		}
-		return map.values().parallelStream().flatMap(List::stream)
-				.map(f -> f.getLeftside()).collect(Collectors.toList());
+		return map.values().parallelStream().flatMap(List::stream).map(f -> f.getPreset()).collect(Collectors.toList());
 
 	}
 
+	public <T extends Baseclass> List<T> listByIds(Class<T> c, Set<String> ids, SecurityContextBase securityContext) {
+		return presetToEntityRepository.listByIds(c, ids, securityContext);
+	}
+
+	public <T extends Baseclass> T getByIdOrNull(String id, Class<T> c, SecurityContextBase securityContext) {
+		return presetToEntityRepository.getByIdOrNull(id, c, securityContext);
+	}
+
+	public <D extends Basic, E extends Baseclass, T extends D> T getByIdOrNull(String id, Class<T> c, SingularAttribute<D, E> baseclassAttribute, SecurityContextBase securityContext) {
+		return presetToEntityRepository.getByIdOrNull(id, c, baseclassAttribute, securityContext);
+	}
+
+	public <D extends Basic, E extends Baseclass, T extends D> List<T> listByIds(Class<T> c, Set<String> ids, SingularAttribute<D, E> baseclassAttribute, SecurityContextBase securityContext) {
+		return presetToEntityRepository.listByIds(c, ids, baseclassAttribute, securityContext);
+	}
+
+	public <D extends Basic, T extends D> List<T> findByIds(Class<T> c, Set<String> ids, SingularAttribute<D, String> idAttribute) {
+		return presetToEntityRepository.findByIds(c, ids, idAttribute);
+	}
+
+	public <T extends Basic> List<T> findByIds(Class<T> c, Set<String> requested) {
+		return presetToEntityRepository.findByIds(c, requested);
+	}
+
+	public <T> T findByIdOrNull(Class<T> type, String id) {
+		return presetToEntityRepository.findByIdOrNull(type, id);
+	}
+
+	@Transactional
+	public void merge(Object base) {
+		presetToEntityRepository.merge(base);
+	}
+
+	@Transactional
+	public void massMerge(List<?> toMerge) {
+		presetToEntityRepository.massMerge(toMerge);
+	}
 }

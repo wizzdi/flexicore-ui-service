@@ -1,11 +1,15 @@
 package com.flexicore.ui.rest;
 
 import com.flexicore.annotations.OperationsInside;
-import com.flexicore.annotations.ProtectedREST;
-import com.flexicore.annotations.plugins.PluginInfo;
-import com.flexicore.data.jsoncontainers.PaginationResponse;
-import com.flexicore.interfaces.RestServicePlugin;
-import com.flexicore.security.SecurityContext;
+import com.flexicore.ui.model.PresetToPreset_;
+import com.wizzdi.flexicore.boot.base.interfaces.Plugin;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
+
+import com.wizzdi.flexicore.security.response.PaginationResponse;
+
+import com.flexicore.security.SecurityContextBase;
 import com.flexicore.ui.model.PresetToPreset;
 import com.flexicore.ui.request.PresetToPresetCreate;
 import com.flexicore.ui.request.PresetToPresetFiltering;
@@ -17,51 +21,51 @@ import org.pf4j.Extension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
+
+
 
 /**
  * Created by Asaf on 04/06/2017.
  */
 
-@PluginInfo(version = 1)
+
 @OperationsInside
-@ProtectedREST
-@Path("plugins/PresetToPresets")
+@RestController
+@RequestMapping("plugins/PresetToPresets")
 @Tag(name = "PresetToPresets", description = "PresetToPreset support free definition of grids using Dynamic Execution as source of data")
 @Tag(name = "Presets")
 @Extension
 @Component
-public class PresetToPresetRESTService implements RestServicePlugin {
+public class PresetToPresetController implements Plugin {
 
-	@PluginInfo(version = 1)
+	
 	@Autowired
 	private PresetToPresetService service;
 
-	@POST
-	@Produces("application/json")
+	
+
 	@Operation(summary = "getAllPresetToPresets", description = "returns all PresetToPresets")
-	@Path("getAllPresetToPresets")
+	@PostMapping("getAllPresetToPresets")
 	public PaginationResponse<PresetToPreset> getAllPresetToPresets(
-			@HeaderParam("authenticationKey") String authenticationKey,
+			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody 
 			PresetToPresetFiltering presetToPresetFiltering,
-			@Context SecurityContext securityContext) {
+			@RequestAttribute SecurityContextBase securityContext) {
 		service.validate(presetToPresetFiltering,securityContext);
 		return service.getAllPresetToPresets(presetToPresetFiltering, securityContext);
 
 	}
 
-	@PUT
-	@Produces("application/json")
+	
+
 	@Operation(summary = "updatePresetToPreset", description = "Updates Dashbaord")
-	@Path("updatePresetToPreset")
+	@PutMapping("updatePresetToPreset")
 	public PresetToPreset updatePresetToPreset(
-			@HeaderParam("authenticationKey") String authenticationKey,
-			PresetToPresetUpdate updatePresetToPreset, @Context SecurityContext securityContext) {
+			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody 
+			PresetToPresetUpdate updatePresetToPreset, @RequestAttribute SecurityContextBase securityContext) {
 		PresetToPreset presetToPreset = updatePresetToPreset.getId() != null ? service.getByIdOrNull(
-				updatePresetToPreset.getId(), PresetToPreset.class, null, securityContext) : null;
+				updatePresetToPreset.getId(), PresetToPreset.class, PresetToPreset_.security, securityContext) : null;
 		if (presetToPreset == null) {
-			throw new BadRequestException("no PresetToPreset with id  " + updatePresetToPreset.getId());
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"no PresetToPreset with id  " + updatePresetToPreset.getId());
 		}
 		updatePresetToPreset.setPresetToPreset(presetToPreset);
 		service.validate(updatePresetToPreset, securityContext);
@@ -70,13 +74,13 @@ public class PresetToPresetRESTService implements RestServicePlugin {
 
 	}
 
-	@POST
-	@Produces("application/json")
+	
+
 	@Operation(summary = "createPresetToPreset", description = "Creates PresetToPreset ")
-	@Path("createPresetToPreset")
+	@PostMapping("createPresetToPreset")
 	public PresetToPreset createPresetToPreset(
-			@HeaderParam("authenticationKey") String authenticationKey,
-			PresetToPresetCreate createPresetToPreset, @Context SecurityContext securityContext) {
+			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody 
+			PresetToPresetCreate createPresetToPreset, @RequestAttribute SecurityContextBase securityContext) {
 		service.validate(createPresetToPreset, securityContext);
 		return service.createPresetToPreset(createPresetToPreset, securityContext);
 

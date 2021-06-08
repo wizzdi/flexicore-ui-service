@@ -15,8 +15,8 @@ public class PresetToRoleContainer {
 		this.id = other.getId();
 		this.enabled = other.isEnabled();
 		this.priority = other.getPriority();
-		this.preset = other.getLeftside();
-		this.role = other.getRightside();
+		this.preset = other.getPreset();
+		this.role = other.getEntity();
 	}
 
 	public String getId() {

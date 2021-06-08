@@ -1,6 +1,6 @@
 package com.flexicore.ui.response;
 
-import com.flexicore.model.Tenant;
+import com.flexicore.model.SecurityTenant;
 import com.flexicore.ui.model.Preset;
 import com.flexicore.ui.model.PresetToTenant;
 
@@ -9,14 +9,14 @@ public class PresetToTenantContainer {
 	private boolean enabled;
 	private int priority;
 	private Preset preset;
-	private Tenant tenant;
+	private SecurityTenant securityTenant;
 
 	public PresetToTenantContainer(PresetToTenant other) {
 		this.id = other.getId();
 		this.enabled = other.isEnabled();
 		this.priority = other.getPriority();
-		this.preset = other.getLeftside();
-		this.tenant = other.getRightside();
+		this.preset = other.getPreset();
+		this.securityTenant = other.getEntity();
 	}
 
 	public String getId() {
@@ -55,12 +55,12 @@ public class PresetToTenantContainer {
 		return (T) this;
 	}
 
-	public Tenant getTenant() {
-		return tenant;
+	public SecurityTenant getTenant() {
+		return securityTenant;
 	}
 
-	public <T extends PresetToTenantContainer> T setTenant(Tenant tenant) {
-		this.tenant = tenant;
+	public <T extends PresetToTenantContainer> T setTenant(SecurityTenant securityTenant) {
+		this.securityTenant = securityTenant;
 		return (T) this;
 	}
 }

@@ -1,7 +1,7 @@
 package com.flexicore.ui.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.flexicore.model.FilteringInformationHolder;
+import com.wizzdi.flexicore.security.request.PaginationFilter;
 import com.flexicore.model.Role;
 import com.flexicore.ui.model.Preset;
 

@@ -1,67 +1,73 @@
 package com.flexicore.ui.service;
 
-import com.flexicore.annotations.plugins.PluginInfo;
-import com.flexicore.data.jsoncontainers.CreatePermissionGroupLinkRequest;
-import com.flexicore.data.jsoncontainers.PaginationResponse;
-import com.flexicore.events.BaseclassCreated;
-import com.flexicore.interfaces.ServicePlugin;
-import com.flexicore.model.Baseclass;
-import com.flexicore.model.PermissionGroup;
-import com.flexicore.model.PermissionGroupToBaseclass;
-import com.flexicore.model.SecuredBasic_;
-import com.flexicore.security.SecurityContext;
-import com.flexicore.service.PermissionGroupService;
-import com.flexicore.service.SecurityService;
+
+import com.flexicore.model.*;
+import com.flexicore.security.SecurityContextBase;
 import com.flexicore.ui.data.GridPresetRepository;
 import com.flexicore.ui.model.GridPreset;
+import com.flexicore.ui.model.GridPreset_;
 import com.flexicore.ui.model.UiField;
 import com.flexicore.ui.request.*;
+import com.wizzdi.flexicore.boot.base.interfaces.Plugin;
 import com.wizzdi.flexicore.boot.dynamic.invokers.model.DynamicExecution;
-import com.wizzdi.flexicore.boot.dynamic.invokers.model.DynamicExecution_;
 import com.wizzdi.flexicore.boot.dynamic.invokers.service.DynamicExecutionService;
+import com.wizzdi.flexicore.security.events.BasicCreated;
+import com.wizzdi.flexicore.security.request.PermissionGroupToBaseclassCreate;
+import com.wizzdi.flexicore.security.response.PaginationResponse;
+import com.wizzdi.flexicore.security.service.BaseclassService;
+import com.wizzdi.flexicore.security.service.PermissionGroupService;
+import com.wizzdi.flexicore.security.service.PermissionGroupToBaseclassService;
 import org.pf4j.Extension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.event.EventListener;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
-import javax.ws.rs.BadRequestException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import javax.persistence.metamodel.SingularAttribute;
+import java.util.*;
 
-@PluginInfo(version = 1)
+
 @Extension
 @Component
-public class GridPresetService implements ServicePlugin {
+public class GridPresetService implements Plugin {
 
 	private static final Logger logger= LoggerFactory.getLogger(GridPresetService.class);
 
-	@PluginInfo(version = 1)
+	
 	@Autowired
 	private PresetService presetService;
 
-	@PluginInfo(version = 1)
+	
 	@Autowired
 	private GridPresetRepository gridPresetRepository;
 
-	@PluginInfo(version = 1)
+	
 	@Autowired
 	private UiFieldService uiFieldService;
 
 	@Autowired
-	private SecurityService securityService;
-	@Autowired
 	private PermissionGroupService permissionGroupService;
 	@Autowired
+	private PermissionGroupToBaseclassService permissionGroupToBaseclassService;
+	@Autowired
 	private DynamicExecutionService dynamicExecutionService;
-	private SecurityContext adminSecurityContext;
+	@Autowired
+	private SecurityContextBase adminSecurityContextBase;
+	@Autowired
+	@Lazy
+	@Qualifier("gridPresetClazz")
+	private Clazz gridPresetClazz;
 
 	public PaginationResponse<GridPreset> getAllGridPresets(
 			GridPresetFiltering gridPresetFiltering,
-			SecurityContext securityContext) {
+			SecurityContextBase securityContext) {
 		List<GridPreset> list = listAllGridPresets(gridPresetFiltering,
 				securityContext);
 		long count = gridPresetRepository.countAllGridPresets(
@@ -71,7 +77,7 @@ public class GridPresetService implements ServicePlugin {
 
 	public List<GridPreset> listAllGridPresets(
 			GridPresetFiltering gridPresetFiltering,
-			SecurityContext securityContext) {
+			SecurityContextBase securityContext) {
 		return gridPresetRepository.listAllGridPresets(gridPresetFiltering,
 				securityContext);
 	}
@@ -104,7 +110,7 @@ public class GridPresetService implements ServicePlugin {
 	}
 
 	public GridPreset updateGridPreset(GridPresetUpdate updatePreset,
-			SecurityContext securityContext) {
+			SecurityContextBase securityContext) {
 		if (updateGridPresetNoMerge(updatePreset, updatePreset.getPreset())) {
 			gridPresetRepository.merge(updatePreset.getPreset());
 		}
@@ -113,7 +119,7 @@ public class GridPresetService implements ServicePlugin {
 	}
 
 	public GridPreset createGridPreset(GridPresetCreate createPreset,
-			SecurityContext securityContext) {
+			SecurityContextBase securityContext) {
 		GridPreset preset = createGridPresetNoMerge(createPreset,
 				securityContext);
 		gridPresetRepository.merge(preset);
@@ -122,64 +128,48 @@ public class GridPresetService implements ServicePlugin {
 	}
 
 	public GridPreset createGridPresetNoMerge(GridPresetCreate createPreset,
-			SecurityContext securityContext) {
-		GridPreset preset = new GridPreset(
-				createPreset.getName(), securityContext);
+			SecurityContextBase securityContext) {
+		GridPreset preset = new GridPreset();
+		preset.setId(UUID.randomUUID().toString());
 		updateGridPresetNoMerge(createPreset, preset);
+		BaseclassService.createSecurityObjectNoMerge(preset,securityContext);
 		return preset;
 	}
 
-	public <T extends Baseclass> T getByIdOrNull(String id, Class<T> c,
-			List<String> batchString, SecurityContext securityContext) {
-		return gridPresetRepository.getByIdOrNull(id, c, batchString,
-				securityContext);
-	}
 
 	public void validateCopy(GridPresetCopy gridPresetCopy,
-			SecurityContext securityContext) {
+			SecurityContextBase securityContext) {
 		validate(gridPresetCopy, securityContext);
 		String gridPresetId = gridPresetCopy.getId();
-		GridPreset gridPreset = gridPresetId != null ? getByIdOrNull(
-				gridPresetId, GridPreset.class, null, securityContext) : null;
+		GridPreset gridPreset = gridPresetId != null ? getByIdOrNull(gridPresetId, GridPreset.class, GridPreset_.security, securityContext) : null;
 		if (gridPreset == null) {
-			throw new BadRequestException("No Grid Preset With id "
-					+ gridPresetId);
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"No Grid Preset With id " + gridPresetId);
 		}
 		gridPresetCopy.setPreset(gridPreset);
 	}
 
 	public void validate(GridPresetCreate createGridPreset,
-			SecurityContext securityContext) {
+			SecurityContextBase securityContext) {
 		String dynamicExecutionId = createGridPreset.getDynamicExecutionId();
-		DynamicExecution dynamicExecution = dynamicExecutionId == null
-				? null
-				: dynamicExecutionService.getByIdOrNull(dynamicExecutionId, DynamicExecution.class, SecuredBasic_.security, securityContext);
+		DynamicExecution dynamicExecution = dynamicExecutionId == null ? null : dynamicExecutionService.getByIdOrNull(dynamicExecutionId, DynamicExecution.class, SecuredBasic_.security, securityContext);
 		if (dynamicExecution == null && dynamicExecutionId != null) {
-			throw new BadRequestException("No Dynamic Execution with id "
-					+ dynamicExecutionId);
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"No Dynamic Execution with id " + dynamicExecutionId);
 		}
 		createGridPreset.setDynamicExecution(dynamicExecution);
 	}
 
 	public GridPreset copyGridPreset(GridPresetCopy gridPresetCopy,
-			SecurityContext securityContext) {
+			SecurityContextBase securityContext) {
 		List<Object> toMerge = new ArrayList<>();
-		GridPresetCreate gridPresetCreate = getCreateContainer(gridPresetCopy
-				.getPreset());
-		GridPreset gridPreset = createGridPresetNoMerge(gridPresetCreate,
-				securityContext);
+		GridPresetCreate gridPresetCreate = getCreateContainer(gridPresetCopy.getPreset());
+		GridPreset gridPreset = createGridPresetNoMerge(gridPresetCreate, securityContext);
 		updateGridPresetNoMerge(gridPresetCopy, gridPreset);
 		toMerge.add(gridPreset);
-		List<UiField> uiFields = uiFieldService.listAllUiFields(
-				new UiFieldFiltering().setPresets(Collections
-						.singletonList(gridPresetCopy.getPreset())),
-				securityContext);
+		List<UiField> uiFields = uiFieldService.listAllUiFields(new UiFieldFiltering().setPresets(Collections.singletonList(gridPresetCopy.getPreset())), securityContext);
 		for (UiField uiField : uiFields) {
-			UiFieldCreate uiFieldCreate = uiFieldService
-					.getUIFieldCreate(uiField);
+			UiFieldCreate uiFieldCreate = uiFieldService.getUIFieldCreate(uiField);
 			uiFieldCreate.setPreset(gridPreset);
-			UiField uiFieldNoMerge = uiFieldService.createUiFieldNoMerge(
-					uiFieldCreate, securityContext);
+			UiField uiFieldNoMerge = uiFieldService.createUiFieldNoMerge(uiFieldCreate, securityContext);
 			toMerge.add(uiFieldNoMerge);
 		}
 		gridPresetRepository.massMerge(toMerge);
@@ -189,42 +179,76 @@ public class GridPresetService implements ServicePlugin {
 
 	@EventListener
 	@Async
-	public void handlePresetPermissionGroupCreated(BaseclassCreated<PermissionGroupToBaseclass> baseclassCreated){
+	public void handlePresetPermissionGroupCreated(BasicCreated<PermissionGroupToBaseclass> baseclassCreated){
 		PermissionGroupToBaseclass permissionGroupToBaseclass = baseclassCreated.getBaseclass();
 		PermissionGroup permissionGroup=permissionGroupToBaseclass.getLeftside();
-		if(permissionGroupToBaseclass.getRightside() instanceof GridPreset){
-			SecurityContext securityContext=getAdminSecurityContext();
-			GridPreset preset= (GridPreset) permissionGroupToBaseclass.getRightside();
-			if(preset.getDynamicExecution()!=null){
-				logger.info("grid preset "+preset.getName() +"("+preset.getId()+") was attached to permission group "+permissionGroup.getName()+"("+permissionGroup.getId()+") , will attach dynamic execution");
-				if(preset.getDynamicExecution().getSecurity()!=null){
-					CreatePermissionGroupLinkRequest createPermissionGroupLinkRequest = new CreatePermissionGroupLinkRequest()
-							.setPermissionGroups(Collections.singletonList(permissionGroup))
-							.setBaseclasses(Collections.singletonList(preset.getDynamicExecution().getSecurity()));
-					permissionGroupService.connectPermissionGroupsToBaseclasses(createPermissionGroupLinkRequest,securityContext);
+		if(permissionGroupToBaseclass.getRightside().getClazz().getId().equals(gridPresetClazz.getId())){
+			SecurityContextBase securityContext=adminSecurityContextBase;
+			Baseclass baseclass= permissionGroupToBaseclass.getRightside();
+			List<GridPreset> presets=listAllGridPresets(new GridPresetFiltering().setRelatedBaseclass(Collections.singletonList(baseclass)),null);
+			for (GridPreset preset : presets) {
+				if(preset.getDynamicExecution()!=null){
+					logger.info("grid preset "+preset.getName() +"("+preset.getId()+") was attached to permission group "+permissionGroup.getName()+"("+permissionGroup.getId()+") , will attach dynamic execution");
+					if(preset.getDynamicExecution().getSecurity()!=null){
+						PermissionGroupToBaseclassCreate createPermissionGroupLinkRequest = new PermissionGroupToBaseclassCreate()
+								.setPermissionGroup(permissionGroup)
+								.setBaseclass(preset.getDynamicExecution().getSecurity());
+						permissionGroupToBaseclassService.createPermissionGroupToBaseclass(createPermissionGroupLinkRequest,securityContext);
+					}
+
+
 				}
-
-
 			}
 
+
 		}
 
-	}
-
-	private SecurityContext getAdminSecurityContext() {
-		if(adminSecurityContext==null){
-			adminSecurityContext=securityService.getAdminUserSecurityContext();
-		}
-		return adminSecurityContext;
 	}
 
 
 	private GridPresetCreate getCreateContainer(GridPreset preset) {
 		return new GridPresetCreate()
 				.setDynamicExecution(preset.getDynamicExecution())
-				.setRelatedClassCanonicalName(
-						preset.getRelatedClassCanonicalName())
+				.setRelatedClassCanonicalName(preset.getRelatedClassCanonicalName())
 				.setDescription(preset.getDescription())
 				.setName(preset.getName());
+	}
+
+	public <T extends Baseclass> List<T> listByIds(Class<T> c, Set<String> ids, SecurityContextBase securityContext) {
+		return gridPresetRepository.listByIds(c, ids, securityContext);
+	}
+
+	public <T extends Baseclass> T getByIdOrNull(String id, Class<T> c, SecurityContextBase securityContext) {
+		return gridPresetRepository.getByIdOrNull(id, c, securityContext);
+	}
+
+	public <D extends Basic, E extends Baseclass, T extends D> T getByIdOrNull(String id, Class<T> c, SingularAttribute<D, E> baseclassAttribute, SecurityContextBase securityContext) {
+		return gridPresetRepository.getByIdOrNull(id, c, baseclassAttribute, securityContext);
+	}
+
+	public <D extends Basic, E extends Baseclass, T extends D> List<T> listByIds(Class<T> c, Set<String> ids, SingularAttribute<D, E> baseclassAttribute, SecurityContextBase securityContext) {
+		return gridPresetRepository.listByIds(c, ids, baseclassAttribute, securityContext);
+	}
+
+	public <D extends Basic, T extends D> List<T> findByIds(Class<T> c, Set<String> ids, SingularAttribute<D, String> idAttribute) {
+		return gridPresetRepository.findByIds(c, ids, idAttribute);
+	}
+
+	public <T extends Basic> List<T> findByIds(Class<T> c, Set<String> requested) {
+		return gridPresetRepository.findByIds(c, requested);
+	}
+
+	public <T> T findByIdOrNull(Class<T> type, String id) {
+		return gridPresetRepository.findByIdOrNull(type, id);
+	}
+
+	@Transactional
+	public void merge(Object base) {
+		gridPresetRepository.merge(base);
+	}
+
+	@Transactional
+	public void massMerge(List<?> toMerge) {
+		gridPresetRepository.massMerge(toMerge);
 	}
 }

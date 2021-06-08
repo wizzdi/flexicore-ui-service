@@ -1,7 +1,7 @@
 package com.flexicore.ui.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.flexicore.model.Tenant;
+import com.flexicore.model.SecurityTenant;
 
 import java.util.HashSet;
 import java.util.List;
@@ -11,7 +11,7 @@ public class PresetToTenantFilter extends PresetLinkFilter {
 
 	private Set<String> tenantIdsForPreset = new HashSet<>();
 	@JsonIgnore
-	private List<Tenant> tenants;
+	private List<SecurityTenant> tenants;
 
 	public <T extends PresetToTenantFilter> T setTenantIdsForPreset(
 			Set<String> tenantIdsForPreset) {
@@ -20,11 +20,11 @@ public class PresetToTenantFilter extends PresetLinkFilter {
 	}
 
 	@JsonIgnore
-	public List<Tenant> getTenants() {
+	public List<SecurityTenant> getTenants() {
 		return tenants;
 	}
 
-	public <T extends PresetToTenantFilter> T setTenants(List<Tenant> tenants) {
+	public <T extends PresetToTenantFilter> T setTenants(List<SecurityTenant> tenants) {
 		this.tenants = tenants;
 		return (T) this;
 	}

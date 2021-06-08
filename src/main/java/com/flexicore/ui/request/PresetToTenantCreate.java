@@ -1,13 +1,13 @@
 package com.flexicore.ui.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.flexicore.model.Tenant;
+import com.flexicore.model.SecurityTenant;
 
 public class PresetToTenantCreate extends PresetToEntityCreate {
 
 	private String preferredTenantId;
 	@JsonIgnore
-	private Tenant preferredTenant;
+	private SecurityTenant preferredTenant;
 
 	public String getPreferredTenantId() {
 		return preferredTenantId;
@@ -20,12 +20,12 @@ public class PresetToTenantCreate extends PresetToEntityCreate {
 	}
 
 	@JsonIgnore
-	public Tenant getPreferredTenant() {
+	public SecurityTenant getPreferredTenant() {
 		return preferredTenant;
 	}
 
 	public <T extends PresetToTenantCreate> T setPreferredTenant(
-			Tenant preferredTenant) {
+			SecurityTenant preferredTenant) {
 		this.preferredTenant = preferredTenant;
 		return (T) this;
 	}
