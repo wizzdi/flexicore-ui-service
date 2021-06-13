@@ -90,7 +90,7 @@ public class FormController implements Plugin {
 	
 
 	@Operation(summary = "copyForm", description = "Copies Form")
-	@RequestMapping("copyForm")
+	@PostMapping("copyForm")
 	public Form copyForm(
 			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody 
 			FormCopy formCopy, @RequestAttribute SecurityContextBase securityContext) {

@@ -57,7 +57,7 @@ public class UiFieldController implements Plugin {
 
 
     @Operation(summary = "linkPresetToUser", description = "Links preset to securityUser")
-    @RequestMapping("linkPresetToUser")
+    @PostMapping("linkPresetToUser")
     public PresetToUser linkPresetToUser(
             @RequestHeader("authenticationKey") String authenticationKey,
             @RequestBody PresetToUserCreate linkPresetToUser,
@@ -106,7 +106,7 @@ public class UiFieldController implements Plugin {
 
 
     @Operation(summary = "getPreferredPresets", description = "returns preferred presets")
-    @RequestMapping("getPreferredPresets")
+    @PostMapping("getPreferredPresets")
     public List<Preset> getPreferredPresets(
             @RequestHeader("authenticationKey") String authenticationKey, @RequestBody
             PreferedPresetRequest linkPresetToRole,
@@ -118,7 +118,7 @@ public class UiFieldController implements Plugin {
 
 
     @Operation(summary = "linkPresetToRole", description = "Links preset to Role")
-    @RequestMapping("linkPresetToRole")
+    @PostMapping("linkPresetToRole")
     public PresetToRole linkPresetToRole(
             @RequestHeader("authenticationKey") String authenticationKey, @RequestBody
             PresetToRoleCreate linkPresetToRole,
@@ -130,7 +130,7 @@ public class UiFieldController implements Plugin {
 
 
     @Operation(summary = "linkPresetToTenant", description = "Links preset to SecurityTenant")
-    @RequestMapping("linkPresetToTenant")
+    @PostMapping("linkPresetToTenant")
     public PresetToTenant linkPresetToTenant(
             @RequestHeader("authenticationKey") String authenticationKey, @RequestBody
             PresetToTenantCreate linkPresetToRole,

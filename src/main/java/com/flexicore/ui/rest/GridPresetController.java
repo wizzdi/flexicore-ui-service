@@ -93,7 +93,7 @@ public class GridPresetController implements Plugin {
 	
 
 	@Operation(summary = "copyGridPreset", description = "Copies Grid Preset")
-	@RequestMapping("copyGridPreset")
+	@PostMapping("copyGridPreset")
 	public GridPreset copyGridPreset(
 			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody 
 			GridPresetCopy gridPresetCopy,
