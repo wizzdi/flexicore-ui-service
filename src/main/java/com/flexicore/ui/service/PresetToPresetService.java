@@ -69,6 +69,10 @@ public class PresetToPresetService implements Plugin {
 			preset.setChildPath(createPreset.getChildPath());
 			update = true;
 		}
+		if (createPreset.getOrdinal() != null && !createPreset.getOrdinal().equals(preset.getOrdinal())) {
+			preset.setOrdinal(createPreset.getOrdinal());
+			update = true;
+		}
 
 		if (createPreset.getParentPath() != null && !createPreset.getParentPath().equals(preset.getParentPath())) {
 			preset.setParentPath(createPreset.getParentPath());

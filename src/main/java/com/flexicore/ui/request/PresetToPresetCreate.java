@@ -15,6 +15,7 @@ public class PresetToPresetCreate extends BasicCreate {
 	private Preset childPreset;
 	private String parentPath;
 	private String childPath;
+	private Integer ordinal;
 
 	public String getParentPresetId() {
 		return parentPresetId;
@@ -71,6 +72,15 @@ public class PresetToPresetCreate extends BasicCreate {
 
 	public <T extends PresetToPresetCreate> T setChildPath(String childPath) {
 		this.childPath = childPath;
+		return (T) this;
+	}
+
+	public Integer getOrdinal() {
+		return ordinal;
+	}
+
+	public <T extends PresetToPresetCreate> T setOrdinal(Integer ordinal) {
+		this.ordinal = ordinal;
 		return (T) this;
 	}
 }

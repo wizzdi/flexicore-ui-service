@@ -45,7 +45,7 @@ public class PresetToPresetRepository implements Plugin {
         Root<PresetToPreset> r = q.from(PresetToPreset.class);
         List<Predicate> preds = new ArrayList<>();
         addPresetToPresetPredicates(preds, cb, q, r, presetToPresetFiltering, securityContext);
-        q.select(r).where(preds.toArray(new Predicate[0]));
+        q.select(r).where(preds.toArray(new Predicate[0])).orderBy(cb.asc(r.get(PresetToPreset_.ordinal)));
         TypedQuery<PresetToPreset> query = em.createQuery(q);
         BasicRepository.addPagination(presetToPresetFiltering, query);
         return query.getResultList();
