@@ -544,4 +544,10 @@ public class UiFieldService implements Plugin {
     public void massMerge(List<?> toMerge) {
         uiFieldRepository.massMerge(toMerge);
     }
+
+    public UiField deleteUIField(UiField uiField, SecurityContextBase securityContext) {
+        uiField.setSoftDelete(true);
+        merge(uiField);
+        return uiField;
+    }
 }

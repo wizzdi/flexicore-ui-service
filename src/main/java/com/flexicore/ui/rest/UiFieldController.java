@@ -44,6 +44,20 @@ public class UiFieldController implements Plugin {
     private UiFieldService service;
 
 
+    @Operation(summary = "deleteUIField", description = "delete UI Field")
+    @DeleteMapping("{id}")
+    public UiField deleteUIField(
+            @RequestHeader("authenticationKey") String authenticationKey,
+            @PathVariable("id") String id,
+            @RequestAttribute SecurityContextBase securityContext) {
+        UiField uiField=id!=null?service.getByIdOrNull(id,UiField.class,UiField_.security,securityContext):null;
+        if(uiField==null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"no ui field with id "+id);
+        }
+        return service.deleteUIField(uiField, securityContext);
+
+    }
+
     @Operation(summary = "listAllUiFields", description = "List all Ui Fields")
     @PostMapping("getAllUiFields")
     public PaginationResponse<UiField> getAllUiFields(

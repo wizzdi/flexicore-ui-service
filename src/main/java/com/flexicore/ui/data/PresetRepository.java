@@ -53,7 +53,7 @@ public class PresetRepository implements Plugin {
     public <T extends Preset> void addPresetPredicates(List<Predicate> preds, CriteriaBuilder cb,
                                                        CommonAbstractCriteria q,
                                                        From<?,T> r, PresetFiltering presetFiltering,SecurityContextBase securityContextBase) {
-        securedBasicRepository.addSecuredBasicPredicates(null,cb,q,r,preds,securityContextBase);
+        securedBasicRepository.addSecuredBasicPredicates(presetFiltering.getBasicPropertiesFilter(),cb,q,r,preds,securityContextBase);
         if (presetFiltering.getExternalIds() != null && !presetFiltering.getExternalIds().isEmpty()) {
             preds.add(r.get(Preset_.externalId).in(presetFiltering.getExternalIds()));
         }
