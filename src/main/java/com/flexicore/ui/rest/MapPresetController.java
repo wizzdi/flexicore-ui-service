@@ -48,7 +48,7 @@ public class MapPresetController implements Plugin {
 	@Operation(summary = "getAllMapPresets", description = "returns all MapPresets")
 	@PostMapping("getAllMapPresets")
 	public PaginationResponse<MapPreset> getAllMapPresets(
-			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody 
+			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody
 			MapPresetFiltering mapPresetFiltering,
 			@RequestAttribute SecurityContextBase securityContext) {
 		return service.getAllMapPresets(mapPresetFiltering, securityContext);
@@ -60,7 +60,7 @@ public class MapPresetController implements Plugin {
 	@Operation(summary = "updateMapPreset", description = "Updates Dashbaord")
 	@PutMapping("updateMapPreset")
 	public MapPreset updateMapPreset(
-			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody 
+			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody
 			MapPresetUpdate updateMapPreset,
 			@RequestAttribute SecurityContextBase securityContext) {
 		MapPreset mapPreset = updateMapPreset.getId() != null ? service.getByIdOrNull(updateMapPreset.getId(), MapPreset.class, MapPreset_.security, securityContext) : null;
@@ -78,7 +78,7 @@ public class MapPresetController implements Plugin {
 	@Operation(summary = "createMapPreset", description = "Creates Ui Field ")
 	@PostMapping("createMapPreset")
 	public MapPreset createMapPreset(
-			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody 
+			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody
 			MapPresetCreate createMapPreset,
 			@RequestAttribute SecurityContextBase securityContext) {
 		service.validate(createMapPreset, securityContext);

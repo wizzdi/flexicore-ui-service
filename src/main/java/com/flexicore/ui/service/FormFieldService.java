@@ -174,4 +174,8 @@ public class FormFieldService implements Plugin {
 	public void merge(Object base) {
 		formFieldRepository.merge(base);
 	}
+
+	public void validateCreate(FormFieldCreate createFormField, SecurityContextBase securityContext) {
+		uiFieldService.validateCreate(createFormField,securityContext);
+	}
 }

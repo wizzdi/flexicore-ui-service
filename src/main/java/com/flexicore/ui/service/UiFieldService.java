@@ -428,6 +428,12 @@ public class UiFieldService implements Plugin {
                 new CategoryCreate().setName(createUiField.getCategoryName()),
                 securityContext);
         createUiField.setCategory(category);
+        String presetId = createUiField.getPresetId();
+        Preset preset = presetId != null ? getByIdOrNull(presetId, Preset.class, Preset_.security, securityContext) : null;
+        if (presetId!=null&&preset == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"no Preset with id " + presetId);
+        }
+        createUiField.setPreset(preset);
     }
 
     public List<UiField> massCreateUiFields(
@@ -549,5 +555,12 @@ public class UiFieldService implements Plugin {
         uiField.setSoftDelete(true);
         merge(uiField);
         return uiField;
+    }
+
+    public void validateCreate(UiFieldCreate uiFieldCreate, SecurityContextBase securityContext) {
+        validate(uiFieldCreate,securityContext);
+        if(uiFieldCreate.getPreset()==null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"preset must be provided");
+        }
     }
 }

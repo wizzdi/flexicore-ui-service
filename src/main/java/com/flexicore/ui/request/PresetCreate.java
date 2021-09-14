@@ -5,11 +5,12 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wizzdi.flexicore.security.request.BasicCreate;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class PresetCreate extends BasicCreate {
 
-    private Map<String, Object> jsonNode;
+    private Map<String, Object> jsonNode=new HashMap<>();
     private String externalId;
 
     public String getExternalId() {

@@ -50,7 +50,7 @@ public class GridPresetController implements Plugin {
 	@Operation(summary = "getAllGridPresets", description = "returns all GridPresets")
 	@PostMapping("getAllGridPresets")
 	public PaginationResponse<GridPreset> getAllGridPresets(
-			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody 
+			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody
 			GridPresetFiltering gridPresetFiltering,
 			@RequestAttribute SecurityContextBase securityContext) {
 		return service.getAllGridPresets(gridPresetFiltering, securityContext);
@@ -62,7 +62,7 @@ public class GridPresetController implements Plugin {
 	@Operation(summary = "updateGridPreset", description = "Updates Dashbaord")
 	@PutMapping("updateGridPreset")
 	public GridPreset updateGridPreset(
-			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody 
+			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody
 			GridPresetUpdate updateGridPreset,
 			@RequestAttribute SecurityContextBase securityContext) {
 		GridPreset gridPreset = updateGridPreset.getId() != null ? service.getByIdOrNull(updateGridPreset.getId(), GridPreset.class, GridPreset_.security, securityContext) : null;
@@ -82,7 +82,7 @@ public class GridPresetController implements Plugin {
 	@Operation(summary = "createGridPreset", description = "Creates Grid Preset ")
 	@PostMapping("createGridPreset")
 	public GridPreset createGridPreset(
-			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody 
+			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody
 			GridPresetCreate createGridPreset,
 			@RequestAttribute SecurityContextBase securityContext) {
 		service.validate(createGridPreset, securityContext);
@@ -95,7 +95,7 @@ public class GridPresetController implements Plugin {
 	@Operation(summary = "copyGridPreset", description = "Copies Grid Preset")
 	@PostMapping("copyGridPreset")
 	public GridPreset copyGridPreset(
-			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody 
+			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody
 			GridPresetCopy gridPresetCopy,
 			@RequestAttribute SecurityContextBase securityContext) {
 		service.validate(gridPresetCopy, securityContext);

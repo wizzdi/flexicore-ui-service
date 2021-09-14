@@ -75,7 +75,7 @@ public class ConfigurationPresetController implements Plugin {
 	@Operation(summary = "createConfigurationPreset", description = "Creates Ui Field ")
 	@PostMapping("createConfigurationPreset")
 	public ConfigurationPreset createConfigurationPreset(
-			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody 
+			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody
 			ConfigurationPresetCreate createConfigurationPreset,
 			@RequestAttribute SecurityContextBase securityContext) {
 		service.validate(createConfigurationPreset, securityContext);

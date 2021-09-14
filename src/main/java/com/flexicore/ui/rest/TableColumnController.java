@@ -52,7 +52,7 @@ public class TableColumnController implements Plugin {
 
 	@PostMapping("getAllTableColumns")
 	public PaginationResponse<TableColumn> getAllTableColumns(
-			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody 
+			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody
 			TableColumnFiltering tableColumnFiltering,
 			@RequestAttribute SecurityContextBase securityContext) {
 		service.validate(tableColumnFiltering, securityContext);
@@ -66,7 +66,7 @@ public class TableColumnController implements Plugin {
 	@Operation(summary = "updateTableColumn", description = "Updates Ui Field")
 	@PutMapping("updateTableColumn")
 	public TableColumn updateTableColumn(
-			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody 
+			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody
 			TableColumnUpdate tableColumnUpdate,
 			@RequestAttribute SecurityContextBase securityContext) {
 		TableColumn tableColumn = tableColumnUpdate.getId() != null ? service
@@ -90,12 +90,7 @@ public class TableColumnController implements Plugin {
 			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody
 			TableColumnCreate createTableColumn,
 			@RequestAttribute SecurityContextBase securityContext) {
-		GridPreset preset = createTableColumn.getPresetId() != null ? service.getByIdOrNull(createTableColumn.getPresetId(), GridPreset.class, GridPreset_.security, securityContext) : null;
-		if (preset == null) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"no GridPreset with id " + createTableColumn.getPresetId());
-		}
-		createTableColumn.setPreset(preset);
-		service.validate(createTableColumn, securityContext);
+		service.validateCreate(createTableColumn, securityContext);
 		return service.createTableColumn(createTableColumn, securityContext);
 
 	}

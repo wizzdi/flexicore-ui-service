@@ -50,7 +50,7 @@ public class FormController implements Plugin {
 	@Operation(summary = "getAllForms", description = "returns all Forms")
 	@PostMapping("getAllForms")
 	public PaginationResponse<Form> getAllForms(
-			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody 
+			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody
 			FormFiltering formFiltering,
 			@RequestAttribute SecurityContextBase securityContext) {
 		return service.getAllForms(formFiltering, securityContext);
@@ -80,7 +80,7 @@ public class FormController implements Plugin {
 	@Operation(summary = "createForm", description = "Creates Form ")
 	@PostMapping("createForm")
 	public Form createForm(
-			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody 
+			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody
 			FormCreate createForm, @RequestAttribute SecurityContextBase securityContext) {
 		service.validate(createForm, securityContext);
 		return service.createForm(createForm, securityContext);
@@ -92,7 +92,7 @@ public class FormController implements Plugin {
 	@Operation(summary = "copyForm", description = "Copies Form")
 	@PostMapping("copyForm")
 	public Form copyForm(
-			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody 
+			@RequestHeader("authenticationKey") String authenticationKey, @RequestBody
 			FormCopy formCopy, @RequestAttribute SecurityContextBase securityContext) {
 		service.validate(formCopy, securityContext);
 		return service.copyForm(formCopy, securityContext);

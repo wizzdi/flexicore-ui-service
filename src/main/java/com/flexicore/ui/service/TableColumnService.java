@@ -164,4 +164,8 @@ public class TableColumnService implements Plugin {
 	public void massMerge(List<?> toMerge) {
 		tableColumnRepository.massMerge(toMerge);
 	}
+
+	public void validateCreate(TableColumnCreate createTableColumn, SecurityContextBase securityContext) {
+		uiFieldService.validateCreate(createTableColumn,securityContext);
+	}
 }

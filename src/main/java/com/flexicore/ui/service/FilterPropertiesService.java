@@ -133,7 +133,7 @@ public class FilterPropertiesService implements Plugin {
         basicService.validate(createFilterProperties, securityContext);
         String baseclassId = createFilterProperties.getBaseclassId();
         Preset baseclass = baseclassId != null ? getByIdOrNull(baseclassId, Preset.class, Preset_.security, securityContext) : null;
-        if (baseclass == null) {
+        if (baseclassId!=null&&baseclass == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No Preset with id " + baseclassId);
         }
         createFilterProperties.setBaseclass(baseclass);
@@ -216,5 +216,12 @@ public class FilterPropertiesService implements Plugin {
     @Transactional
     public void massMerge(List<?> toMerge) {
         filterPropertiesRepository.massMerge(toMerge);
+    }
+
+    public void validateCreate(FilterPropertiesCreate createFilterProperties, SecurityContextBase securityContext) {
+        validate(createFilterProperties,securityContext);
+        if(createFilterProperties.getBaseclass()==null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"baseclassId must be provided");
+        }
     }
 }
