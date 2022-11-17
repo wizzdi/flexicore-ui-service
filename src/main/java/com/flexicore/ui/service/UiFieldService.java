@@ -69,6 +69,7 @@ public class UiFieldService implements Plugin {
     @Lazy
     private Clazz presetClazz;
     @Autowired
+    @Lazy
     private SecurityContextBase adminSecurityContextBase;
 
     public UiField updateUiField(UiFieldUpdate updateUiField, SecurityContextBase securityContext) {

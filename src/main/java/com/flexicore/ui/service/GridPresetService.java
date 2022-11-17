@@ -59,6 +59,7 @@ public class GridPresetService implements Plugin {
 	@Autowired
 	private DynamicExecutionService dynamicExecutionService;
 	@Autowired
+	@Lazy
 	private SecurityContextBase adminSecurityContextBase;
 	@Autowired
 	@Lazy

@@ -56,6 +56,7 @@ public class FilterPropertiesService implements Plugin {
     @Autowired
     private GridPresetService gridPresetService;
     @Autowired
+    @Lazy
     private SecurityContextBase adminSecurityContextBase;
     @Autowired
     @Lazy
